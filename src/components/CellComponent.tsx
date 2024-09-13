@@ -9,7 +9,7 @@ export const CellComponent: React.FC<{ cell: Cell, onTileDrop: (e: React.DragEve
     {cell.tiles && cell.tiles.length > 0 && (
       <div className="tile-stack">
         {cell.tiles.map((tile, index) => (
-          <TileComponent key={tile.id} tile={tile} />
+          <TileComponent key={index} tile={tile} />
         ))}
       </div>
     )}

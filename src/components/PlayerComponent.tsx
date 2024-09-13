@@ -2,10 +2,11 @@ import React from 'react';
 import { TileComponent } from './TileComponent';
 import { Tile } from '../models/Tile';
 import './PlayerComponent.css'; // Update CSS import
-import { Player } from '../models/Player';
+import { useSelector } from 'react-redux';
+import { RootState } from '../store/store';
 
-interface PlayerComponentProps { // Rename interface
-  player: Player;
+interface PlayerComponentProps {
+  playerIndex: number;
 }
 
 const TileStack = ({ name, tiles, isDraggable = false }: { name: string; tiles: Tile[]; isDraggable?: boolean }) => {
@@ -19,7 +20,8 @@ const TileStack = ({ name, tiles, isDraggable = false }: { name: string; tiles: 
   </div>;
 }
 
-export const PlayerComponent: React.FC<PlayerComponentProps> = ({ player }) => {
+export const PlayerComponent: React.FC<PlayerComponentProps> = ({ playerIndex }) => {
+  const player = useSelector((state: RootState) => state.game.players[playerIndex]);
   return (
     <div className="player-piles">
       <h2>{player.name}</h2>
