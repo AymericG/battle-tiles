@@ -1,0 +1,60 @@
+.player-piles {
+    width: 150px;
+    padding: 10px;
+  }
+  
+  .player-piles.left {
+    margin-right: 20px;
+  }
+  
+  .player-piles.right {
+    margin-left: 20px;
+  }
+  
+  .pile {
+    position: relative;
+    margin-bottom: 30px;
+    width: 80px;
+    height: 80px;
+  }
+  
+  .pile::before,
+  .pile::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: #f0f0f0;
+    border: 2px solid #333;
+    border-radius: 8px;
+  }
+  
+  .pile::before {
+    top: -6px;
+    left: -6px;
+    z-index: 1;
+  }
+  
+  .pile::after {
+    top: -3px;
+    left: -3px;
+    z-index: 2;
+  }
+  
+  .pile-content {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background-color: #f0f0f0;
+    border: 2px solid #333;
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 3;
+  }
+  
+  .pile-count {
+    font-size: 24px;
+    font-weight: bold;
+  }
