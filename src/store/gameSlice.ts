@@ -5,7 +5,6 @@ import { Rotatable } from '../models/Rotatable';
 
 interface MoveTilePayload {
   tile: GameObject;
-  playerId: number;
   row: number;
   col: number;
 }
@@ -25,11 +24,11 @@ const gameSlice = createSlice({
         // player.drawPile = remainingDrawPile.reverse();
       },
     moveTile: (state, action: PayloadAction<MoveTilePayload>) => {
-      const { tile, row, col, playerId } = action.payload;
+      const { tile, row, col } = action.payload;
       console.log('moving tile', tile, 'to row', row, 'col', col);
-      const currentPlayer = state.players.find(x => x.id === playerId);
+      const currentPlayer = state.players.find(x => x.id === tile.playerId);
       if (!currentPlayer) {
-        console.error(`Player ${playerId} not found`);
+        console.error(`Player ${tile.playerId} not found`);
         return;
       }
       // Remove the tile from the current player's hand

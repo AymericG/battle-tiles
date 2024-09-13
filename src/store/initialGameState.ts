@@ -5,9 +5,10 @@ import { Action } from '../models/Action';
 import { uuidv4 } from '../utils/uuid';
 import { Faction } from '../models/Faction';
 
-function createUnit(faction: Faction, attacks: { value: number, type: AttackType }[], health: number, initiative: number): Unit {
+function createUnit(playerId: number, faction: Faction, attacks: { value: number, type: AttackType }[], health: number, initiative: number): Unit {
   return {
     id: uuidv4(),
+    playerId,
     type: 'unit',
     faction,
     attacks,
@@ -17,9 +18,10 @@ function createUnit(faction: Faction, attacks: { value: number, type: AttackType
   };
 }
 
-function createModule(faction: Faction, effect: string): Module {
+function createModule(playerId: number, faction: Faction, effect: string): Module {
   return {
     id: uuidv4(),
+    playerId,
     type: 'module',
     faction,
     effect,
@@ -28,9 +30,10 @@ function createModule(faction: Faction, effect: string): Module {
   };
 }
 
-function createAction(faction: Faction, actionType: 'move' | 'attack' | 'special', description: string): Action {
+function createAction(playerId: number, faction: Faction, actionType: 'move' | 'attack' | 'special', description: string): Action {
   return {
     id: uuidv4(),
+    playerId,
     faction,
     type: 'action',
     actionType,
@@ -43,7 +46,7 @@ export const initialGameState: GameState = {
   board: [
     [
       {
-        x: 0, y: 0, tiles: [createUnit(Faction.SpaceWolves,
+        x: 0, y: 0, tiles: [createUnit(1, Faction.SpaceWolves,
           [
             { value: 2, type: 'melee' },
             { value: 1, type: 'range' },
@@ -51,14 +54,14 @@ export const initialGameState: GameState = {
             { value: 0, type: 'melee' },
           ], 3, 1)]
       },
-      { x: 1, y: 0, tiles: [createModule(Faction.SpaceWolves, "Shield")] },
+      { x: 1, y: 0, tiles: [createModule(1, Faction.SpaceWolves, "Shield")] },
       { x: 2, y: 0, tiles: [] },
       { x: 3, y: 0, tiles: [] },
     ],
     [
       { x: 0, y: 1, tiles: [] },
       {
-        x: 1, y: 1, tiles: [createUnit(Faction.SpaceWolves, [
+        x: 1, y: 1, tiles: [createUnit(1, Faction.SpaceWolves, [
           { value: 3, type: 'range' },
           { value: 2, type: 'melee' },
           { value: 1, type: 'range' },
@@ -72,7 +75,7 @@ export const initialGameState: GameState = {
       { x: 0, y: 2, tiles: [] },
       { x: 1, y: 2, tiles: [] },
       {
-        x: 2, y: 2, tiles: [createUnit(Faction.SpaceWolves, [
+        x: 2, y: 2, tiles: [createUnit(1, Faction.SpaceWolves, [
           { value: 3, type: 'range' },
           { value: 2, type: 'melee' },
           { value: 1, type: 'range' },
@@ -84,9 +87,9 @@ export const initialGameState: GameState = {
     [
       { x: 0, y: 3, tiles: [] },
       { x: 1, y: 3, tiles: [] },
-      { x: 2, y: 3, tiles: [createModule(Faction.Orks, "Boost")] },
+      { x: 2, y: 3, tiles: [createModule(2, Faction.Orks, "Boost")] },
       {
-        x: 3, y: 3, tiles: [createUnit(Faction.Orks, [
+        x: 3, y: 3, tiles: [createUnit(2, Faction.Orks, [
           { value: 3, type: 'range' },
           { value: 2, type: 'melee' },
           { value: 1, type: 'range' },
@@ -100,42 +103,42 @@ export const initialGameState: GameState = {
       id: 1,
       name: 'Player 1',
       hand: [
-        createAction(Faction.SpaceWolves, "attack", "Deal 1 damage"),
-        createModule(Faction.SpaceWolves, "Armor"),
-        createAction(Faction.SpaceWolves, "move", "Move 1 space"),
+        createAction(1, Faction.SpaceWolves, "attack", "Deal 1 damage"),
+        createModule(1, Faction.SpaceWolves, "Armor"),
+        createAction(1, Faction.SpaceWolves, "move", "Move 1 space"),
       ],
       drawPile: [
-        createAction(Faction.SpaceWolves, "special", "Block 2 damage"),
-        createModule(Faction.SpaceWolves, "Radar"),
-        createAction(Faction.SpaceWolves, "attack", "Deal 3 damage"),
-        createModule(Faction.SpaceWolves, "Turret"),
-        createAction(Faction.SpaceWolves, "special", "Draw 1 card and deal 1 damage"),
+        createAction(1, Faction.SpaceWolves, "special", "Block 2 damage"),
+        createModule(1, Faction.SpaceWolves, "Radar"),
+        createAction(1, Faction.SpaceWolves, "attack", "Deal 3 damage"),
+        createModule(1, Faction.SpaceWolves, "Turret"),
+        createAction(1, Faction.SpaceWolves, "special", "Draw 1 card and deal 1 damage"),
       ],
       discardPile: [
-        createAction(Faction.SpaceWolves, "special", "Heal 1 HP"),
-        createModule(Faction.SpaceWolves, "Engine"),
-        createAction(Faction.SpaceWolves, "move", "Move 3 spaces"),
+        createAction(1, Faction.SpaceWolves, "special", "Heal 1 HP"),
+        createModule(1, Faction.SpaceWolves, "Engine"),
+        createAction(1, Faction.SpaceWolves, "move", "Move 3 spaces"),
       ]
     },
     {
       id: 2,
       name: 'Player 2',
       hand: [
-        createAction(Faction.Orks, "attack", "Deal 2 damage"),
-        createModule(Faction.Orks, "Cloak"),
-        createAction(Faction.Orks, "special", "Swap positions with an adjacent unit"),
+        createAction(2, Faction.Orks, "attack", "Deal 2 damage"),
+        createModule(2, Faction.Orks, "Cloak"),
+        createAction(2, Faction.Orks, "special", "Swap positions with an adjacent unit"),
       ],
       drawPile: [
-        createAction(Faction.Orks, "special", "Increase damage by 1"),
-        createModule(Faction.Orks, "Stealth"),
-        createAction(Faction.Orks, "move", "Move 2 spaces diagonally"),
-        createModule(Faction.Orks, "Scanner"),
-        createAction(Faction.Orks, "special", "Reflect next attack"),
+        createAction(2, Faction.Orks, "special", "Increase damage by 1"),
+        createModule(2, Faction.Orks, "Stealth"),
+        createAction(2, Faction.Orks, "move", "Move 2 spaces diagonally"),
+        createModule(2, Faction.Orks, "Scanner"),
+        createAction(2, Faction.Orks, "special", "Reflect next attack"),
       ],
       discardPile: [
-        createAction(Faction.Orks, "special", "Draw 2 cards"),
-        createModule(Faction.Orks, "Shield Generator"),
-        createAction(Faction.Orks, "attack", "Deal 1 damage to all adjacent enemies"),
+        createAction(2, Faction.Orks, "special", "Draw 2 cards"),
+        createModule(2, Faction.Orks, "Shield Generator"),
+        createAction(2, Faction.Orks, "attack", "Deal 1 damage to all adjacent enemies"),
       ]
     },
   ],

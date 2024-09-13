@@ -1,5 +1,5 @@
 import React from 'react';
-import { TileComponent } from './Tile';
+import { Tile } from './Tile';
 import { GameObject } from '../models/GameObject';
 import './PlayerBoard.css';
 import { useDispatch, useSelector } from 'react-redux';
@@ -11,14 +11,13 @@ interface PlayerComponentProps {
   playerIndex: number;
 }
 
-const TileSpread = ({ playerId, name, tiles, isDraggable = false }: { playerId: number; name: string; tiles: GameObject[]; isDraggable?: boolean }) => {
+const TileSpread = ({ name, tiles, isDraggable = false }: { name: string; tiles: GameObject[]; isDraggable?: boolean }) => {
     return <div className="pile">
     <h3>{name}</h3>
     <div className="tile-container">
       {tiles.map((tile, index) => (
-        <TileComponent key={index} tile={tile} isDraggable={isDraggable} onDragStart={(e: React.DragEvent<HTMLDivElement>) => {
-          e.dataTransfer.setData('text/plain', JSON.stringify({
-            playerId, tile }));
+        <Tile key={index} tile={tile} isDraggable={isDraggable} onDragStart={(e: React.DragEvent<HTMLDivElement>) => {
+          e.dataTransfer.setData('text/plain', JSON.stringify(tile));
         }}/>
       ))}
     </div>
@@ -31,7 +30,7 @@ export const PlayerBoard: React.FC<PlayerComponentProps> = ({ playerIndex }) => 
   return (
     <div className="player-piles">
       <h2>{player.name}</h2>
-      <TileSpread name='Hand' playerId={player.id} tiles={player.hand} isDraggable={true} />
+      <TileSpread name='Hand' tiles={player.hand} isDraggable={true} />
       <div className="pile">
         <h3>Draw</h3>
         <TileStack showCover={true} tiles={player.drawPile} onClick={() => {

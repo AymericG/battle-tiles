@@ -42,14 +42,14 @@ interface DraggableTile {
   showCover?: boolean;
 }
 
-export const TileComponent: React.FC<TileComponentProps> = ({ tile, isDraggable, onDragStart, showCover }) => {
+export const Tile: React.FC<TileComponentProps> = ({ tile, isDraggable, onDragStart, showCover }) => {
   switch (tile.type) {
     case 'unit':
-      return <UnitTileComponent tile={tile as Unit} isDraggable={isDraggable} onDragStart={onDragStart} showCover={showCover} />;
+      return <UnitTile tile={tile as Unit} isDraggable={isDraggable} onDragStart={onDragStart} showCover={showCover} />;
     case 'module':
-      return <ModuleTileComponent tile={tile as Module} isDraggable={isDraggable} onDragStart={onDragStart} showCover={showCover} />;
+      return <ModuleTile tile={tile as Module} isDraggable={isDraggable} onDragStart={onDragStart} showCover={showCover} />;
     case 'action':
-      return <ActionTileComponent tile={tile as Action} isDraggable={isDraggable} onDragStart={onDragStart} showCover={showCover} />;
+      return <ActionTile tile={tile as Action} isDraggable={isDraggable} onDragStart={onDragStart} showCover={showCover} />;
     default:
       return <div>Unknown tile type</div>;
   }
@@ -70,7 +70,7 @@ const TileCover = ({ faction }: { faction: Faction }) => (
   </div>
 );
 
-const UnitTileComponent: React.FC<{ tile: Unit } & DraggableTile> = ({ tile, isDraggable, onDragStart, showCover }) => (
+const UnitTile: React.FC<{ tile: Unit } & DraggableTile> = ({ tile, isDraggable, onDragStart, showCover }) => (
   <div className="tile unit-tile" draggable={isDraggable}
     style={{ backgroundColor: getFactionColor(tile.faction), transform: `rotate(${tile.rotation * 90}deg)` }}
     onDragStart={onDragStart}>
@@ -104,7 +104,7 @@ const UnitTileComponent: React.FC<{ tile: Unit } & DraggableTile> = ({ tile, isD
   </div>
 );
 
-const ModuleTileComponent: React.FC<{ tile: Module } & DraggableTile> = ({ tile, isDraggable, onDragStart, showCover }) => (
+const ModuleTile: React.FC<{ tile: Module } & DraggableTile> = ({ tile, isDraggable, onDragStart, showCover }) => (
   <div className="tile module-tile" draggable={isDraggable}
     style={{ backgroundColor: getFactionColor(tile.faction), transform: `rotate(${tile.rotation * 90}deg)` }}
     onDragStart={onDragStart}>
@@ -119,7 +119,7 @@ const ModuleTileComponent: React.FC<{ tile: Module } & DraggableTile> = ({ tile,
   </div>
 );
 
-const ActionTileComponent: React.FC<{ tile: Action } & DraggableTile> = ({ tile, isDraggable, onDragStart, showCover }) => (
+const ActionTile: React.FC<{ tile: Action } & DraggableTile> = ({ tile, isDraggable, onDragStart, showCover }) => (
   <div style={{
     backgroundColor: getFactionColor(tile.faction)
   }} className="tile action-tile" draggable={isDraggable}
