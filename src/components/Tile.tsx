@@ -82,11 +82,12 @@ const TileCover = ({ faction }: { faction: Faction }) => (
 
 const UnitTile: React.FC<{ tile: Unit } & DraggableTileProps> = ({ tile, showCover }) => (
   <DraggableTile
-    tile={tile} className="tile unit-tile"
+    tile={tile} className="tile unit-tile with-tooltip"
     style={{ backgroundColor: getFactionColor(tile.faction), transform: `rotate(${tile.rotation * 90}deg)` }}
   >
     {showCover && <TileCover faction={tile.faction} />}
     {!showCover && <>
+      <div className="tooltip">{tile.name}</div>
       <div className='tile-top'>
         <div className='tile-top-left'>
           <span className='unit-attribute-symbol'>ϟ</span>{tile.initiative}

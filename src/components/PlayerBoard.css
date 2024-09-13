@@ -47,8 +47,9 @@
   gap: 50px;
 }
 
-.draw-actions button {
-  padding: 5px 10px;
+button {
+  padding: 1rem;
+  font-size: 1rem;
   background-color: #4CAF50;
   color: white;
   border: none;
@@ -56,6 +57,6 @@
   cursor: pointer;
 }
 
-.draw-actions button:hover {
+button:hover {
   background-color: #45a049;
 }

@@ -2,13 +2,14 @@ import React from 'react';
 import { Tile } from './Tile';
 import { GameObject } from '../models/GameObject';
 import './PlayerBoard.css';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '../store/store';
+import { useDispatch } from 'react-redux';
 import { TileStack } from './TileStack';
-import { drawTile, moveToDiscard, moveToDraw, moveToHand } from '../store/gameSlice';
+import { aiTurn, drawTile, moveToDiscard, moveToDraw, moveToHand } from '../store/gameSlice';
+import { Player } from '../models/Player';
+import { TILES_TO_DRAW } from '../constants';
 
 interface PlayerComponentProps {
-  playerIndex: number;
+  player: Player;
 }
 
 const TileSpread = ({ name, tiles, onDrop }: { name: string; tiles: GameObject[]; onDrop: (e: React.DragEvent<HTMLDivElement>) => void }) => {
@@ -24,8 +25,7 @@ const TileSpread = ({ name, tiles, onDrop }: { name: string; tiles: GameObject[]
   </div>;
 }
 
-export const PlayerBoard: React.FC<PlayerComponentProps> = ({ playerIndex }) => {
-  const player = useSelector((state: RootState) => state.game.players[playerIndex]);
+export const PlayerBoard: React.FC<PlayerComponentProps> = ({ player }) => {
   const dispatch = useDispatch();
 
   const handleDropOnHand = (e: React.DragEvent<HTMLDivElement>) => {
@@ -54,28 +54,31 @@ export const PlayerBoard: React.FC<PlayerComponentProps> = ({ playerIndex }) => 
     e.preventDefault();
   }
 
-  const handleDrawThree = () => {
-    for (let i = 0; i < 3; i++) {
-      dispatch(drawTile({ playerIndex }));
+  const drawCards = () => {
+    for (let i = 0; i < TILES_TO_DRAW; i++) {
+      dispatch(drawTile({ playerId: player.id }));
     }
+  };
+
+  const triggerAITurn = () => {
+    dispatch(aiTurn({ playerId: player.id }));
   };
 
   return (
     <div className="player-piles">
       <h2>{player.name}</h2>
+      <button onClick={drawCards}>Draw {TILES_TO_DRAW}</button>
+      <button onClick={triggerAITurn}>AI turn</button>
       <TileSpread name='Hand' tiles={player.hand} onDrop={handleDropOnHand} />
       <div className="pile">
         <h3>Draw</h3>
-        <div className="draw-actions">
-          <TileStack 
-            showCover={true} 
-            tiles={player.drawPile} 
-            onClick={() => dispatch(drawTile({ playerIndex }))} 
-            onDrop={handleDropOnDraw} 
-            onDragOver={preventDefault} 
-          />
-          <button onClick={handleDrawThree}>Draw 3</button>
-        </div>
+        <TileStack 
+          showCover={true} 
+          tiles={player.drawPile} 
+          onClick={() => dispatch(drawTile({ playerId: player.id }))} 
+          onDrop={handleDropOnDraw} 
+          onDragOver={preventDefault} 
+        />
       </div>
       <div className="pile">
         <h3>Discard</h3>

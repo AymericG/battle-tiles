@@ -1,0 +1,1 @@
+export const TILES_TO_DRAW = 3;
