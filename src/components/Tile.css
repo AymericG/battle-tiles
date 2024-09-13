@@ -33,8 +33,12 @@
     font-size: 0.9em;
   }
 
+  .edge-attack-type, .unit-attribute-symbol {
+    color: rgba(0, 0, 0, .4);
+  }
+
   .tile-label {
-    color: rgba(0, 0, 0, 0.5);
+    color: rgba(0, 0, 0, 0.4);
     font-size: 0.8em;
   }
 
@@ -61,7 +65,7 @@
   }
 
   .tile-left, .tile-right {
-    width: 20px;
+    width: 10px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -82,4 +86,77 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
+}
+
+.tile-cover {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-image: repeating-linear-gradient(135deg, rgba(0, 0, 0, .1), rgba(0, 0, 0, .1) 10px, rgba(0, 0, 0, .0) 10px, rgba(0, 0, 0, .0) 20px);
+}
+
+.tile-cover-content {
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+.triangle {
+  width: 0; 
+  height: 0;
+  position: absolute;
+  z-index: -1;
+  --size: 24px;
+  --small-size: var(--size);
+  --big-size: 16px;
+}
+
+.triangle-narrow {
+  --small-size: calc(var(--size) / 3);
+  --big-size: calc(36px);
+}
+
+.triangle-up {
+  width: 0; 
+  height: 0;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  border-left: var(--small-size) solid transparent;
+  border-right: var(--small-size) solid transparent; 
+  border-bottom: var(--big-size) solid rgba(0, 0, 0, 0.1);
+}
+
+.triangle-down {
+  width: 0; 
+  height: 0;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  border-left: var(--small-size) solid transparent;
+  border-right: var(--small-size) solid transparent;
+  border-top: var(--big-size) solid rgba(0, 0, 0, 0.1);
+}
+
+.triangle-left {
+  width: 0; 
+  height: 0;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  border-top: var(--small-size) solid transparent;
+  border-bottom: var(--small-size) solid transparent; 
+  border-right: var(--big-size) solid rgba(0, 0, 0, 0.1); 
+}
+
+.triangle-right {
+  width: 0; 
+  height: 0;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  border-top: var(--small-size) solid transparent;
+  border-bottom: var(--small-size) solid transparent;
+  border-left: var(--big-size) solid rgba(0, 0, 0, 0.1);
 }

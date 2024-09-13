@@ -34,7 +34,7 @@ export const PlayerBoard: React.FC<PlayerComponentProps> = ({ playerIndex }) => 
       <TileSpread name='Hand' playerId={player.id} tiles={player.hand} isDraggable={true} />
       <div className="pile">
         <h3>Draw</h3>
-        <TileStack tiles={player.drawPile} onClick={() => {
+        <TileStack showCover={true} tiles={player.drawPile} onClick={() => {
           dispatch(drawTile({ playerIndex }));
         }
         } />
