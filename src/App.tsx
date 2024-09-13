@@ -11,7 +11,7 @@ function App() {
   const players = useSelector((state: RootState) => state.game.players);
   
   return (
-    <div className="app-container perspective-enabled">
+    <div className="app-container">
       <div className="player-column">
         <PlayerBoard player={players[0]} />
       </div>

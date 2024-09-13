@@ -33,7 +33,6 @@ export const PlayerBoard: React.FC<PlayerComponentProps> = ({ player }) => {
 
   const handleDropOnHand = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
-    console.log('drop on hand');
     const data = e.dataTransfer.getData('text/plain');
     const tile: GameObject = JSON.parse(data);
     dispatch(moveToHand({ playerId: player.id, tile }));
@@ -72,8 +71,10 @@ export const PlayerBoard: React.FC<PlayerComponentProps> = ({ player }) => {
       '--faction-color': getFactionColor(player.faction)
   } as any}>
       <h2>{player.name}</h2>
-      <button onClick={drawCards}>Draw {TILES_TO_DRAW}</button>
-      <button onClick={triggerAITurn}>AI turn</button>
+      <div>
+        <button onClick={drawCards}>Draw {TILES_TO_DRAW}</button>
+        <button onClick={triggerAITurn}>AI turn</button>
+      </div>
       <div className="pile">
         <h3>Draw</h3>
         <TileStack 

@@ -1,7 +1,7 @@
 .player-piles {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: .5rem;
   }
   
   .player-piles.left {
@@ -51,6 +51,11 @@ button {
   border-radius: 4px;
   cursor: pointer;
   font-weight: bold;
+  color: #000;
+}
+
+button + button {
+  margin-left: 1rem;
 }
 
 button:hover {
