@@ -1,6 +1,7 @@
 import { GameState } from '../models/GameState';
 import { createTauArmy } from './tau';
 import { createOrkArmy } from './ork';
+import { Faction } from '../models/Faction';
 
 const tauArmy = createTauArmy(1);
 const orkArmy = createOrkArmy(2);
@@ -44,6 +45,7 @@ export const initialGameState: GameState = {
     {
       id: 1,
       name: 'Tau player',
+      faction: Faction.Tau,
       hand: [],
       drawPile: tauArmy.deck,
       discardPile: []
@@ -51,6 +53,7 @@ export const initialGameState: GameState = {
     {
       id: 2,
       name: 'Ork player',
+      faction: Faction.Orks,
       hand: [],
       drawPile: orkArmy.deck,
       discardPile: []

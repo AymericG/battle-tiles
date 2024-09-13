@@ -6,26 +6,13 @@ import { Action } from '../models/Action';
 import './Tile.css';
 import { Faction } from '../models/Faction';
 import clsx from 'clsx';
+import { getFactionColor, getFactionName } from '../utils/factions';
 
 interface TileComponentProps {
   tile: GameObject;
   isDraggable?: boolean;
   onDragStart?: (e: React.DragEvent<HTMLDivElement>) => void;
   showCover?: boolean;
-}
-
-const factions = {
-  [Faction.SpaceWolves]: { name: 'Space Wolves', color: 'lightblue' },
-  [Faction.Orks]: { name: 'Orks', color: 'lightgreen' },
-  [Faction.Tau]: { name: 'Tau', color: 'orange' }
-};
-
-function getFactionColor(faction: Faction) {
-  return factions[faction].color;
-}
-
-function getFactionName(faction: Faction) {
-  return factions[faction].name;
 }
 
 interface DraggableTileProps {
@@ -57,7 +44,7 @@ const EdgeAttackComponent = ({ attack, direction }: { attack: { value: number, t
   return (<>
     {attack.value > 0 && <div className={clsx('triangle', { 'triangle-narrow': attack.type === 'range' }, `triangle-${direction}`)}></div>}
     <div className={`edge-attack`}>
-      {attack.value > 0 && <>{attack.value}</>}
+      {attack.value > 1 && <>{attack.value}</>}
     </div>
   </>);
 }

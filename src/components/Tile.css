@@ -2,7 +2,7 @@
 .tile {
     width: 80px;
     height: 80px;
-    border: 1px solid #ccc;
+    border: 2px solid #000;
     box-sizing: border-box;
     border-radius: .25rem;
     display: flex;
@@ -120,7 +120,7 @@
   --size: 24px;
   --small-size: var(--size);
   --big-size: 16px;
-  --color: rgba(0, 0, 0, 0.5);
+  --color: rgba(0, 0, 0, 1);
 }
 
 .triangle-narrow {
@@ -175,7 +175,7 @@
 .rectangle {
   position: absolute;
   z-index: -1;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 1);
   --size: 16px;
   width: var(--size);
   height: var(--size);

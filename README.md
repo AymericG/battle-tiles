@@ -7,6 +7,7 @@
 - [x] Create two armies
 - [x] Differentiate each army visually
 - [x] Track damage easily
-- [ ] Allow to play against AI
+- [x] Change button color based on user faction
+- [x] Allow to play against AI
 - [ ] Allow AI to play against AI
 - [ ] Add walls on the map

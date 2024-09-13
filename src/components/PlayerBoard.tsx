@@ -8,6 +8,7 @@ import { aiTurn, drawTile, moveToDiscard, moveToDraw, moveToHand } from '../stor
 import { Player } from '../models/Player';
 import { TILES_TO_DRAW } from '../constants';
 import { EmptyZone } from './EmptyZone';
+import { getFactionColor } from '../utils/factions';
 
 interface PlayerComponentProps {
   player: Player;
@@ -67,7 +68,9 @@ export const PlayerBoard: React.FC<PlayerComponentProps> = ({ player }) => {
   };
 
   return (
-    <div className="player-piles">
+    <div className="player-piles" style={{
+      '--faction-color': getFactionColor(player.faction)
+  } as any}>
       <h2>{player.name}</h2>
       <button onClick={drawCards}>Draw {TILES_TO_DRAW}</button>
       <button onClick={triggerAITurn}>AI turn</button>
