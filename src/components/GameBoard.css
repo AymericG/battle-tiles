@@ -8,6 +8,9 @@
     display: grid;
     grid-template-columns: repeat(4, 100px);
     grid-gap: .5rem;
+    background-color: #333;
+    padding: .5rem;
+    border-radius: .5rem;
   }
   
 .damage-disc {

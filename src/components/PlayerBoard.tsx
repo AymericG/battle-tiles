@@ -7,6 +7,7 @@ import { TileStack } from './TileStack';
 import { aiTurn, drawTile, moveToDiscard, moveToDraw, moveToHand } from '../store/gameSlice';
 import { Player } from '../models/Player';
 import { TILES_TO_DRAW } from '../constants';
+import { EmptyZone } from './EmptyZone';
 
 interface PlayerComponentProps {
   player: Player;
@@ -18,6 +19,7 @@ const TileSpread = ({ name, tiles, onDrop }: { name: string; tiles: GameObject[]
     }}>
     <h3>{name}</h3>
     <div className="tile-container">
+      {tiles.length === 0 && <EmptyZone />}
       {tiles.map((tile, index) => (
         <Tile key={index} tile={tile} />
       ))}

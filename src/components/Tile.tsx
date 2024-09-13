@@ -14,30 +14,18 @@ interface TileComponentProps {
   showCover?: boolean;
 }
 
+const factions = {
+  [Faction.SpaceWolves]: { name: 'Space Wolves', color: 'lightblue' },
+  [Faction.Orks]: { name: 'Orks', color: 'lightgreen' },
+  [Faction.Tau]: { name: 'Tau', color: 'orange' }
+};
+
 function getFactionColor(faction: Faction) {
-  switch (faction) {
-    case Faction.SpaceWolves:
-      return 'lightblue';
-    case Faction.Orks:
-      return 'lightgreen';
-    case Faction.Tau:
-      return 'lightgray';
-    default:
-      return 'gray';
-  }
+  return factions[faction].color;
 }
 
 function getFactionName(faction: Faction) {
-  switch (faction) {
-    case Faction.SpaceWolves:
-      return 'Space Wolves';
-    case Faction.Orks:
-      return 'Orks';
-    case Faction.Tau:
-      return 'Tau';
-    default:
-      return 'Unknown';
-  }
+  return factions[faction].name;
 }
 
 interface DraggableTileProps {

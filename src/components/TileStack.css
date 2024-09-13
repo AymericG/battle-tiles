@@ -1,7 +1,15 @@
 .tile-stack {
     position: relative;
-    width: 80px;  /* Reduced from 100% to allow for centering */
-    height: 80px; /* Reduced from 100% to allow for centering */
+    height: 80px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    --offset: 2%;
+    --starting-left: 0%;
+}
+
+.cell .tile-stack {
+    --starting-left: 10%;
 }
 
 .tile-stack.clickable {
@@ -12,13 +20,13 @@
     position: absolute;
 }
 
-.tile-stack > *:nth-child(1) { z-index: 1; }
-.tile-stack > *:nth-child(2) { z-index: 2; top: 5%; left: 5%; }
-.tile-stack > *:nth-child(3) { z-index: 3; top: 10%; left: 10%; }
-.tile-stack > *:nth-child(4) { z-index: 4; top: 15%; left: 15%; }
-.tile-stack > *:nth-child(5) { z-index: 5; top: 20%; left: 20%; }
-.tile-stack > *:nth-child(6) { z-index: 6; top: 25%; left: 25%; }
-.tile-stack > *:nth-child(7) { z-index: 7; top: 30%; left: 30%; }
-.tile-stack > *:nth-child(8) { z-index: 8; top: 35%; left: 35%; }
-.tile-stack > *:nth-child(9) { z-index: 9; top: 40%; left: 40%; }
-.tile-stack > *:nth-child(10) { z-index: 10; top: 45%; left: 45%; }
+.tile-stack > *:nth-child(1) { z-index: 1; top: 0; left: var(--starting-left); }
+.tile-stack > *:nth-child(2) { z-index: 2; top: calc(var(--offset) * 1); left: calc(var(--starting-left) + var(--offset) * 1); }
+.tile-stack > *:nth-child(3) { z-index: 3; top: calc(var(--offset) * 2); left: calc(var(--starting-left) + var(--offset) * 2); }
+.tile-stack > *:nth-child(4) { z-index: 4; top: calc(var(--offset) * 3); left: calc(var(--starting-left) + var(--offset) * 3); }
+.tile-stack > *:nth-child(5) { z-index: 5; top: calc(var(--offset) * 4); left: calc(var(--starting-left) + var(--offset) * 4); }
+.tile-stack > *:nth-child(6) { z-index: 6; top: calc(var(--offset) * 5); left: calc(var(--starting-left) + var(--offset) * 5); }
+.tile-stack > *:nth-child(7) { z-index: 7; top: calc(var(--offset) * 6); left: calc(var(--starting-left) + var(--offset) * 6); }
+.tile-stack > *:nth-child(8) { z-index: 8; top: calc(var(--offset) * 7); left: calc(var(--starting-left) + var(--offset) * 7); }
+.tile-stack > *:nth-child(9) { z-index: 9; top: calc(var(--offset) * 8); left: calc(var(--starting-left) + var(--offset) * 8); }
+.tile-stack > *:nth-child(10) { z-index: 10; top: calc(var(--offset) * 9); left: calc(var(--starting-left) + var(--offset) * 9); }

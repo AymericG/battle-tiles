@@ -50,7 +50,7 @@ export const initialGameState: GameState = {
     },
     {
       id: 2,
-      name: 'Player 2',
+      name: 'Ork player',
       hand: [],
       drawPile: orkArmy.deck,
       discardPile: []
