@@ -4,6 +4,10 @@
     height: 80px; /* Reduced from 100% to allow for centering */
 }
 
+.tile-stack.clickable {
+    cursor: pointer;
+}
+
 .tile-stack > * {
     position: absolute;
 }
@@ -12,3 +16,9 @@
 .tile-stack > *:nth-child(2) { z-index: 2; top: 5%; left: 5%; }
 .tile-stack > *:nth-child(3) { z-index: 3; top: 10%; left: 10%; }
 .tile-stack > *:nth-child(4) { z-index: 4; top: 15%; left: 15%; }
+.tile-stack > *:nth-child(5) { z-index: 5; top: 20%; left: 20%; }
+.tile-stack > *:nth-child(6) { z-index: 6; top: 25%; left: 25%; }
+.tile-stack > *:nth-child(7) { z-index: 7; top: 30%; left: 30%; }
+.tile-stack > *:nth-child(8) { z-index: 8; top: 35%; left: 35%; }
+.tile-stack > *:nth-child(9) { z-index: 9; top: 40%; left: 40%; }
+.tile-stack > *:nth-child(10) { z-index: 10; top: 45%; left: 45%; }

@@ -2,9 +2,10 @@ import React from 'react';
 import { TileComponent } from './TileComponent';
 import { Tile } from '../models/Tile';
 import './PlayerComponent.css'; // Update CSS import
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../store/store';
 import { TileStack } from './TileStack';
+import { drawTile } from '../store/gameSlice';
 
 interface PlayerComponentProps {
   playerIndex: number;
@@ -23,13 +24,17 @@ const TileSpread = ({ name, tiles, isDraggable = false }: { name: string; tiles:
 
 export const PlayerComponent: React.FC<PlayerComponentProps> = ({ playerIndex }) => {
   const player = useSelector((state: RootState) => state.game.players[playerIndex]);
+  const dispatch = useDispatch();
   return (
     <div className="player-piles">
       <h2>{player.name}</h2>
       <TileSpread name='Hand' tiles={player.hand} isDraggable={true} />
       <div className="pile">
         <h3>Draw</h3>
-        <TileStack tiles={player.drawPile} />
+        <TileStack tiles={player.drawPile} onClick={() => {
+          dispatch(drawTile({ playerIndex }));
+        }
+        } />
       </div>
       <div className="pile">
         <h3>Discard</h3>

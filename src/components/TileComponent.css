@@ -11,7 +11,8 @@
   }
 
   .tile[draggable] {
-    cursor: pointer;
+    cursor: move;
+    cursor: grab;
   }
   
   .unit-tile {

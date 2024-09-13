@@ -5,10 +5,11 @@ import './TileStack.css';
 
 interface TileStackProps {
   tiles: Tile[];
+  onClick?: () => void;
 }
 
-export const TileStack: React.FC<TileStackProps> = ({ tiles }) => (
-  <div className="tile-stack">
+export const TileStack: React.FC<TileStackProps> = ({ tiles, onClick }) => (
+  <div className={"tile-stack" + (onClick ? " clickable" : "")} onClick={onClick}>
     {tiles.map((tile, index) => (
       <TileComponent key={index} tile={tile} />
     ))}

@@ -1,5 +1,4 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { GameState } from '../models/GameState';
 import { initialGameState } from '../initialGameState';
 import { Tile } from '../models/Tile';
 
@@ -13,9 +12,17 @@ const gameSlice = createSlice({
   name: 'game',
   initialState: initialGameState,
   reducers: {
-    updateGameState: (state, action: PayloadAction<GameState>) => {
-      return action.payload;
-    },
+    drawTile: (state, action: PayloadAction<{ playerIndex: number }>) => {
+        const { playerIndex } = action.payload;
+        const player = state.players[playerIndex];
+        if (!player || !player.drawPile.length) { return; }
+        console.log('draw pile', player.drawPile);
+        const drawnTile = player.drawPile.pop();
+        if (drawnTile) {
+          player.hand.push(drawnTile);
+        }
+        // player.drawPile = remainingDrawPile.reverse();
+      },
     moveTile: (state, action: PayloadAction<MoveTilePayload>) => {
       const { tile, row, col } = action.payload;
       const currentPlayer = state.players[state.currentPlayerIndex];
@@ -37,5 +44,5 @@ const gameSlice = createSlice({
   },
 });
 
-export const { updateGameState, moveTile } = gameSlice.actions;
+export const { drawTile, moveTile } = gameSlice.actions;
 export default gameSlice.reducer;
