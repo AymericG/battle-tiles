@@ -2,7 +2,7 @@
 
 - [x] Fix drag and drop
 - [] Implement drag and drop from cell
-- [] Add module connectors
+- [x] Add module connectors
 - [x] Hide draw pile
 - [] Create two armies
 - [] Differentiate each army visually

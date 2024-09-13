@@ -57,7 +57,7 @@ export const TileComponent: React.FC<TileComponentProps> = ({ tile, isDraggable,
 
 const EdgeAttackComponent = ({ attack, direction }: { attack: { value: number, type: string }, direction: string }) => {
   return (<>
-    {attack.value > 0 &&<div className={clsx('triangle', { 'triangle-narrow': attack.type === 'range'}, `triangle-${direction}`)}></div>}
+    {attack.value > 0 && <div className={clsx('triangle', { 'triangle-narrow': attack.type === 'range' }, `triangle-${direction}`)}></div>}
     <div className={`edge-attack`}>
       {attack.value > 0 && <>{attack.value}</>}
     </div>
@@ -78,13 +78,13 @@ const UnitTileComponent: React.FC<{ tile: Unit } & DraggableTile> = ({ tile, isD
     {!showCover && <>
       <div className='tile-top'>
         <div className='tile-top-left'>
-        <span className='unit-attribute-symbol'>ϟ</span>{tile.initiative}
+          <span className='unit-attribute-symbol'>ϟ</span>{tile.initiative}
         </div>
         <div className='tile-top-center'>
           <EdgeAttackComponent attack={tile.attacks[0]} direction='down' />
         </div>
         <div className='tile-top-right'>
-        <span className='unit-attribute-symbol'>♥</span>{tile.health}
+          <span className='unit-attribute-symbol'>♥</span>{tile.health}
         </div>
       </div>
       <div className='tile-middle'>
@@ -109,7 +109,13 @@ const ModuleTileComponent: React.FC<{ tile: Module } & DraggableTile> = ({ tile,
     style={{ backgroundColor: getFactionColor(tile.faction), transform: `rotate(${tile.rotation * 90}deg)` }}
     onDragStart={onDragStart}>
     {showCover && <TileCover faction={tile.faction} />}
-    {!showCover && <div className="module-content"><div className="tile-label">Module</div>{tile.effect}</div>}
+    {!showCover && <div className="module-content">
+      {tile.connected[0] && <div className="rectangle rectangle-top"></div>}
+      {tile.connected[1] && <div className="rectangle rectangle-right"></div>}
+      {tile.connected[2] && <div className="rectangle rectangle-bottom"></div>}
+      {tile.connected[3] && <div className="rectangle rectangle-left"></div>}
+      <div className="tile-label">Module</div>{tile.effect}
+    </div>}
   </div>
 );
 

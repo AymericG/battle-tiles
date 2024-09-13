@@ -24,6 +24,7 @@ function createModule(faction: Faction, effect: string): Module {
     faction,
     effect,
     rotation: 0,
+    connected: [true, true, true, true],
   };
 }
 

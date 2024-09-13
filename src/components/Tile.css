@@ -10,6 +10,7 @@
     justify-content: center;
     align-items: stretch;
     text-align: center;
+    user-select: none;
   }
 
   .tile[draggable] {
@@ -31,6 +32,15 @@
   
   .module-content, .action-content {
     font-size: 0.9em;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .edge-attack {
+    color: #fff;
   }
 
   .edge-attack-type, .unit-attribute-symbol {
@@ -110,6 +120,7 @@
   --size: 24px;
   --small-size: var(--size);
   --big-size: 16px;
+  --color: rgba(0, 0, 0, 0.5);
 }
 
 .triangle-narrow {
@@ -125,7 +136,7 @@
   transform: translateX(-50%);
   border-left: var(--small-size) solid transparent;
   border-right: var(--small-size) solid transparent; 
-  border-bottom: var(--big-size) solid rgba(0, 0, 0, 0.1);
+  border-bottom: var(--big-size) solid var(--color);
 }
 
 .triangle-down {
@@ -136,7 +147,7 @@
   transform: translateX(-50%);
   border-left: var(--small-size) solid transparent;
   border-right: var(--small-size) solid transparent;
-  border-top: var(--big-size) solid rgba(0, 0, 0, 0.1);
+  border-top: var(--big-size) solid var(--color);
 }
 
 .triangle-left {
@@ -147,7 +158,7 @@
   transform: translateY(-50%);
   border-top: var(--small-size) solid transparent;
   border-bottom: var(--small-size) solid transparent; 
-  border-right: var(--big-size) solid rgba(0, 0, 0, 0.1); 
+  border-right: var(--big-size) solid var(--color); 
 }
 
 .triangle-right {
@@ -158,5 +169,42 @@
   transform: translateY(-50%);
   border-top: var(--small-size) solid transparent;
   border-bottom: var(--small-size) solid transparent;
-  border-left: var(--big-size) solid rgba(0, 0, 0, 0.1);
+  border-left: var(--big-size) solid var(--color);
+}
+
+.rectangle {
+  position: absolute;
+  z-index: -1;
+  background-color: rgba(0, 0, 0, 0.5);
+  --size: 16px;
+  width: var(--size);
+  height: var(--size);
+}
+
+.rectangle-top {
+  top: 0;
+  left: 50%;
+  height: var(--size);
+  transform: translateX(-50%);
+}
+
+.rectangle-bottom {
+  bottom: 0;
+  left: 50%;
+  height: var(--size);
+  transform: translateX(-50%);
+}
+
+.rectangle-left {
+  top: 50%;
+  left: 0;
+  width: var(--size);
+  transform: translateY(-50%);
+}
+
+.rectangle-right {
+  top: 50%;
+  right: 0;
+  width: var(--size);
+  transform: translateY(-50%);
 }
