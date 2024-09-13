@@ -1,11 +1,7 @@
 import { RotatableTile } from './RotatableTile';
 
-export class ModuleTile extends RotatableTile {
-  type: 'module' = 'module';
+export interface ModuleTile extends RotatableTile {
+  type: 'module';
   effect: string;
-
-  constructor(id: number, effect: string, rotation: number = 0) {
-    super(id, rotation);
-    this.effect = effect;
-  }
+  id: number;
 }

@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { initialGameState } from '../initialGameState';
+import { initialGameState } from './initialGameState';
 import { Tile } from '../models/Tile';
 import { RotatableTile } from '../models/RotatableTile';
 
@@ -17,7 +17,6 @@ const gameSlice = createSlice({
         const { playerIndex } = action.payload;
         const player = state.players[playerIndex];
         if (!player || !player.drawPile.length) { return; }
-        console.log('draw pile', player.drawPile);
         const drawnTile = player.drawPile.pop();
         if (drawnTile) {
           player.hand.push(drawnTile);
@@ -51,7 +50,8 @@ const gameSlice = createSlice({
             const tile = cell.tiles.find((tile: Tile) => tile.id === tileId);
             if (tile) {
                 const rotatableTile = tile as RotatableTile;
-                rotatableTile.rotation = (rotatableTile.rotation + 1) % 4;
+                const newRotation = (rotatableTile.rotation + 1) % 4;
+                rotatableTile.rotation = newRotation < 0 ? 3 : newRotation;
             }
         }
 
