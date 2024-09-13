@@ -40,13 +40,3 @@
     flex-wrap: wrap;
     gap: 0.5rem;
   }
-  
-  .tile {
-    width: 60px;
-    height: 60px;
-    border: 1px solid #ccc;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 0.8rem;
-  }

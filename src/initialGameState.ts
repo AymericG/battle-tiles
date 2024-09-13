@@ -19,14 +19,24 @@ export const initialGameState: GameState = {
       ],
       [
         { x: 0, y: 1, tiles: [] },
-        { x: 1, y: 1, tiles: [new ActionTile(3, "move", "Move 2 spaces")] },
+        { x: 1, y: 1, tiles: [new UnitTile(3, [
+          { value: 3, type: 'range' },
+          { value: 2, type: 'melee' },
+          { value: 1, type: 'range' },
+          { value: 2, type: 'melee' },
+        ], 2, 2)] },
         { x: 2, y: 1, tiles: [] },
         { x: 3, y: 1, tiles: [] },
       ],
       [
         { x: 0, y: 2, tiles: [] },
         { x: 1, y: 2, tiles: [] },
-        { x: 2, y: 2, tiles: [new ActionTile(4, "attack", "Deal 2 damage")] },
+        { x: 2, y: 2, tiles: [new UnitTile(4, [
+          { value: 3, type: 'range' },
+          { value: 2, type: 'melee' },
+          { value: 1, type: 'range' },
+          { value: 2, type: 'melee' },
+        ], 2, 2)] },
         { x: 3, y: 2, tiles: [] },
       ],
       [

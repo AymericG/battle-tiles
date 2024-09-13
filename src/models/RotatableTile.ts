@@ -9,8 +9,4 @@ export abstract class RotatableTile implements Tile {
     this.id = id;
     this.rotation = rotation;
   }
-
-  rotate(degrees: number): void {
-    this.rotation = (this.rotation + degrees) % 360;
-  }
 }

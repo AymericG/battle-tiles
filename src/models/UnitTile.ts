@@ -27,6 +27,7 @@ export class UnitTile extends RotatableTile {
   }
 
   getAttackForEdge(edge: number): EdgeAttack {
+    console.log('edge', edge, 'rotation', this.rotation, 'result', (edge + this.rotation) % 4);
     return this.attacks[(edge + this.rotation) % 4];
   }
 }

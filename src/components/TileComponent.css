@@ -2,7 +2,9 @@
 .tile {
     width: 80px;
     height: 80px;
-    border: 1px solid #000;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+    border-radius: .25rem;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -16,15 +18,15 @@
   }
   
   .unit-tile {
-    background-color: #f0f0f0;
+    background-color: #ffe0e0;
   }
   
   .module-tile {
-    background-color: #e0e0ff;
+    background-color: #e0fff2;
   }
   
   .action-tile {
-    background-color: #ffe0e0;
+    background-color: #e2ebff;
   }
   
   .unit-info {

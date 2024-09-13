@@ -54,13 +54,13 @@ const UnitTileComponent: React.FC<{ tile: UnitTile } & DraggableTile> = ({ tile,
 const ModuleTileComponent: React.FC<{ tile: ModuleTile } & DraggableTile> = ({ tile, isDraggable, onDragStart }) => (
   <div className="tile module-tile" draggable={isDraggable}
   onDragStart={onDragStart}>
-    <div className="module-content">Module: {tile.effect}</div>
+    <div className="module-content">{tile.effect}</div>
   </div>
 );
 
 const ActionTileComponent: React.FC<{ tile: ActionTile } & DraggableTile> = ({ tile, isDraggable, onDragStart }) => (
   <div className="tile action-tile" draggable={isDraggable}
   onDragStart={onDragStart}>
-    <div className="action-content">Action: {tile.actionType}</div>
+    <div className="action-content">{tile.actionType}</div>
   </div>
 );

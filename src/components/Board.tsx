@@ -13,7 +13,6 @@ export function Board() {
         e.preventDefault();
         const tileData = e.dataTransfer.getData('text/plain');
         const tile: Tile = JSON.parse(tileData);
-        
         dispatch(moveTile({ tile, row, col }));
     };
 
