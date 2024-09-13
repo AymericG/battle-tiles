@@ -10,6 +10,17 @@ interface TileComponentProps {
   isDraggable?: boolean;
 }
 
+function getFactionColor(faction: string) {
+  switch (faction) {
+    case 'SpaceWolves':
+      return 'lightblue';
+    case 'Orks':
+      return 'lightgreen';
+    default:
+      return 'gray';
+  }
+}
+
 interface DraggableTile {
   isDraggable?: boolean;
   onDragStart: (e: React.DragEvent<HTMLDivElement>) => void;
@@ -34,7 +45,7 @@ export const TileComponent: React.FC<TileComponentProps> = ({ tile, isDraggable 
 
 const UnitTileComponent: React.FC<{ tile: Unit } & DraggableTile> = ({ tile, isDraggable, onDragStart }) => (
   <div className="tile unit-tile" draggable={isDraggable}
-    style={{ transform: `rotate(${tile.rotation * 90}deg)` }}
+    style={{ backgroundColor: getFactionColor(tile.faction), transform: `rotate(${tile.rotation * 90}deg)` }}
     onDragStart={onDragStart}>
     <div className="unit-info">
       H{tile.health} I{tile.initiative}
@@ -54,15 +65,17 @@ const UnitTileComponent: React.FC<{ tile: Unit } & DraggableTile> = ({ tile, isD
 
 const ModuleTileComponent: React.FC<{ tile: Module } & DraggableTile> = ({ tile, isDraggable, onDragStart }) => (
   <div className="tile module-tile" draggable={isDraggable}
-    style={{ transform: `rotate(${tile.rotation * 90}deg)` }}
+    style={{ backgroundColor: getFactionColor(tile.faction), transform: `rotate(${tile.rotation * 90}deg)` }}
     onDragStart={onDragStart}>
-    <div className="module-content">{tile.effect}</div>
+    <div className="module-content"><div className="tile-label">Module</div>{tile.effect}</div>
   </div>
 );
 
 const ActionTileComponent: React.FC<{ tile: Action } & DraggableTile> = ({ tile, isDraggable, onDragStart }) => (
-  <div className="tile action-tile" draggable={isDraggable}
+  <div style={{
+    backgroundColor: getFactionColor(tile.faction)
+  }} className="tile action-tile" draggable={isDraggable}
     onDragStart={onDragStart}>
-    <div className="action-content">{tile.actionType}</div>
+    <div className="action-content"><div className="tile-label">Action</div>{tile.actionType}</div>
   </div>
 );

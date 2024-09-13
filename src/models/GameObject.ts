@@ -1,4 +1,7 @@
+import { Faction } from "./Faction";
+
 export interface GameObject {
-    id: number;
+    id: string;
     type: 'unit' | 'module' | 'action';
+    faction: Faction;
   }

@@ -1,5 +1,5 @@
 import './App.css';
-import { Board } from './components/Board';
+import { GameBoard } from './components/GameBoard';
 import { PlayerBoard } from './components/PlayerBoard';
 
 function App() {
@@ -9,7 +9,7 @@ function App() {
         <PlayerBoard playerIndex={0} />
       </div>
       <div className="board-column">
-        <Board />
+        <GameBoard />
       </div>
       <div className="player-column">
         <PlayerBoard playerIndex={1} />

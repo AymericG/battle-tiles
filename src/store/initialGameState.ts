@@ -2,11 +2,14 @@ import { GameState } from '../models/GameState';
 import { AttackType, Unit } from '../models/Unit';
 import { Module } from '../models/Module';
 import { Action } from '../models/Action';
+import { uuidv4 } from '../utils/uuid';
+import { Faction } from '../models/Faction';
 
-function createUnit(id: number, attacks: { value: number, type: AttackType }[], health: number, initiative: number): Unit {
+function createUnit(faction: Faction, attacks: { value: number, type: AttackType }[], health: number, initiative: number): Unit {
   return {
-    id,
+    id: uuidv4(),
     type: 'unit',
+    faction,
     attacks,
     health,
     initiative,
@@ -14,18 +17,20 @@ function createUnit(id: number, attacks: { value: number, type: AttackType }[], 
   };
 }
 
-function createModule(id: number, effect: string): Module {
+function createModule(faction: Faction, effect: string): Module {
   return {
-    id,
+    id: uuidv4(),
     type: 'module',
+    faction,
     effect,
     rotation: 0,
   };
 }
 
-function createAction(id: number, actionType: 'move' | 'attack' | 'special', description: string): Action {
+function createAction(faction: Faction, actionType: 'move' | 'attack' | 'special', description: string): Action {
   return {
-    id,
+    id: uuidv4(),
+    faction,
     type: 'action',
     actionType,
     description
@@ -34,96 +39,104 @@ function createAction(id: number, actionType: 'move' | 'attack' | 'special', des
 
 // Initialize game state
 export const initialGameState: GameState = {
-    board: [
-      [
-        { x: 0, y: 0, tiles: [createUnit(1,
+  board: [
+    [
+      {
+        x: 0, y: 0, tiles: [createUnit(Faction.SpaceWolves,
           [
-          { value: 2, type: 'melee' },
-          { value: 1, type: 'range' },
-          { value: 3, type: 'melee' },
-          { value: 0, type: 'melee' },
-        ], 3, 1)] },
-        { x: 1, y: 0, tiles: [createModule(2, "Shield")] },
-        { x: 2, y: 0, tiles: [] },
-        { x: 3, y: 0, tiles: [] },
-      ],
-      [
-        { x: 0, y: 1, tiles: [] },
-        { x: 1, y: 1, tiles: [createUnit(3, [
-          { value: 3, type: 'range' },
-          { value: 2, type: 'melee' },
-          { value: 1, type: 'range' },
-          { value: 2, type: 'melee' },
-        ], 2, 2)] },
-        { x: 2, y: 1, tiles: [] },
-        { x: 3, y: 1, tiles: [] },
-      ],
-      [
-        { x: 0, y: 2, tiles: [] },
-        { x: 1, y: 2, tiles: [] },
-        { x: 2, y: 2, tiles: [createUnit(4, [
-          { value: 3, type: 'range' },
-          { value: 2, type: 'melee' },
-          { value: 1, type: 'range' },
-          { value: 2, type: 'melee' },
-        ], 2, 2)] },
-        { x: 3, y: 2, tiles: [] },
-      ],
-      [
-        { x: 0, y: 3, tiles: [] },
-        { x: 1, y: 3, tiles: [] },
-        { x: 2, y: 3, tiles: [createModule(5, "Boost")] },
-        { x: 3, y: 3, tiles: [createUnit(6, [
-          { value: 3, type: 'range' },
-          { value: 2, type: 'melee' },
-          { value: 1, type: 'range' },
-          { value: 2, type: 'melee' },
-        ], 2, 2)] },
-      ],
-    ],
-    players: [
-      { 
-        id: 1, 
-        name: 'Player 1', 
-        hand: [
-          createAction(13, "attack", "Deal 1 damage"),
-          createModule(14, "Armor"),
-          createAction(15, "move", "Move 1 space"),
-        ],
-        drawPile: [
-          createAction(7, "special", "Block 2 damage"),
-          createModule(8, "Radar"),
-          createAction(16, "attack", "Deal 3 damage"),
-          createModule(17, "Turret"),
-          createAction(18, "special", "Draw 1 card and deal 1 damage"),
-        ],
-        discardPile: [
-          createAction(9, "special", "Heal 1 HP"),
-          createModule(19, "Engine"),
-          createAction(20, "move", "Move 3 spaces"),
-        ]
+            { value: 2, type: 'melee' },
+            { value: 1, type: 'range' },
+            { value: 3, type: 'melee' },
+            { value: 0, type: 'melee' },
+          ], 3, 1)]
       },
-      { 
-        id: 2, 
-        name: 'Player 2', 
-        hand: [
-          createAction(21, "attack", "Deal 2 damage"),
-          createModule(22, "Cloak"),
-          createAction(23, "special", "Swap positions with an adjacent unit"),
-        ],
-        drawPile: [
-          createAction(10, "special", "Increase damage by 1"),
-          createModule(11, "Stealth"),
-          createAction(24, "move", "Move 2 spaces diagonally"),
-          createModule(25, "Scanner"),
-          createAction(26, "special", "Reflect next attack"),
-        ],
-        discardPile: [
-          createAction(12, "special", "Draw 2 cards"),
-          createModule(27, "Shield Generator"),
-          createAction(28, "attack", "Deal 1 damage to all adjacent enemies"),
-        ]
+      { x: 1, y: 0, tiles: [createModule(Faction.SpaceWolves, "Shield")] },
+      { x: 2, y: 0, tiles: [] },
+      { x: 3, y: 0, tiles: [] },
+    ],
+    [
+      { x: 0, y: 1, tiles: [] },
+      {
+        x: 1, y: 1, tiles: [createUnit(Faction.SpaceWolves, [
+          { value: 3, type: 'range' },
+          { value: 2, type: 'melee' },
+          { value: 1, type: 'range' },
+          { value: 2, type: 'melee' },
+        ], 2, 2)]
+      },
+      { x: 2, y: 1, tiles: [] },
+      { x: 3, y: 1, tiles: [] },
+    ],
+    [
+      { x: 0, y: 2, tiles: [] },
+      { x: 1, y: 2, tiles: [] },
+      {
+        x: 2, y: 2, tiles: [createUnit(Faction.SpaceWolves, [
+          { value: 3, type: 'range' },
+          { value: 2, type: 'melee' },
+          { value: 1, type: 'range' },
+          { value: 2, type: 'melee' },
+        ], 2, 2)]
+      },
+      { x: 3, y: 2, tiles: [] },
+    ],
+    [
+      { x: 0, y: 3, tiles: [] },
+      { x: 1, y: 3, tiles: [] },
+      { x: 2, y: 3, tiles: [createModule(Faction.Orks, "Boost")] },
+      {
+        x: 3, y: 3, tiles: [createUnit(Faction.Orks, [
+          { value: 3, type: 'range' },
+          { value: 2, type: 'melee' },
+          { value: 1, type: 'range' },
+          { value: 2, type: 'melee' },
+        ], 2, 2)]
       },
     ],
-    currentPlayerIndex: 0,
-  };
+  ],
+  players: [
+    {
+      id: 1,
+      name: 'Player 1',
+      hand: [
+        createAction(Faction.SpaceWolves, "attack", "Deal 1 damage"),
+        createModule(Faction.SpaceWolves, "Armor"),
+        createAction(Faction.SpaceWolves, "move", "Move 1 space"),
+      ],
+      drawPile: [
+        createAction(Faction.SpaceWolves, "special", "Block 2 damage"),
+        createModule(Faction.SpaceWolves, "Radar"),
+        createAction(Faction.SpaceWolves, "attack", "Deal 3 damage"),
+        createModule(Faction.SpaceWolves, "Turret"),
+        createAction(Faction.SpaceWolves, "special", "Draw 1 card and deal 1 damage"),
+      ],
+      discardPile: [
+        createAction(Faction.SpaceWolves, "special", "Heal 1 HP"),
+        createModule(Faction.SpaceWolves, "Engine"),
+        createAction(Faction.SpaceWolves, "move", "Move 3 spaces"),
+      ]
+    },
+    {
+      id: 2,
+      name: 'Player 2',
+      hand: [
+        createAction(Faction.Orks, "attack", "Deal 2 damage"),
+        createModule(Faction.Orks, "Cloak"),
+        createAction(Faction.Orks, "special", "Swap positions with an adjacent unit"),
+      ],
+      drawPile: [
+        createAction(Faction.Orks, "special", "Increase damage by 1"),
+        createModule(Faction.Orks, "Stealth"),
+        createAction(Faction.Orks, "move", "Move 2 spaces diagonally"),
+        createModule(Faction.Orks, "Scanner"),
+        createAction(Faction.Orks, "special", "Reflect next attack"),
+      ],
+      discardPile: [
+        createAction(Faction.Orks, "special", "Draw 2 cards"),
+        createModule(Faction.Orks, "Shield Generator"),
+        createAction(Faction.Orks, "attack", "Deal 1 damage to all adjacent enemies"),
+      ]
+    },
+  ],
+  currentPlayerIndex: 0,
+};

@@ -41,7 +41,7 @@ const gameSlice = createSlice({
       // Switch to the next player
       state.currentPlayerIndex = (state.currentPlayerIndex + 1) % state.players.length;
     },
-    rotateTile: (state, action: PayloadAction<{ tileId: number }>) => {
+    rotateTile: (state, action: PayloadAction<{ tileId: string }>) => {
       const { tileId } = action.payload;
         for (let row = 0; row < state.board.length; row++) {
             for (let col = 0; col < state.board[row].length; col++) {

@@ -9,12 +9,6 @@ body {
   min-height: 100vh;
 }
 
-.grid {
-  display: grid;
-  grid-template-columns: repeat(4, 100px);
-  grid-gap: .5rem;
-}
-
 .game-container {
   display: flex;
   justify-content: center;

@@ -53,3 +53,8 @@
   .module-content, .action-content {
     font-size: 0.9em;
   }
+
+  .tile-label {
+    color: rgba(0, 0, 0, 0.5);
+    font-size: 0.8em;
+  }

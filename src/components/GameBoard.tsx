@@ -4,8 +4,9 @@ import { RootState } from '../store/store';
 import { moveTile } from '../store/gameSlice';
 import { GameObject } from "../models/GameObject";
 import { BoardCell } from "./BoardCell";
+import './GameBoard.css';
 
-export function Board() {
+export function GameBoard() {
     const gameState = useSelector((state: RootState) => state.game);
     const dispatch = useDispatch();
     
