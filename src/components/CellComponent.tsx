@@ -1,6 +1,6 @@
 import React from 'react';
 import { Cell } from '../models/Cell';
-import { TileComponent } from './TileComponent';
+import { TileStack } from './TileStack';
 import './CellComponent.css';
 
 export const CellComponent: React.FC<{ cell: Cell, onTileDrop: (e: React.DragEvent<HTMLDivElement>) => void }> = ({ cell, onTileDrop }) => (
@@ -8,11 +8,7 @@ export const CellComponent: React.FC<{ cell: Cell, onTileDrop: (e: React.DragEve
     e.preventDefault();
   }}>
     {cell.tiles && cell.tiles.length > 0 && (
-      <div className="tile-stack">
-        {cell.tiles.map((tile, index) => (
-          <TileComponent key={index} tile={tile} />
-        ))}
-      </div>
+      <TileStack tiles={cell.tiles} />
     )}
   </div>
 );

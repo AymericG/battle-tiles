@@ -4,12 +4,13 @@ import { Tile } from '../models/Tile';
 import './PlayerComponent.css'; // Update CSS import
 import { useSelector } from 'react-redux';
 import { RootState } from '../store/store';
+import { TileStack } from './TileStack';
 
 interface PlayerComponentProps {
   playerIndex: number;
 }
 
-const TileStack = ({ name, tiles, isDraggable = false }: { name: string; tiles: Tile[]; isDraggable?: boolean }) => {
+const TileSpread = ({ name, tiles, isDraggable = false }: { name: string; tiles: Tile[]; isDraggable?: boolean }) => {
     return <div className="pile">
     <h3>{name}</h3>
     <div className="tile-container">
@@ -25,9 +26,15 @@ export const PlayerComponent: React.FC<PlayerComponentProps> = ({ playerIndex })
   return (
     <div className="player-piles">
       <h2>{player.name}</h2>
-      <TileStack name='Hand' tiles={player.hand} isDraggable={true} />
-      <TileStack name='Draw' tiles={player.drawPile} />
-      <TileStack name='Discard' tiles={player.discardPile} />
+      <TileSpread name='Hand' tiles={player.hand} isDraggable={true} />
+      <div className="pile">
+        <h3>Draw</h3>
+        <TileStack tiles={player.drawPile} />
+      </div>
+      <div className="pile">
+        <h3>Discard</h3>
+        <TileStack tiles={player.discardPile} />
+      </div>
       
     </div>
   );
