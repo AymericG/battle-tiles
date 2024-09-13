@@ -65,3 +65,51 @@
   font-size: 24px;
   font-weight: bold;
 }
+
+.tile {
+  width: 100px;
+  height: 100px;
+  border: 1px solid #000;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.unit-tile {
+  background-color: #f0f0f0;
+}
+
+.module-tile {
+  background-color: #e0e0ff;
+}
+
+.action-tile {
+  background-color: #ffe0e0;
+}
+
+.unit-info {
+  font-weight: bold;
+}
+
+.unit-attacks {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr;
+  width: 100%;
+  height: 100%;
+}
+
+.edge-attack {
+  font-size: 0.8em;
+}
+
+.edge-attack.↑ { grid-area: 1 / 2 / 2 / 3; }
+.edge-attack.→ { grid-area: 2 / 3 / 3 / 4; }
+.edge-attack.↓ { grid-area: 3 / 2 / 4 / 3; }
+.edge-attack.← { grid-area: 2 / 1 / 3 / 2; }
+
+.module-content, .action-content {
+  font-size: 0.9em;
+}
