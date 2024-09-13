@@ -36,24 +36,30 @@ function getFactionName(faction: string) {
   }
 }
 
-interface DraggableTile {
-  isDraggable?: boolean;
-  onDragStart?: (e: React.DragEvent<HTMLDivElement>) => void;
+interface DraggableTileProps {
   showCover?: boolean;
 }
 
 export const Tile: React.FC<TileComponentProps> = ({ tile, isDraggable, onDragStart, showCover }) => {
   switch (tile.type) {
     case 'unit':
-      return <UnitTile tile={tile as Unit} isDraggable={isDraggable} onDragStart={onDragStart} showCover={showCover} />;
+      return <UnitTile tile={tile as Unit} showCover={showCover} />;
     case 'module':
-      return <ModuleTile tile={tile as Module} isDraggable={isDraggable} onDragStart={onDragStart} showCover={showCover} />;
+      return <ModuleTile tile={tile as Module} showCover={showCover} />;
     case 'action':
-      return <ActionTile tile={tile as Action} isDraggable={isDraggable} onDragStart={onDragStart} showCover={showCover} />;
+      return <ActionTile tile={tile as Action} showCover={showCover} />;
     default:
       return <div>Unknown tile type</div>;
   }
 };
+
+const DraggableTile = ({ tile, children, ...rest }: { tile: GameObject } & React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>) => (
+  <div {...rest} draggable onDragStart={(e: React.DragEvent<HTMLDivElement>) => {
+    e.dataTransfer.setData('text/plain', JSON.stringify(tile));
+  }}>
+    {children}
+  </div>
+);
 
 const EdgeAttackComponent = ({ attack, direction }: { attack: { value: number, type: string }, direction: string }) => {
   return (<>
@@ -70,10 +76,11 @@ const TileCover = ({ faction }: { faction: Faction }) => (
   </div>
 );
 
-const UnitTile: React.FC<{ tile: Unit } & DraggableTile> = ({ tile, isDraggable, onDragStart, showCover }) => (
-  <div className="tile unit-tile" draggable={isDraggable}
+const UnitTile: React.FC<{ tile: Unit } & DraggableTileProps> = ({ tile, showCover }) => (
+  <DraggableTile
+    tile={tile} className="tile unit-tile"
     style={{ backgroundColor: getFactionColor(tile.faction), transform: `rotate(${tile.rotation * 90}deg)` }}
-    onDragStart={onDragStart}>
+  >
     {showCover && <TileCover faction={tile.faction} />}
     {!showCover && <>
       <div className='tile-top'>
@@ -101,13 +108,14 @@ const UnitTile: React.FC<{ tile: Unit } & DraggableTile> = ({ tile, isDraggable,
         <EdgeAttackComponent attack={tile.attacks[2]} direction='up' />
       </div>
     </>}
-  </div>
+  </DraggableTile>
 );
 
-const ModuleTile: React.FC<{ tile: Module } & DraggableTile> = ({ tile, isDraggable, onDragStart, showCover }) => (
-  <div className="tile module-tile" draggable={isDraggable}
+const ModuleTile: React.FC<{ tile: Module } & DraggableTileProps> = ({ tile, showCover }) => (
+  <DraggableTile
+    tile={tile} className="tile module-tile"
     style={{ backgroundColor: getFactionColor(tile.faction), transform: `rotate(${tile.rotation * 90}deg)` }}
-    onDragStart={onDragStart}>
+  >
     {showCover && <TileCover faction={tile.faction} />}
     {!showCover && <div className="module-content">
       {tile.connected[0] && <div className="rectangle rectangle-top"></div>}
@@ -116,15 +124,17 @@ const ModuleTile: React.FC<{ tile: Module } & DraggableTile> = ({ tile, isDragga
       {tile.connected[3] && <div className="rectangle rectangle-left"></div>}
       <div className="tile-label">Module</div>{tile.effect}
     </div>}
-  </div>
+  </DraggableTile>
 );
 
-const ActionTile: React.FC<{ tile: Action } & DraggableTile> = ({ tile, isDraggable, onDragStart, showCover }) => (
-  <div style={{
-    backgroundColor: getFactionColor(tile.faction)
-  }} className="tile action-tile" draggable={isDraggable}
-    onDragStart={onDragStart}>
+const ActionTile: React.FC<{ tile: Action } & DraggableTileProps> = ({ tile, showCover }) => (
+  <DraggableTile
+    tile={tile}
+    style={{
+      backgroundColor: getFactionColor(tile.faction)
+    }} className="tile action-tile"
+  >
     {showCover && <TileCover faction={tile.faction} />}
     {!showCover && <div className="action-content"><div className="tile-label">Action</div>{tile.actionType}</div>}
-  </div>
+  </DraggableTile>
 );
