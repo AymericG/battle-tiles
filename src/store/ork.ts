@@ -1,0 +1,125 @@
+import { createAction, createModule, createUnit, shuffle } from "./army-utils";
+import { Faction } from "../models/Faction";
+
+export const createOrkArmy = (playerId: number) => ({
+    base: createUnit('HQ', playerId, Faction.Orks, [
+        { value: 1, type: 'melee' },
+        { value: 1, type: 'melee' },
+        { value: 1, type: 'melee' },
+        { value: 1, type: 'melee' },
+    ], 5, 1),
+    deck: shuffle([
+        createUnit('Ork Boyz', playerId, Faction.Orks, [
+            { value: 2, type: 'melee' },
+            { value: 0, type: 'range' },
+            { value: 2, type: 'melee' },
+            { value: 0, type: 'range' },
+        ], 2, 2),
+        createUnit('Ork Boyz', playerId, Faction.Orks, [
+            { value: 2, type: 'melee' },
+            { value: 0, type: 'range' },
+            { value: 2, type: 'melee' },
+            { value: 0, type: 'range' },
+        ], 2, 2),
+        createUnit('Ork Boyz', playerId, Faction.Orks, [
+            { value: 2, type: 'melee' },
+            { value: 0, type: 'range' },
+            { value: 2, type: 'melee' },
+            { value: 0, type: 'range' },
+        ], 2, 2),
+        createUnit('Ork Boyz', playerId, Faction.Orks, [
+            { value: 2, type: 'melee' },
+            { value: 0, type: 'range' },
+            { value: 2, type: 'melee' },
+            { value: 0, type: 'range' },
+        ], 2, 2),
+        createUnit('Ork Boyz', playerId, Faction.Orks, [
+            { value: 2, type: 'melee' },
+            { value: 0, type: 'range' },
+            { value: 2, type: 'melee' },
+            { value: 0, type: 'range' },
+        ], 2, 2),
+        createUnit('Ork Boyz', playerId, Faction.Orks, [
+            { value: 2, type: 'melee' },
+            { value: 0, type: 'range' },
+            { value: 2, type: 'melee' },
+            { value: 0, type: 'range' },
+        ], 2, 2),
+        createUnit('Ork Boyz', playerId, Faction.Orks, [
+            { value: 2, type: 'melee' },
+            { value: 0, type: 'range' },
+            { value: 2, type: 'melee' },
+            { value: 0, type: 'range' },
+        ], 2, 2),
+        createUnit("Nob", playerId, Faction.Orks, [
+            { value: 3, type: 'melee' },
+            { value: 0, type: 'melee' },
+            { value: 2, type: 'melee' },
+            { value: 0, type: 'melee' },
+        ], 3, 3, ['inspiring-melee']),
+        createUnit("Lootas", playerId, Faction.Orks, [
+            { value: 2, type: 'range' },
+            { value: 2, type: 'range' },
+            { value: 0, type: 'range' },
+            { value: 2, type: 'range' },
+        ], 2, 2, ['loot']),
+        createUnit("Lootas", playerId, Faction.Orks, [
+            { value: 2, type: 'range' },
+            { value: 2, type: 'range' },
+            { value: 0, type: 'range' },
+            { value: 2, type: 'range' },
+        ], 2, 2, ['loot']), 
+        createUnit("Lootas", playerId, Faction.Orks, [
+            { value: 2, type: 'range' },
+            { value: 2, type: 'range' },
+            { value: 0, type: 'range' },
+            { value: 2, type: 'range' },
+        ], 2, 2, ['loot']), 
+        createUnit("Lootas", playerId, Faction.Orks, [
+            { value: 2, type: 'range' },
+            { value: 2, type: 'range' },
+            { value: 0, type: 'range' },
+            { value: 2, type: 'range' },
+        ], 2, 2, ['loot']),
+        createUnit("Warbike", playerId, Faction.Orks, [
+            { value: 1, type: 'melee' },
+            { value: 1, type: 'melee' },
+            { value: 0, type: 'melee' },
+            { value: 1, type: 'melee' },
+        ], 2, 4),
+        createUnit("Kroot Carnivore", playerId, Faction.Orks, [
+            { value: 1, type: 'melee' },
+            { value: 1, type: 'melee' },
+            { value: 0, type: 'melee' },
+            { value: 1, type: 'melee' },
+        ], 3, 1, ['horde']),
+        createUnit("Kroot Carnivore", playerId, Faction.Orks, [
+            { value: 1, type: 'melee' },
+            { value: 1, type: 'melee' },
+            { value: 0, type: 'melee' },
+            { value: 1, type: 'melee' },
+        ], 3, 1, ['horde']),
+        createUnit("Kroot Carnivore", playerId, Faction.Orks, [
+            { value: 1, type: 'melee' },
+            { value: 1, type: 'melee' },
+            { value: 0, type: 'melee' },
+            { value: 1, type: 'melee' },
+        ], 3, 1, ['horde']),
+        createAction('Battle', playerId, Faction.Orks, 'attack', 'Battle'),
+        createAction('Battle', playerId, Faction.Orks, 'attack', 'Battle'),
+        createAction('Battle', playerId, Faction.Orks, 'attack', 'Battle'),
+        createAction('Battle', playerId, Faction.Orks, 'attack', 'Battle'),
+        createAction('Battle', playerId, Faction.Orks, 'attack', 'Battle'),
+        createAction('Move', playerId, Faction.Orks, 'move', 'Move'),
+        createAction('Move', playerId, Faction.Orks, 'move', 'Move'),
+        createAction('Move', playerId, Faction.Orks, 'move', 'Move'),
+        createAction('Move', playerId, Faction.Orks, 'move', 'Move'),
+        createAction('Move', playerId, Faction.Orks, 'move', 'Move'),
+        createAction('WAAAGH!', playerId, Faction.Orks, 'special', 'All your units gain +1 melee attack for this turn.'),
+        createAction('Mob Rule', playerId, Faction.Orks, 'special', 'Select one unit. It can attack twice this turn if it is adjacent to at least two other friendly units.'),
+        createModule('Charge!', playerId, Faction.Orks, 'Move up to three of your units to adjacent empty tiles and immediately trigger a battle.'),
+        createModule('Scrap Heap', playerId, Faction.Orks, 'Destroy one of your units to draw two additional tiles this turn.'),
+        createModule('Mekboy Workshop', playerId, Faction.Orks, 'Adjacent friendly units heal 1 health at the end of each turn.'),
+        createModule('Mad Dok\'s Surgery', playerId, Faction.Orks, 'When an adjacent friendly unit is destroyed, place it back in your hand instead of discarding it.'),
+    ])
+});

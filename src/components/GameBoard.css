@@ -1,3 +1,8 @@
+.game-board-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
 
 .grid {
     display: grid;
@@ -5,3 +10,15 @@
     grid-gap: .5rem;
   }
   
+.damage-disc {
+    width: 30px;
+    height: 30px;
+    background-color: red;
+    border-radius: 50%;
+    margin-top: 20px;
+    cursor: grab;
+}
+
+.damage-disc:active {
+    cursor: grabbing;
+}

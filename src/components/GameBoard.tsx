@@ -17,11 +17,24 @@ export function GameBoard() {
         dispatch(moveTile({ tile, row, col }));
     };
 
-    return <div className="grid">
-        {gameState.board.map((row, y) =>
-            row.map((cell, x) => (
-                <BoardCell key={`${x}-${y}`} cell={cell} onTileDrop={(e: React.DragEvent<HTMLDivElement>) => handleDrop(e, y, x)} />
-            ))
-        )}
-    </div>;
+    const handleDragStart = (e: React.DragEvent<HTMLDivElement>) => {
+        e.dataTransfer.setData('text/plain', JSON.stringify({ type: 'damage' }));
+    };
+
+    return (
+        <div className="game-board-container">
+            <div className="grid">
+                {gameState.board.map((row, y) =>
+                    row.map((cell, x) => (
+                        <BoardCell key={`${x}-${y}`} cell={cell} onTileDrop={(e: React.DragEvent<HTMLDivElement>) => handleDrop(e, y, x)} />
+                    ))
+                )}
+            </div>
+            <div 
+                className="damage-disc" 
+                draggable 
+                onDragStart={handleDragStart}
+            ></div>
+        </div>
+    );
 }

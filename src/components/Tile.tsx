@@ -14,23 +14,27 @@ interface TileComponentProps {
   showCover?: boolean;
 }
 
-function getFactionColor(faction: string) {
+function getFactionColor(faction: Faction) {
   switch (faction) {
-    case 'SpaceWolves':
+    case Faction.SpaceWolves:
       return 'lightblue';
-    case 'Orks':
+    case Faction.Orks:
       return 'lightgreen';
+    case Faction.Tau:
+      return 'lightgray';
     default:
       return 'gray';
   }
 }
 
-function getFactionName(faction: string) {
+function getFactionName(faction: Faction) {
   switch (faction) {
-    case 'SpaceWolves':
+    case Faction.SpaceWolves:
       return 'Space Wolves';
-    case 'Orks':
+    case Faction.Orks:
       return 'Orks';
+    case Faction.Tau:
+      return 'Tau';
     default:
       return 'Unknown';
   }
@@ -117,12 +121,13 @@ const ModuleTile: React.FC<{ tile: Module } & DraggableTileProps> = ({ tile, sho
     style={{ backgroundColor: getFactionColor(tile.faction), transform: `rotate(${tile.rotation * 90}deg)` }}
   >
     {showCover && <TileCover faction={tile.faction} />}
-    {!showCover && <div className="module-content">
+    {!showCover && <div className="module-content with-tooltip">
+      <div className="tooltip">{tile.effect}</div>
       {tile.connected[0] && <div className="rectangle rectangle-top"></div>}
       {tile.connected[1] && <div className="rectangle rectangle-right"></div>}
       {tile.connected[2] && <div className="rectangle rectangle-bottom"></div>}
       {tile.connected[3] && <div className="rectangle rectangle-left"></div>}
-      <div className="tile-label">Module</div>{tile.effect}
+      <div className="tile-label">Module</div>{tile.name}
     </div>}
   </DraggableTile>
 );
@@ -135,6 +140,8 @@ const ActionTile: React.FC<{ tile: Action } & DraggableTileProps> = ({ tile, sho
     }} className="tile action-tile"
   >
     {showCover && <TileCover faction={tile.faction} />}
-    {!showCover && <div className="action-content"><div className="tile-label">Action</div>{tile.actionType}</div>}
+    {!showCover && <div className="action-content with-tooltip">
+      <div className="tooltip">{tile.description}</div>
+      <div className="tile-label">Action</div>{tile.name}</div>}
   </DraggableTile>
 );
