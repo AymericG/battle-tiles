@@ -1,0 +1,14 @@
+{
+  "files": {
+    "main.css": "/battle-tiles/static/css/main.b3f4ab1b.css",
+    "main.js": "/battle-tiles/static/js/main.80f758b9.js",
+    "static/media/grunge-texture.png": "/battle-tiles/static/media/grunge-texture.7fb7fc381ca51c2eed86.png",
+    "index.html": "/battle-tiles/index.html",
+    "main.b3f4ab1b.css.map": "/battle-tiles/static/css/main.b3f4ab1b.css.map",
+    "main.80f758b9.js.map": "/battle-tiles/static/js/main.80f758b9.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.b3f4ab1b.css",
+    "static/js/main.80f758b9.js"
+  ]
+}
