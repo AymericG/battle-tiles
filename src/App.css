@@ -113,3 +113,31 @@
 .module-content, .action-content {
   font-size: 0.9em;
 }
+
+.app-container {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+}
+
+.player-column {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+}
+
+.board-column {
+  flex: 2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+}
+
+.player1-column {
+  background-color: #f0f0f0;
+}
+
+.player2-column {
+  background-color: #e0e0e0;
+}
