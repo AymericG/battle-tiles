@@ -3,6 +3,7 @@ import { Tile } from '../models/Tile';
 import { UnitTile } from '../models/UnitTile';
 import { ModuleTile } from '../models/ModuleTile';
 import { ActionTile } from '../models/ActionTile';
+import './TileComponent.css';
 
 interface TileComponentProps {
     tile: Tile;

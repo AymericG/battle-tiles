@@ -9,42 +9,6 @@ body {
   min-height: 100vh;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-float infinite 3s ease-in-out;
-  }
-}
-
-.App-header {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-}
-
-.App-link {
-  color: rgb(112, 76, 182);
-}
-
-@keyframes App-logo-float {
-  0% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(10px);
-  }
-  100% {
-    transform: translateY(0px);
-  }
-}
-
 .grid {
   display: grid;
   grid-template-columns: repeat(4, 100px);
@@ -59,58 +23,6 @@ body {
   height: 100vh;
 }
 
-.pile-count {
-  font-size: 24px;
-  font-weight: bold;
-}
-
-.tile {
-  width: 100px;
-  height: 100px;
-  border: 1px solid #000;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-}
-
-.unit-tile {
-  background-color: #f0f0f0;
-}
-
-.module-tile {
-  background-color: #e0e0ff;
-}
-
-.action-tile {
-  background-color: #ffe0e0;
-}
-
-.unit-info {
-  font-weight: bold;
-}
-
-.unit-attacks {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  grid-template-rows: 1fr 1fr 1fr;
-  width: 100%;
-  height: 100%;
-}
-
-.edge-attack {
-  font-size: 0.8em;
-}
-
-.edge-attack.↑ { grid-area: 1 / 2 / 2 / 3; }
-.edge-attack.→ { grid-area: 2 / 3 / 3 / 4; }
-.edge-attack.↓ { grid-area: 3 / 2 / 4 / 3; }
-.edge-attack.← { grid-area: 2 / 1 / 3 / 2; }
-
-.module-content, .action-content {
-  font-size: 0.9em;
-}
 
 .app-container {
   display: flex;
@@ -122,6 +34,7 @@ body {
   flex: 1;
   overflow-y: auto;
   padding: 1rem;
+  background-color: #f0f0f0;
 }
 
 .board-column {
@@ -132,10 +45,3 @@ body {
   padding: 1rem;
 }
 
-.player1-column {
-  background-color: #f0f0f0;
-}
-
-.player2-column {
-  background-color: #e0e0e0;
-}

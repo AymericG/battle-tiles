@@ -5,13 +5,13 @@ import { PlayerComponent } from './components/PlayerComponent';
 function App() {
   return (
     <div className="app-container">
-      <div className="player-column player1-column">
+      <div className="player-column">
         <PlayerComponent playerIndex={0} />
       </div>
       <div className="board-column">
         <Board />
       </div>
-      <div className="player-column player2-column">
+      <div className="player-column">
         <PlayerComponent playerIndex={1} />
       </div>
     </div>);
