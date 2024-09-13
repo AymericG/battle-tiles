@@ -11,12 +11,15 @@ interface PlayerComponentProps {
   playerIndex: number;
 }
 
-const TileSpread = ({ name, tiles, isDraggable = false }: { name: string; tiles: GameObject[]; isDraggable?: boolean }) => {
+const TileSpread = ({ playerId, name, tiles, isDraggable = false }: { playerId: number; name: string; tiles: GameObject[]; isDraggable?: boolean }) => {
     return <div className="pile">
     <h3>{name}</h3>
     <div className="tile-container">
       {tiles.map((tile, index) => (
-        <TileComponent key={index} tile={tile} isDraggable={isDraggable} />
+        <TileComponent key={index} tile={tile} isDraggable={isDraggable} onDragStart={(e: React.DragEvent<HTMLDivElement>) => {
+          e.dataTransfer.setData('text/plain', JSON.stringify({
+            playerId, tile }));
+        }}/>
       ))}
     </div>
   </div>;
@@ -28,7 +31,7 @@ export const PlayerBoard: React.FC<PlayerComponentProps> = ({ playerIndex }) => 
   return (
     <div className="player-piles">
       <h2>{player.name}</h2>
-      <TileSpread name='Hand' tiles={player.hand} isDraggable={true} />
+      <TileSpread name='Hand' playerId={player.id} tiles={player.hand} isDraggable={true} />
       <div className="pile">
         <h3>Draw</h3>
         <TileStack tiles={player.drawPile} onClick={() => {

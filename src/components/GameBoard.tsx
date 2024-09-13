@@ -6,15 +6,21 @@ import { GameObject } from "../models/GameObject";
 import { BoardCell } from "./BoardCell";
 import './GameBoard.css';
 
+type MoveObject = {
+    tile: GameObject;
+    playerId: number;
+};
+
+
 export function GameBoard() {
     const gameState = useSelector((state: RootState) => state.game);
     const dispatch = useDispatch();
     
     const handleDrop = (e: React.DragEvent<HTMLDivElement>, row: number, col: number) => {
         e.preventDefault();
-        const tileData = e.dataTransfer.getData('text/plain');
-        const tile: GameObject = JSON.parse(tileData);
-        dispatch(moveTile({ tile, row, col }));
+        const moveData = e.dataTransfer.getData('text/plain');
+        const moveObject: MoveObject = JSON.parse(moveData);
+        dispatch(moveTile({ playerId: moveObject.playerId, tile: moveObject.tile, row, col }));
     };
 
     return <div className="grid">

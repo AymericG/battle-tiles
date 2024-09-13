@@ -8,7 +8,7 @@ import './BoardCell.css';
 export const BoardCell: React.FC<{ cell: Cell, onTileDrop: (e: React.DragEvent<HTMLDivElement>) => void }> = ({ cell, onTileDrop }) => {
   const dispatch = useDispatch();
 
-  const handleTileClick = () => {
+  const doRotateTile = () => {
     if (!cell.tiles) { return; }
     dispatch(rotateTile({ tileId: cell.tiles?.[cell.tiles.length - 1].id }));
   };
@@ -18,7 +18,7 @@ export const BoardCell: React.FC<{ cell: Cell, onTileDrop: (e: React.DragEvent<H
       e.preventDefault();
     }}>
       {cell.tiles && cell.tiles.length > 0 && (
-        <TileStack tiles={cell.tiles} onClick={handleTileClick} />
+        <TileStack tiles={cell.tiles} onClick={doRotateTile} />
       )}
     </div>
   );
