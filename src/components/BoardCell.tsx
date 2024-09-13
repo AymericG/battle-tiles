@@ -5,7 +5,7 @@ import { TileStack } from './TileStack';
 import { rotateTile } from '../store/gameSlice';
 import './BoardCell.css';
 
-export const BoardCell: React.FC<{ cell: Cell, onTileDrop: (e: React.DragEvent<HTMLDivElement>) => void }> = ({ cell, onTileDrop }) => {
+export const BoardCell: React.FC<{ cell: Cell, onDrop: (e: React.DragEvent<HTMLDivElement>) => void }> = ({ cell, onDrop }) => {
   const dispatch = useDispatch();
 
   const doRotateTile = () => {
@@ -14,7 +14,7 @@ export const BoardCell: React.FC<{ cell: Cell, onTileDrop: (e: React.DragEvent<H
   };
 
   return (
-    <div className="cell" onDrop={onTileDrop} onDragOver={(e: React.DragEvent<HTMLDivElement>) => {
+    <div className="cell" onDrop={onDrop} onDragOver={(e: React.DragEvent<HTMLDivElement>) => {
       e.preventDefault();
     }}>
       {cell.tiles && cell.tiles.length > 0 && (

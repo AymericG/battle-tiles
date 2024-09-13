@@ -3,11 +3,15 @@ import { initialGameState } from './initialGameState';
 import { GameObject } from '../models/GameObject';
 import { Rotatable } from '../models/Rotatable';
 import { GameState } from '../models/GameState';
+import { Unit } from '../models/Unit';
 
-interface MoveTilePayload {
-  tile: GameObject;
+interface BoardPayload {
   row: number;
   col: number;
+}
+
+interface MoveTilePayload extends BoardPayload {
+  tile: GameObject;
 }
 
 function removeTileFromOriginContainer(state: Draft<GameState>, tile: GameObject) {
@@ -111,9 +115,15 @@ const gameSlice = createSlice({
       } else {
         console.error(`Invalid cell at row ${row}, col ${col}`);
       }
-
-      // Switch to the next player
-      state.currentPlayerIndex = (state.currentPlayerIndex + 1) % state.players.length;
+    },
+    addDamage: (state, action: PayloadAction<BoardPayload>) => {
+      const { row, col } = action.payload;
+      
+      // Place the tile on the board
+      const targetCell = state.board[row][col];
+      if (targetCell && targetCell.tiles && targetCell.tiles.length) {
+        (targetCell.tiles[targetCell.tiles.length - 1] as Unit).health--;
+      }
     },
     rotateTile: (state, action: PayloadAction<{ tileId: string }>) => {
       const { tileId } = action.payload;
@@ -134,5 +144,5 @@ const gameSlice = createSlice({
   },
 });
 
-export const { drawTile, moveToDiscard, moveToDraw, moveToHand, moveTile, rotateTile } = gameSlice.actions;
+export const { addDamage, drawTile, moveToDiscard, moveToDraw, moveToHand, moveTile, rotateTile } = gameSlice.actions;
 export default gameSlice.reducer;
