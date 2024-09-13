@@ -3,9 +3,9 @@ import { useDispatch } from 'react-redux';
 import { Cell } from '../models/Cell';
 import { TileStack } from './TileStack';
 import { rotateTile } from '../store/gameSlice';
-import './CellComponent.css';
+import './BoardCell.css';
 
-export const CellComponent: React.FC<{ cell: Cell, onTileDrop: (e: React.DragEvent<HTMLDivElement>) => void }> = ({ cell, onTileDrop }) => {
+export const BoardCell: React.FC<{ cell: Cell, onTileDrop: (e: React.DragEvent<HTMLDivElement>) => void }> = ({ cell, onTileDrop }) => {
   const dispatch = useDispatch();
 
   const handleTileClick = () => {

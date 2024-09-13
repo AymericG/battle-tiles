@@ -1,10 +1,10 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { initialGameState } from './initialGameState';
-import { Tile } from '../models/Tile';
-import { RotatableTile } from '../models/RotatableTile';
+import { GameObject } from '../models/GameObject';
+import { Rotatable } from '../models/Rotatable';
 
 interface MoveTilePayload {
-  tile: Tile;
+  tile: GameObject;
   row: number;
   col: number;
 }
@@ -28,7 +28,7 @@ const gameSlice = createSlice({
       const currentPlayer = state.players[state.currentPlayerIndex];
 
       // Remove the tile from the current player's hand
-      currentPlayer.hand = currentPlayer.hand.filter((t: Tile) => t.id !== tile.id);
+      currentPlayer.hand = currentPlayer.hand.filter((t: GameObject) => t.id !== tile.id);
 
       // Place the tile on the board
       const cell = state.board[row][col];
@@ -47,11 +47,11 @@ const gameSlice = createSlice({
             for (let col = 0; col < state.board[row].length; col++) {
             const cell = state.board[row][col];
             if (!cell || !cell.tiles) { continue; }
-            const tile = cell.tiles.find((tile: Tile) => tile.id === tileId);
+            const tile = cell.tiles.find((tile: GameObject) => tile.id === tileId);
             if (tile) {
-                const rotatableTile = tile as RotatableTile;
-                const newRotation = (rotatableTile.rotation + 1) % 4;
-                rotatableTile.rotation = newRotation < 0 ? 3 : newRotation;
+                const rotatable = tile as Rotatable;
+                const newRotation = (rotatable.rotation + 1) % 4;
+                rotatable.rotation = newRotation < 0 ? 3 : newRotation;
             }
         }
 

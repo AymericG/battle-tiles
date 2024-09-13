@@ -1,9 +1,9 @@
 import { GameState } from '../models/GameState';
-import { AttackType, UnitTile } from '../models/UnitTile';
-import { ModuleTile } from '../models/ModuleTile';
-import { ActionTile } from '../models/ActionTile';
+import { AttackType, Unit } from '../models/Unit';
+import { Module } from '../models/Module';
+import { Action } from '../models/Action';
 
-function createUnit(id: number, attacks: { value: number, type: AttackType }[], health: number, initiative: number): UnitTile {
+function createUnit(id: number, attacks: { value: number, type: AttackType }[], health: number, initiative: number): Unit {
   return {
     id,
     type: 'unit',
@@ -14,7 +14,7 @@ function createUnit(id: number, attacks: { value: number, type: AttackType }[], 
   };
 }
 
-function createModule(id: number, effect: string): ModuleTile {
+function createModule(id: number, effect: string): Module {
   return {
     id,
     type: 'module',
@@ -23,7 +23,7 @@ function createModule(id: number, effect: string): ModuleTile {
   };
 }
 
-function createAction(id: number, actionType: 'move' | 'attack' | 'special', description: string): ActionTile {
+function createAction(id: number, actionType: 'move' | 'attack' | 'special', description: string): Action {
   return {
     id,
     type: 'action',

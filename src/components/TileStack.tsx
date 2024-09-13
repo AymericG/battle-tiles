@@ -1,10 +1,10 @@
 import React from 'react';
-import { Tile } from '../models/Tile';
-import { TileComponent } from './TileComponent';
+import { GameObject } from '../models/GameObject';
+import { TileComponent } from './Tile';
 import './TileStack.css';
 
 interface TileStackProps {
-  tiles: Tile[];
+  tiles: GameObject[];
   onClick?: () => void;
 }
 

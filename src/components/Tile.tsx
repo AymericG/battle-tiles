@@ -1,22 +1,18 @@
 import React from 'react';
-import { Tile } from '../models/Tile';
-import { EdgeAttack, UnitTile } from '../models/UnitTile';
-import { ModuleTile } from '../models/ModuleTile';
-import { ActionTile } from '../models/ActionTile';
-import './TileComponent.css';
+import { GameObject } from '../models/GameObject';
+import { Unit } from '../models/Unit';
+import { Module } from '../models/Module';
+import { Action } from '../models/Action';
+import './Tile.css';
 
 interface TileComponentProps {
-  tile: Tile;
+  tile: GameObject;
   isDraggable?: boolean;
 }
 
 interface DraggableTile {
   isDraggable?: boolean;
   onDragStart: (e: React.DragEvent<HTMLDivElement>) => void;
-}
-
-function getAttackForEdge(unit: UnitTile, edge: number): EdgeAttack {
-  return unit.attacks[(edge + unit.rotation) % 4];
 }
 
 export const TileComponent: React.FC<TileComponentProps> = ({ tile, isDraggable }) => {
@@ -26,17 +22,17 @@ export const TileComponent: React.FC<TileComponentProps> = ({ tile, isDraggable 
 
   switch (tile.type) {
     case 'unit':
-      return <UnitTileComponent tile={tile as UnitTile} isDraggable={isDraggable} onDragStart={handleDragStart} />;
+      return <UnitTileComponent tile={tile as Unit} isDraggable={isDraggable} onDragStart={handleDragStart} />;
     case 'module':
-      return <ModuleTileComponent tile={tile as ModuleTile} isDraggable={isDraggable} onDragStart={handleDragStart} />;
+      return <ModuleTileComponent tile={tile as Module} isDraggable={isDraggable} onDragStart={handleDragStart} />;
     case 'action':
-      return <ActionTileComponent tile={tile as ActionTile} isDraggable={isDraggable} onDragStart={handleDragStart} />;
+      return <ActionTileComponent tile={tile as Action} isDraggable={isDraggable} onDragStart={handleDragStart} />;
     default:
       return <div>Unknown tile type</div>;
   }
 };
 
-const UnitTileComponent: React.FC<{ tile: UnitTile } & DraggableTile> = ({ tile, isDraggable, onDragStart }) => (
+const UnitTileComponent: React.FC<{ tile: Unit } & DraggableTile> = ({ tile, isDraggable, onDragStart }) => (
   <div className="tile unit-tile" draggable={isDraggable}
     style={{ transform: `rotate(${tile.rotation * 90}deg)` }}
     onDragStart={onDragStart}>
@@ -56,7 +52,7 @@ const UnitTileComponent: React.FC<{ tile: UnitTile } & DraggableTile> = ({ tile,
   </div>
 );
 
-const ModuleTileComponent: React.FC<{ tile: ModuleTile } & DraggableTile> = ({ tile, isDraggable, onDragStart }) => (
+const ModuleTileComponent: React.FC<{ tile: Module } & DraggableTile> = ({ tile, isDraggable, onDragStart }) => (
   <div className="tile module-tile" draggable={isDraggable}
     style={{ transform: `rotate(${tile.rotation * 90}deg)` }}
     onDragStart={onDragStart}>
@@ -64,7 +60,7 @@ const ModuleTileComponent: React.FC<{ tile: ModuleTile } & DraggableTile> = ({ t
   </div>
 );
 
-const ActionTileComponent: React.FC<{ tile: ActionTile } & DraggableTile> = ({ tile, isDraggable, onDragStart }) => (
+const ActionTileComponent: React.FC<{ tile: Action } & DraggableTile> = ({ tile, isDraggable, onDragStart }) => (
   <div className="tile action-tile" draggable={isDraggable}
     onDragStart={onDragStart}>
     <div className="action-content">{tile.actionType}</div>

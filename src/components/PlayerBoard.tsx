@@ -1,7 +1,7 @@
 import React from 'react';
-import { TileComponent } from './TileComponent';
-import { Tile } from '../models/Tile';
-import './PlayerComponent.css'; // Update CSS import
+import { TileComponent } from './Tile';
+import { GameObject } from '../models/GameObject';
+import './PlayerBoard.css';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../store/store';
 import { TileStack } from './TileStack';
@@ -11,7 +11,7 @@ interface PlayerComponentProps {
   playerIndex: number;
 }
 
-const TileSpread = ({ name, tiles, isDraggable = false }: { name: string; tiles: Tile[]; isDraggable?: boolean }) => {
+const TileSpread = ({ name, tiles, isDraggable = false }: { name: string; tiles: GameObject[]; isDraggable?: boolean }) => {
     return <div className="pile">
     <h3>{name}</h3>
     <div className="tile-container">
@@ -22,7 +22,7 @@ const TileSpread = ({ name, tiles, isDraggable = false }: { name: string; tiles:
   </div>;
 }
 
-export const PlayerComponent: React.FC<PlayerComponentProps> = ({ playerIndex }) => {
+export const PlayerBoard: React.FC<PlayerComponentProps> = ({ playerIndex }) => {
   const player = useSelector((state: RootState) => state.game.players[playerIndex]);
   const dispatch = useDispatch();
   return (

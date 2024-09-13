@@ -1,7 +1,7 @@
-import { Tile } from './Tile';
+import { GameObject } from './GameObject';
 
 export interface Cell {
   x: number;
   y: number;
-  tiles: Tile[] | null;
+  tiles: GameObject[] | null;
 }

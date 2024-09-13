@@ -1,6 +1,6 @@
-import { Tile } from './Tile';
+import { GameObject } from './GameObject';
 
-export interface ActionTile extends Tile {
+export interface Action extends GameObject {
   id: number;
   type: 'action';
   actionType: 'move' | 'attack' | 'special';

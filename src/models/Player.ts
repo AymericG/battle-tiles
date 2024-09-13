@@ -1,9 +1,9 @@
-import { Tile } from './Tile';
+import { GameObject } from './GameObject';
 
 export interface Player {
   id: number;
   name: string;
-  hand: Tile[];
-  drawPile: Tile[];
-  discardPile: Tile[];
+  hand: GameObject[];
+  drawPile: GameObject[];
+  discardPile: GameObject[];
 }

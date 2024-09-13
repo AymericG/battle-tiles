@@ -1,4 +1,4 @@
-import { RotatableTile } from './RotatableTile';
+import { Rotatable } from './Rotatable';
 
 export type AttackType = 'melee' | 'range';
 
@@ -7,7 +7,7 @@ export interface EdgeAttack {
   type: AttackType;
 }
 
-export interface UnitTile extends RotatableTile {
+export interface Unit extends Rotatable {
   type: 'unit';
   attacks: EdgeAttack[];
   health: number;
