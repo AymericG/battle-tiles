@@ -6,6 +6,7 @@
 - [x] Hide draw pile
 - [x] Create two armies
 - [x] Differentiate each army visually
-- [ ] Track damage easily
+- [x] Track damage easily
 - [ ] Allow to play against AI
 - [ ] Allow AI to play against AI
+- [ ] Add walls on the map

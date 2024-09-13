@@ -54,23 +54,37 @@ export const PlayerBoard: React.FC<PlayerComponentProps> = ({ playerIndex }) => 
     e.preventDefault();
   }
 
+  const handleDrawThree = () => {
+    for (let i = 0; i < 3; i++) {
+      dispatch(drawTile({ playerIndex }));
+    }
+  };
+
   return (
     <div className="player-piles">
       <h2>{player.name}</h2>
       <TileSpread name='Hand' tiles={player.hand} onDrop={handleDropOnHand} />
       <div className="pile">
         <h3>Draw</h3>
-        <TileStack showCover={true} tiles={player.drawPile} onClick={() => {
-          dispatch(drawTile({ playerIndex }));
-        }} onDrop={handleDropOnDraw} onDragOver={preventDefault} />
+        <div className="draw-actions">
+          <TileStack 
+            showCover={true} 
+            tiles={player.drawPile} 
+            onClick={() => dispatch(drawTile({ playerIndex }))} 
+            onDrop={handleDropOnDraw} 
+            onDragOver={preventDefault} 
+          />
+          <button onClick={handleDrawThree}>Draw 3</button>
+        </div>
       </div>
       <div className="pile">
         <h3>Discard</h3>
-        <TileStack tiles={player.discardPile} 
+        <TileStack 
+          tiles={player.discardPile} 
           onDrop={handleDropOnDiscard} 
-          onDragOver={preventDefault}/>
+          onDragOver={preventDefault}
+        />
       </div>
-      
     </div>
   );
 };

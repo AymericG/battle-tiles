@@ -31,6 +31,7 @@ export function GameBoard() {
 
     return (
         <div className="game-board-container">
+            <h2 className="board-title">Neuroshima Grid</h2>
             <div className="grid">
                 {gameState.board.map((row, y) =>
                     row.map((cell, x) => (
