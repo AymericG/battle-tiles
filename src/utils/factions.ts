@@ -2,7 +2,7 @@ import { Faction } from "../models/Faction";
 
 const factions = {
     [Faction.SpaceWolves]: { name: 'Space Wolves', color: 'lightblue' },
-    [Faction.Orks]: { name: 'Orks', color: 'lightgreen' },
+    [Faction.Orks]: { name: 'Orks', color: '#4fc94f' },
     [Faction.Tau]: { name: 'Tau', color: 'orange' }
 };
 

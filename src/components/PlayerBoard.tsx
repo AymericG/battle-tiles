@@ -74,7 +74,6 @@ export const PlayerBoard: React.FC<PlayerComponentProps> = ({ player }) => {
       <h2>{player.name}</h2>
       <button onClick={drawCards}>Draw {TILES_TO_DRAW}</button>
       <button onClick={triggerAITurn}>AI turn</button>
-      <TileSpread name='Hand' tiles={player.hand} onDrop={handleDropOnHand} />
       <div className="pile">
         <h3>Draw</h3>
         <TileStack 
@@ -85,6 +84,7 @@ export const PlayerBoard: React.FC<PlayerComponentProps> = ({ player }) => {
           onDragOver={preventDefault} 
         />
       </div>
+      <TileSpread name='Hand' tiles={player.hand} onDrop={handleDropOnHand} />
       <div className="pile">
         <h3>Discard</h3>
         <TileStack 

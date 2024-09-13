@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { GameObject } from '../models/GameObject';
 import { Unit } from '../models/Unit';
 import { Module } from '../models/Module';
@@ -32,13 +32,19 @@ export const Tile: React.FC<TileComponentProps> = ({ tile, isDraggable, onDragSt
   }
 };
 
-const DraggableTile = ({ tile, children, ...rest }: { tile: GameObject } & React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>) => (
-  <div {...rest} draggable onDragStart={(e: React.DragEvent<HTMLDivElement>) => {
+const DraggableTile = ({ tile, className, children, ...rest }: { tile: GameObject } & React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>) => {
+  const [isBeingDragged, setIsBeingDragged] = useState(false);
+
+  return <div {...rest} className={clsx(className, { dragged: isBeingDragged })} draggable onDragStart={(e: React.DragEvent<HTMLDivElement>) => {
+    setIsBeingDragged(true);
     e.dataTransfer.setData('text/plain', JSON.stringify(tile));
+  }}
+  onDragEnd={(e) => {
+    setIsBeingDragged(false);
   }}>
     {children}
-  </div>
-);
+  </div>;
+}
 
 const EdgeAttackComponent = ({ attack, direction }: { attack: { value: number, type: string }, direction: string }) => {
   return (<>
