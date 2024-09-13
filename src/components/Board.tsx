@@ -14,7 +14,7 @@ export const Board = ({ gameState, setGameState }: { gameState: GameState, setGa
             const currentPlayer = newState.players[newState.currentPlayerIndex];
             currentPlayer.hand = currentPlayer.hand.filter(t => t !== tile);
             // Place the tile on the board
-            const cell = newState.map[row][col];
+            const cell = newState.board[row][col];
             if (cell && cell?.tiles) {
                 cell.tiles.push(tile);
             } else {
@@ -27,7 +27,7 @@ export const Board = ({ gameState, setGameState }: { gameState: GameState, setGa
           });
     };
     return <div className="grid">
-        {gameState.map.map((row, y) =>
+        {gameState.board.map((row, y) =>
             row.map((cell, x) => (
                 <CellComponent key={`${x}-${y}`} cell={cell} onTileDrop={(e: React.DragEvent<HTMLDivElement>) => handleDrop(e, x, y)} />
             ))

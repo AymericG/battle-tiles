@@ -2,7 +2,7 @@ import { Cell } from './Cell';
 import { Player } from './Player';
 
 export interface GameState {
-  map: Cell[][];
+  board: Cell[][];
   players: Player[];
   currentPlayerIndex: number;
 }

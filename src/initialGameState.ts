@@ -5,7 +5,7 @@ import { ActionTile } from './models/ActionTile';
 
 // Initialize game state
 export const initialGameState: GameState = {
-    map: [
+    board: [
       [
         { x: 0, y: 0, tiles: [new UnitTile(1, [
           { value: 2, type: 'melee' },
