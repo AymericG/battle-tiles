@@ -4,7 +4,7 @@ import { Player } from "../models/Player";
 import { GameObject } from "../models/GameObject";
 
 export function playTileAsPlayer(tile: GameObject, row: number, col: number, state: Draft<GameState>) {
-    console.log(`Player ${tile.playerId} plays ${tile.name} on ${row}, ${col}.`);
+    console.log(`Player ${tile.playerId} plays ${tile.name} (${'rotation' in tile && tile.rotation}) on ${row}, ${col}.`);
     removeTileFromOriginContainer(state, tile);
     const targetCell = state.board[row][col];
     if (targetCell && targetCell.tiles) {
@@ -66,7 +66,14 @@ export function discardAsPlayer(player: Player | undefined, tile: GameObject, st
 }
 
 export function drawTileAsPlayer(player: Player | undefined, state: Draft<GameState>) {
-    if (!player || !player.drawPile.length) { return; }
+    if (!player) { 
+      return; 
+    }
+    if (player.drawPile.length === 0) {
+      console.log(`Player ${player.id} shuffles his/her discard pile to draw.`);
+      player.drawPile = player.discardPile;
+      player.discardPile = [];
+    }
     const drawnTile = player.drawPile.pop();
     if (drawnTile) {
         player.hand.push(drawnTile);
