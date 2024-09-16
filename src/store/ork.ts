@@ -1,110 +1,66 @@
 import { createAction, createModule, createUnit, shuffle } from "./army-utils";
 import { Faction } from "../models/Faction";
+import { LEADER_UNIT, MELEE_SPEED, RANGE_SPEED } from "../constants";
+
+function createOrkBoy(playerId: number) {
+    return createUnit('Ork Boy', playerId, Faction.Orks, [
+        { value: 1, type: 'melee' },
+        { value: 0, type: 'melee' },
+        { value: 0, type: 'melee' },
+        { value: 1, type: 'melee' },
+    ], 1, MELEE_SPEED);
+}
+
+function createLoota(playerId: number) {
+    return createUnit("Loota", playerId, Faction.Orks, [
+        { value: 1, type: 'range' },
+        { value: 0, type: 'range' },
+        { value: 0, type: 'range' },
+        { value: 0, type: 'range' },
+    ], 1, RANGE_SPEED, ['loot']);
+}
+
+function createGrot(playerId: number) {
+    return createUnit("Grot", playerId, Faction.Orks, [
+        { value: 1, type: 'melee' },
+        { value: 0, type: 'melee' },
+        { value: 0, type: 'melee' },
+        { value: 0, type: 'melee' },
+    ], 1, MELEE_SPEED, ['horde']);
+}
 
 export const createOrkArmy = (playerId: number) => ({
-    base: createUnit('HQ', playerId, Faction.Orks, [
+    base: createUnit(LEADER_UNIT, playerId, Faction.Orks, [
         { value: 1, type: 'melee' },
         { value: 1, type: 'melee' },
         { value: 1, type: 'melee' },
         { value: 1, type: 'melee' },
     ], 5, 1),
     deck: shuffle([
-        createUnit('Ork Boyz', playerId, Faction.Orks, [
-            { value: 2, type: 'melee' },
-            { value: 0, type: 'range' },
-            { value: 2, type: 'melee' },
-            { value: 0, type: 'range' },
-        ], 2, 2),
-        createUnit('Ork Boyz', playerId, Faction.Orks, [
-            { value: 2, type: 'melee' },
-            { value: 0, type: 'range' },
-            { value: 2, type: 'melee' },
-            { value: 0, type: 'range' },
-        ], 2, 2),
-        createUnit('Ork Boyz', playerId, Faction.Orks, [
-            { value: 2, type: 'melee' },
-            { value: 0, type: 'range' },
-            { value: 2, type: 'melee' },
-            { value: 0, type: 'range' },
-        ], 2, 2),
-        createUnit('Ork Boyz', playerId, Faction.Orks, [
-            { value: 2, type: 'melee' },
-            { value: 0, type: 'range' },
-            { value: 2, type: 'melee' },
-            { value: 0, type: 'range' },
-        ], 2, 2),
-        createUnit('Ork Boyz', playerId, Faction.Orks, [
-            { value: 2, type: 'melee' },
-            { value: 0, type: 'range' },
-            { value: 2, type: 'melee' },
-            { value: 0, type: 'range' },
-        ], 2, 2),
-        createUnit('Ork Boyz', playerId, Faction.Orks, [
-            { value: 2, type: 'melee' },
-            { value: 0, type: 'range' },
-            { value: 2, type: 'melee' },
-            { value: 0, type: 'range' },
-        ], 2, 2),
-        createUnit('Ork Boyz', playerId, Faction.Orks, [
-            { value: 2, type: 'melee' },
-            { value: 0, type: 'range' },
-            { value: 2, type: 'melee' },
-            { value: 0, type: 'range' },
-        ], 2, 2),
+        createOrkBoy(playerId),
+        createOrkBoy(playerId),
+        createOrkBoy(playerId),
+        createOrkBoy(playerId),
+        createOrkBoy(playerId),
         createUnit("Nob", playerId, Faction.Orks, [
-            { value: 3, type: 'melee' },
+            { value: 1, type: 'melee' },
             { value: 0, type: 'melee' },
-            { value: 2, type: 'melee' },
+            { value: 1, type: 'melee' },
             { value: 0, type: 'melee' },
-        ], 3, 3, ['inspiring-melee']),
-        createUnit("Lootas", playerId, Faction.Orks, [
-            { value: 2, type: 'range' },
-            { value: 2, type: 'range' },
-            { value: 0, type: 'range' },
-            { value: 2, type: 'range' },
-        ], 2, 2, ['loot']),
-        createUnit("Lootas", playerId, Faction.Orks, [
-            { value: 2, type: 'range' },
-            { value: 2, type: 'range' },
-            { value: 0, type: 'range' },
-            { value: 2, type: 'range' },
-        ], 2, 2, ['loot']), 
-        createUnit("Lootas", playerId, Faction.Orks, [
-            { value: 2, type: 'range' },
-            { value: 2, type: 'range' },
-            { value: 0, type: 'range' },
-            { value: 2, type: 'range' },
-        ], 2, 2, ['loot']), 
-        createUnit("Lootas", playerId, Faction.Orks, [
-            { value: 2, type: 'range' },
-            { value: 2, type: 'range' },
-            { value: 0, type: 'range' },
-            { value: 2, type: 'range' },
-        ], 2, 2, ['loot']),
+        ], 2, 3, ['inspiring-melee']),
+        createLoota(playerId),
+        createLoota(playerId),
+        createLoota(playerId),
+        createLoota(playerId),
         createUnit("Warbike", playerId, Faction.Orks, [
             { value: 1, type: 'melee' },
             { value: 1, type: 'melee' },
             { value: 0, type: 'melee' },
             { value: 1, type: 'melee' },
-        ], 2, 4),
-        createUnit("Kroot Carnivore", playerId, Faction.Orks, [
-            { value: 1, type: 'melee' },
-            { value: 1, type: 'melee' },
-            { value: 0, type: 'melee' },
-            { value: 1, type: 'melee' },
-        ], 3, 1, ['horde']),
-        createUnit("Kroot Carnivore", playerId, Faction.Orks, [
-            { value: 1, type: 'melee' },
-            { value: 1, type: 'melee' },
-            { value: 0, type: 'melee' },
-            { value: 1, type: 'melee' },
-        ], 3, 1, ['horde']),
-        createUnit("Kroot Carnivore", playerId, Faction.Orks, [
-            { value: 1, type: 'melee' },
-            { value: 1, type: 'melee' },
-            { value: 0, type: 'melee' },
-            { value: 1, type: 'melee' },
-        ], 3, 1, ['horde']),
+        ], 2, 3),
+        createGrot(playerId),
+        createGrot(playerId),
+        createGrot(playerId),
         createAction('Battle', playerId, Faction.Orks, 'attack', 'Battle'),
         createAction('Battle', playerId, Faction.Orks, 'attack', 'Battle'),
         createAction('Battle', playerId, Faction.Orks, 'attack', 'Battle'),

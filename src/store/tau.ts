@@ -1,92 +1,62 @@
 import { createAction, createModule, createUnit, shuffle } from "./army-utils";
 import { Faction } from "../models/Faction";
+import { LEADER_UNIT, MELEE_SPEED, RANGE_SPEED } from "../constants";
+
+function createFireWarrior(playerId: number) {
+    return createUnit('Fire Warrior', playerId, Faction.Tau, [
+        { value: 1, type: 'range' },
+        { value: 1, type: 'range' },
+        { value: 0, type: 'range' },
+        { value: 1, type: 'range' },
+    ], RANGE_SPEED, 1);
+}
+
+function createKrootCarnivore(playerId: number) {
+    return createUnit("Kroot Carnivore", playerId, Faction.Tau, [
+        { value: 1, type: 'melee' },
+        { value: 1, type: 'melee' },
+        { value: 0, type: 'melee' },
+        { value: 1, type: 'melee' },
+    ], 1, MELEE_SPEED, ['horde']);
+}
+
 
 export const createTauArmy = (playerId: number) => ({
-    base: createUnit('HQ', playerId, Faction.Tau, [
+    base: createUnit(LEADER_UNIT, playerId, Faction.Tau, [
         { value: 1, type: 'melee' },
         { value: 1, type: 'melee' },
         { value: 1, type: 'melee' },
         { value: 1, type: 'melee' },
     ], 5, 1),
     deck: shuffle([
-        createUnit('Fire Warrior', playerId, Faction.Tau, [
-            { value: 1, type: 'range' },
-            { value: 1, type: 'range' },
-            { value: 0, type: 'range' },
-            { value: 1, type: 'range' },
-        ], 1, 1),
-        createUnit('Fire Warrior', playerId, Faction.Tau, [
-            { value: 1, type: 'range' },
-            { value: 1, type: 'range' },
-            { value: 0, type: 'range' },
-            { value: 1, type: 'range' },
-        ], 1, 1),
-        createUnit('Fire Warrior', playerId, Faction.Tau, [
-            { value: 1, type: 'range' },
-            { value: 1, type: 'range' },
-            { value: 0, type: 'range' },
-            { value: 1, type: 'range' },
-        ], 1, 1),
-        createUnit('Fire Warrior', playerId, Faction.Tau, [
-            { value: 1, type: 'range' },
-            { value: 1, type: 'range' },
-            { value: 0, type: 'range' },
-            { value: 1, type: 'range' },
-        ], 1, 1),
-        createUnit('Fire Warrior', playerId, Faction.Tau, [
-            { value: 1, type: 'range' },
-            { value: 1, type: 'range' },
-            { value: 0, type: 'range' },
-            { value: 1, type: 'range' },
-        ], 1, 1),
+        createFireWarrior(playerId),
+        createFireWarrior(playerId),
+        createFireWarrior(playerId),
+        createFireWarrior(playerId),
+        createFireWarrior(playerId),
         createUnit("Crisis Battlesuit", playerId, Faction.Tau, [
-            { value: 2, type: 'range' },
             { value: 1, type: 'range' },
-            { value: 1, type: 'melee' },
+            { value: 1, type: 'range' },
             { value: 0, type: 'melee' },
-        ], 3, 2),
+            { value: 1, type: 'range' },
+        ], 2, RANGE_SPEED),
         createUnit("Stealth Suit", playerId, Faction.Tau, [
             { value: 1, type: 'range' },
             { value: 0, type: 'melee' },
             { value: 0, type: 'range' },
             { value: 1, type: 'range' },
-        ], 2, 3, ['stealthy']),
+        ], 1, 3, ['stealthy']),
         createUnit("Broadside Battlesuit", playerId, Faction.Tau, [
-            { value: 3, type: 'range' },
-            { value: 2, type: 'range' },
-            { value: 3, type: 'range' },
+            { value: 1, type: 'range' },
+            { value: 1, type: 'range' },
+            { value: 1, type: 'range' },
             { value: 0, type: 'range' },
-        ], 4, 2),
-        createUnit("Kroot Carnivore", playerId, Faction.Tau, [
-            { value: 1, type: 'melee' },
-            { value: 1, type: 'melee' },
-            { value: 0, type: 'melee' },
-            { value: 1, type: 'melee' },
-        ], 3, 1, ['horde']),
-        createUnit("Kroot Carnivore", playerId, Faction.Tau, [
-            { value: 1, type: 'melee' },
-            { value: 1, type: 'melee' },
-            { value: 0, type: 'melee' },
-            { value: 1, type: 'melee' },
-        ], 3, 1, ['horde']),
-        createUnit("Kroot Carnivore", playerId, Faction.Tau, [
-            { value: 1, type: 'melee' },
-            { value: 1, type: 'melee' },
-            { value: 0, type: 'melee' },
-            { value: 1, type: 'melee' },
-        ], 3, 1, ['horde']),
-        createUnit("Kroot Carnivore", playerId, Faction.Tau, [
-            { value: 1, type: 'melee' },
-            { value: 1, type: 'melee' },
-            { value: 0, type: 'melee' },
-            { value: 1, type: 'melee' },
-        ], 3, 1, ['horde']),
-        createUnit("Kroot Carnivore", playerId, Faction.Tau, [
-            { value: 1, type: 'melee' },
-            { value: 1, type: 'melee' },
-            { value: 0, type: 'melee' },
-            { value: 1, type: 'melee' },
-        ], 3, 1, ['horde']),
+        ], 2, RANGE_SPEED),
+        createKrootCarnivore(playerId),
+        createKrootCarnivore(playerId),
+        createKrootCarnivore(playerId),
+        createKrootCarnivore(playerId),
+        createKrootCarnivore(playerId),
         createAction('Battle', playerId, Faction.Tau, 'attack', 'Battle'),
         createAction('Battle', playerId, Faction.Tau, 'attack', 'Battle'),
         createAction('Battle', playerId, Faction.Tau, 'attack', 'Battle'),

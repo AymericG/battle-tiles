@@ -1,7 +1,7 @@
 import { Draft } from "@reduxjs/toolkit";
 import { GameState } from "../models/GameState";
 import { Player } from "../models/Player";
-import { TILES_TO_DRAW } from "../constants";
+import { LEADER_UNIT, TILES_TO_DRAW } from "../constants";
 import { discardAsPlayer, drawTileAsPlayer, playTileAsPlayer } from "./game-state-utils";
 import { GameObject } from "../models/GameObject";
 import { EdgeAttack, Unit } from "../models/Unit";
@@ -184,7 +184,7 @@ function evaluateAttack(targetCell: Cell, player: Player, initiative: number, at
     if (enemies.some(x => x.health <= attack.value && x.initiative < initiative)) {
         return attack.value * 3;
     }
-    if (enemies.some(x => x.name === 'HQ')) {
+    if (enemies.some(x => x.name === LEADER_UNIT)) {
         return attack.value * 2;
     }
     return attack.value;

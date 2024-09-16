@@ -62,6 +62,9 @@ export function discardAsPlayer(player: Player | undefined, tile: GameObject, st
     console.log(`Player ${player.id} discards ${tile.name}.`);
     removeTileFromOriginContainer(state, tile);
     tile.playerId = player.id;
+    if ('health' in tile && 'maxHealth' in tile) {
+      tile.health = tile.maxHealth;
+    }
     player.discardPile.push(tile);
 }
 

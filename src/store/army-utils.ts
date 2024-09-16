@@ -29,6 +29,7 @@ export function createUnit(name: string, playerId: number, faction: Faction, att
         type: 'unit',
         faction,
         attacks,
+        maxHealth: health,
         health,
         initiative,
         rotation: 0,
