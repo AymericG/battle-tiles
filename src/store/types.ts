@@ -20,3 +20,8 @@ export type PossibleAction = {
     rotation?: number,
     score: number
 }
+
+export enum WallDirection {
+    HORIZONTAL = 'horizontal',
+    VERTICAL = 'vertical'
+}

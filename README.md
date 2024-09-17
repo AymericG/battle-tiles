@@ -9,7 +9,11 @@
 - [x] Track damage easily
 - [x] Change button color based on user faction
 - [x] Allow to play against AI
-- [ ] Deploy
+- [x] Deploy
 - [x] Make touch friendly
+
+- [ ] Tweak Ork army
+- [ ] Tweak Tau army
+- [ ] Allow AI to play module and action tiles
 - [ ] Allow AI to play against AI
 - [ ] Add walls on the map
