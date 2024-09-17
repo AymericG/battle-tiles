@@ -11,8 +11,8 @@
 
 .wall {
     position: absolute;
-    background-color: rgb(140, 4, 4);
-    background-image: repeating-linear-gradient(135deg, rgba(0, 0, 0, .1), rgba(0, 0, 0, .1) 10px, rgba(0, 0, 0, .6) 10px, rgba(0, 0, 0, .6) 20px);
+    background-color: yellow;
+    background-image: repeating-linear-gradient(135deg, rgba(0, 0, 0, .1), rgba(0, 0, 0, .1) 10px, #000 10px, #000 20px);
 }
 
 .wall.horizontal {
