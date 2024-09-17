@@ -2,7 +2,7 @@ import { Draft } from "@reduxjs/toolkit";
 import { GameState } from "../models/GameState";
 import { Player } from "../models/Player";
 import { LEADER_UNIT, TILES_TO_DRAW } from "../constants";
-import { discardAsPlayer, drawTileAsPlayer, playTileAsPlayer } from "./game-state-utils";
+import { battle, discardAsPlayer, drawTileAsPlayer, playTileAsPlayer } from "./game-state-utils";
 import { GameObject } from "../models/GameObject";
 import { EdgeAttack, Unit } from "../models/Unit";
 import { Module } from "../models/Module";
@@ -123,6 +123,7 @@ function evaluateAction(action: any, player: Player, state: Draft<GameState>) {
     const newState = JSON.parse(JSON.stringify(state));
     // Execute action
     executeAction(action, newState);
+    battle(newState);
     // Evaluate state
     action.score = evaluateState(newState, player);
 }
@@ -135,6 +136,7 @@ function evaluateState(state: GameState, player: Player) {
             if (!cell || !cell.tiles) { continue; }
             for (const tile of cell.tiles) {
                 const tileScore = evaluateTile(tile, player, state);
+                console.log(`Tile ${tile.name} has a score of ${tileScore}`);
                 if (player.id === tile.playerId) {
                     score += tileScore;
                 } else {
@@ -149,12 +151,17 @@ function evaluateState(state: GameState, player: Player) {
 
 function evaluateTile(tile: GameObject, player: Player, state: GameState) {
     if (tile.type === 'unit') {
-        return evaluateUnit(tile as Unit, player, state);
-    }
-    if (tile.type === 'module') {
-        return evaluateModule(tile as Module, player, state);
-    }
-    return 0;
+        return (tile as Unit).health;
+    };
+    return 1;
+    
+    // if (tile.type === 'unit') {
+    //     return evaluateUnit(tile as Unit, player, state);
+    // }
+    // if (tile.type === 'module') {
+    //     return evaluateModule(tile as Module, player, state);
+    // }
+    // return 0;
 }
 
 function evaluateAttack(targetCell: Cell, player: Player, initiative: number, attack: EdgeAttack) {
