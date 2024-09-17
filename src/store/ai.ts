@@ -7,10 +7,11 @@ import { GameObject } from "../models/GameObject";
 import { EdgeAttack, Unit } from "../models/Unit";
 import { Module } from "../models/Module";
 import { Cell } from "../models/Cell";
+import { ActionType, AttackDirection, PossibleAction } from "./types";
 
-function randomItem(items: any[]) {
-    return items[Math.floor(Math.random() * items.length)];
-}
+// function randomItem(items: any[]) {
+//     return items[Math.floor(Math.random() * items.length)];
+// }
 
 function findAllEmptyCells(state: Draft<GameState>) {
     const emptyCells = [];
@@ -70,26 +71,6 @@ export function playAs(player: Player | undefined, state: Draft<GameState>) {
     discardAsPlayer(player, player.hand[0], state);
 }
 
-enum ActionType {
-    PLAY = 'play',
-    DISCARD = 'discard'
-}
-
-enum AttackDirection {
-    UP = 0,
-    RIGHT = 1,
-    DOWN = 2,
-    LEFT = 3
-}
-
-type PossibleAction = {
-    type: ActionType,
-    tile: GameObject,
-    x?: number,
-    y?: number,
-    rotation?: number,
-    score: number
-}
 
 function executeAction(action: PossibleAction, state: Draft<GameState>) {
     switch (action.type) {
@@ -270,29 +251,29 @@ function evaluateModule(module: Module, player: Player, state: GameState) {
     return adjacentUnits;
 }
 
-function playTileRandomlyAsPlayer(tile: GameObject, player: Player, state: Draft<GameState>) {
-    // Find all available spots on the board
-    const emptyCells = findAllEmptyCells(state);
-    // Pick one randomly
-    const emptyCell = randomItem(emptyCells);
-    playTileAsPlayer(tile, emptyCell.y, emptyCell.x, state);
-}
+// function playTileRandomlyAsPlayer(tile: GameObject, player: Player, state: Draft<GameState>) {
+//     // Find all available spots on the board
+//     const emptyCells = findAllEmptyCells(state);
+//     // Pick one randomly
+//     const emptyCell = randomItem(emptyCells);
+//     playTileAsPlayer(tile, emptyCell.y, emptyCell.x, state);
+// }
 
-function playAllTilesRandomlyAsPlayer(player: Player, state: Draft<GameState>) {
-    const randomTile = randomItem(player.hand);
-    discardAsPlayer(player, randomTile, state);
+// function playAllTilesRandomlyAsPlayer(player: Player, state: Draft<GameState>) {
+//     const randomTile = randomItem(player.hand);
+//     discardAsPlayer(player, randomTile, state);
 
-    const tilesToPlay = [...player.hand];
-    for (const tile of tilesToPlay) {
-        if (tile.type === 'action') {
-            discardAsPlayer(player, tile, state);
-            continue;
-        }
+//     const tilesToPlay = [...player.hand];
+//     for (const tile of tilesToPlay) {
+//         if (tile.type === 'action') {
+//             discardAsPlayer(player, tile, state);
+//             continue;
+//         }
 
-        // Find all available spots on the board
-        const emptyCells = findAllEmptyCells(state);
-        // Pick one randomly
-        const emptyCell = randomItem(emptyCells);
-        playTileAsPlayer(tile, emptyCell.y, emptyCell.x, state);
-    }
-}
+//         // Find all available spots on the board
+//         const emptyCells = findAllEmptyCells(state);
+//         // Pick one randomly
+//         const emptyCell = randomItem(emptyCells);
+//         playTileAsPlayer(tile, emptyCell.y, emptyCell.x, state);
+//     }
+// }

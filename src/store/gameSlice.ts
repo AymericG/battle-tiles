@@ -1,10 +1,10 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { AnyAction, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { initialGameState } from './initialGameState';
 import { GameObject } from '../models/GameObject';
 import { Rotatable } from '../models/Rotatable';
 import { Unit } from '../models/Unit';
 import { playAs } from './ai';
-import { discardAsPlayer, drawTileAsPlayer, getPlayer, playTileAsPlayer, removeTileFromOriginContainer } from './game-state-utils';
+import { battle, discardAsPlayer, drawTileAsPlayer, getPlayer, playTileAsPlayer, removeTileFromOriginContainer } from './game-state-utils';
 
 interface BoardPayload {
   row: number;
@@ -89,8 +89,11 @@ const gameSlice = createSlice({
 
       }
     },
+    resolveBattle: (state, action: AnyAction) => {
+      battle(state);
+    }
   },
 });
 
-export const { aiTurn, addDamage, drawTile, moveToDiscard, moveToDraw, moveToHand, moveTile, rotateTile } = gameSlice.actions;
+export const { resolveBattle, aiTurn, addDamage, drawTile, moveToDiscard, moveToDraw, moveToHand, moveTile, rotateTile } = gameSlice.actions;
 export default gameSlice.reducer;

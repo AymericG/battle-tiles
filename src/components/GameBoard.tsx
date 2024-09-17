@@ -1,7 +1,7 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../store/store';
-import { addDamage, moveTile } from '../store/gameSlice';
+import { addDamage, moveTile, resolveBattle } from '../store/gameSlice';
 import { GameObject } from "../models/GameObject";
 import { BoardCell } from "./BoardCell";
 import './GameBoard.css';
@@ -42,11 +42,16 @@ export function GameBoard() {
                 </div>
             </div>
 
-            <div 
-                className="damage-disc" 
-                draggable 
-                onDragStart={handleDragStart}
-            >✹</div>
+            <footer className='game-board-footer'>
+                <button onClick={() => {
+                    dispatch(resolveBattle());
+                }}>Battle!</button>
+                <div 
+                    className="damage-disc" 
+                    draggable 
+                    onDragStart={handleDragStart}
+                >✹</div>
+            </footer>
         </div>
     );
 }
