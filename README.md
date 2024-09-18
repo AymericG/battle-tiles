@@ -17,3 +17,4 @@
 - [ ] Allow AI to play module and action tiles
 - [ ] Allow AI to play against AI
 - [ ] Add walls on the map
+- [ ] AI should take walls in account

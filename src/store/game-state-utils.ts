@@ -5,15 +5,17 @@ import { GameObject } from "../models/GameObject";
 import { EdgeAttack, Unit } from "../models/Unit";
 import { AttackDirection } from "./types";
 import { getFactionName } from "../utils/factions";
+import { Module } from "../models/Module";
+import { Rotatable } from "../models/Rotatable";
 
 export function playTileAsPlayer(tile: GameObject, row: number, col: number, state: Draft<GameState>) {
-    console.log(`Player ${tile.playerId} plays ${tile.name} (${'rotation' in tile && tile.rotation}) on ${row}, ${col}.`);
+    console.log(`Player ${tile.playerId} plays ${tile.name} (${'rotation' in tile && tile.rotation}) on ${col}, ${row}.`);
     removeTileFromOriginContainer(state, tile);
     const targetCell = state.board[row][col];
     if (targetCell && targetCell.tiles) {
         targetCell.tiles.push(tile);
     } else {
-        console.error(`Invalid cell at row ${row}, col ${col}`);
+        console.error(`Invalid cell at ${col},${row}`);
     }
 }
 
@@ -112,6 +114,10 @@ function findValidTarget(unit: Unit, edge: number, attack: EdgeAttack, state: Dr
         if (attackOrigin.row === 0) { return null; }
         // Get all cells in the column above the unit until we reach the edge of the board
         for (let row = attackOrigin.row - 1; row >= 0; row--) {
+          // if previous cell has a horizontal wall, break
+          if (state.board[row + 1][attackOrigin.col].walls.includes('horizontal')) {
+            break;
+          }
           const target = state.board[row][attackOrigin.col];
           if (target.tiles) {
             const enemyTile = target.tiles.find(tile => (tile as Unit).playerId !== unit.playerId);
@@ -129,6 +135,9 @@ function findValidTarget(unit: Unit, edge: number, attack: EdgeAttack, state: Dr
         // Get all cells in the row to the right of the unit until we reach the edge of the board
         for (let col = attackOrigin.col + 1; col < state.board[0].length; col++) {
           const target = state.board[attackOrigin.row][col];
+          if (target.walls.includes('vertical')) {
+            break;
+          }
           if (target.tiles) {
             const enemyTile = target.tiles.find(tile => (tile as Unit).playerId !== unit.playerId);
             if (enemyTile) { 
@@ -145,6 +154,9 @@ function findValidTarget(unit: Unit, edge: number, attack: EdgeAttack, state: Dr
         // Get all cells in the column below the unit until we reach the edge of the board
         for (let row = attackOrigin.row + 1; row < state.board.length; row++) {
           const target = state.board[row][attackOrigin.col];
+          if (state.board[row][attackOrigin.col].walls.includes('horizontal')) {
+            break;
+          }
           if (target.tiles) {
             const enemyTile = target.tiles.find(tile => (tile as Unit).playerId !== unit.playerId);
             if (enemyTile) { 
@@ -161,6 +173,9 @@ function findValidTarget(unit: Unit, edge: number, attack: EdgeAttack, state: Dr
         // Get all cells in the row to the left of the unit until we reach the edge of the board
         for (let col = attackOrigin.col - 1; col >= 0; col--) {
           const target = state.board[attackOrigin.row][col];
+          if (state.board[attackOrigin.row][col + 1].walls.includes('vertical')) {
+            break;
+          }
           if (target.tiles) {
             const enemyTile = target.tiles.find(tile => (tile as Unit).playerId !== unit.playerId);
             if (enemyTile) { 
@@ -191,7 +206,7 @@ function findValidAttackActions(unit: Unit, state: Draft<GameState>) {
 }
 
 export function attack(attackAction: { unit: Unit, target: GameObject, attack: EdgeAttack }, state: Draft<GameState>) {
-    const targetUnit = attackAction.target as Unit;
+    const targetUnit = attackAction.target as Rotatable;
     targetUnit.health -= attackAction.attack.value;
     if (targetUnit.health <= 0) {
       const targetEnemyPlayer = state.players.find(player => player.id === targetUnit.playerId);

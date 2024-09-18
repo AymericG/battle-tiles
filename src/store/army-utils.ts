@@ -46,6 +46,8 @@ export function createModule(name: string, playerId: number, faction: Faction, e
         faction,
         effect,
         rotation: 0,
+        health: 1,
+        maxHealth: 1,
         connected: [true, true, true, true],
         keywords: []
     };

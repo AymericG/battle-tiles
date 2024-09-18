@@ -46,9 +46,9 @@ function generateWallArray(x: number, y: number, possibleWalls: Wall[]) {
 
 function generateEmptyBoardCells() {
   const board = [];
-  for (let x = 0; x < BOARD_SIZE; x++) {
+  for (let y = 0; y < BOARD_SIZE; y++) {
     const row = [];
-    for (let y = 0; y < BOARD_SIZE; y++) {
+    for (let x = 0; x < BOARD_SIZE; x++) {
       row.push({ x, y, tiles: [], walls: generateWallArray(x, y, randomWalls) } as Cell);
     }
     board.push(row);

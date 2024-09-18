@@ -10,7 +10,5 @@ export interface EdgeAttack {
 export interface Unit extends Rotatable {
   type: 'unit';
   attacks: EdgeAttack[];
-  health: number;
-  maxHealth: number;
   initiative: number;
 }

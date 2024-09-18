@@ -15,11 +15,13 @@ import { ActionType, AttackDirection, PossibleAction } from "./types";
 
 function findAllEmptyCells(state: Draft<GameState>) {
     const emptyCells = [];
+    console.log('Finding empty cells', JSON.parse(JSON.stringify(state.board)));
     for (let row = 0; row < state.board.length; row++) {
         for (let col = 0; col < state.board[row].length; col++) {
             const cell = state.board[row][col];
-            if (!cell) { continue; }
-            if (!cell.tiles || !cell.tiles.length) {
+            if (!cell || !cell.tiles) { continue; }
+            if (!cell.tiles.length) {
+                console.log(`Empty cell at ${col}, ${row}`);
                 emptyCells.push(cell);
                 continue;
             }
@@ -59,11 +61,15 @@ export function playAs(player: Player | undefined, state: Draft<GameState>) {
     
     while (player.hand.length > 1) {
         // Generate all possible moves
-        const possibleActions = player.hand.flatMap(tile => generateAllPossibleActions(tile, state));
+        const emptyCells = findAllEmptyCells(state);
+    
+        const possibleActions = player.hand.flatMap(tile => generateAllPossibleActions(tile, emptyCells));
+        console.log('Possible actions:', possibleActions);
         evaluateAllActions(possibleActions, player, state);
         // Sort actions by score
         possibleActions.sort((a, b) => b.score - a.score);
         // Play the best action
+        console.log(`Player ${player.id} plays ${possibleActions[0].tile.name} with score ${possibleActions[0].score}.`, possibleActions[0]);
         executeAction(possibleActions[0], state);
     }
 
@@ -86,7 +92,7 @@ function executeAction(action: PossibleAction, state: Draft<GameState>) {
     }
 }
 
-function generateAllPossibleActions(tile: GameObject, state: Draft<GameState>): PossibleAction[] {
+function generateAllPossibleActions(tile: GameObject, emptyCells: Cell[]): PossibleAction[] {
     if (tile.type === 'action') {
         return [{
             type: ActionType.DISCARD,
@@ -95,7 +101,6 @@ function generateAllPossibleActions(tile: GameObject, state: Draft<GameState>): 
         }]
     }
     // Find all available spots on the board
-    const emptyCells = findAllEmptyCells(state);
     const possibleActions = [];
     for (const emptyCell of emptyCells) {
         for (let rotation = 0; rotation < 4; rotation++) {
@@ -108,6 +113,13 @@ function generateAllPossibleActions(tile: GameObject, state: Draft<GameState>): 
                 score: 0
             });
         }
+    }
+    if (possibleActions.length === 0) {
+        possibleActions.push({
+            type: ActionType.DISCARD,
+            tile,
+            score: 0
+        });
     }
     return possibleActions;
 }
@@ -151,7 +163,8 @@ function evaluateState(state: GameState, player: Player) {
 
 function evaluateTile(tile: GameObject, player: Player, state: GameState) {
     if (tile.type === 'unit') {
-        return (tile as Unit).health;
+        const modifier = tile.name === LEADER_UNIT ? 2 : 1;
+        return (tile as Unit).health * modifier;
     };
     return 1;
     
