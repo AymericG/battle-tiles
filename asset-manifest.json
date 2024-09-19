@@ -1,14 +1,14 @@
 {
   "files": {
-    "main.css": "/battle-tiles/static/css/main.e6c7dfe1.css",
-    "main.js": "/battle-tiles/static/js/main.69673882.js",
+    "main.css": "/battle-tiles/static/css/main.4a05c899.css",
+    "main.js": "/battle-tiles/static/js/main.cba88fa3.js",
     "static/media/grunge-texture.png": "/battle-tiles/static/media/grunge-texture.7fb7fc381ca51c2eed86.png",
     "index.html": "/battle-tiles/index.html",
-    "main.e6c7dfe1.css.map": "/battle-tiles/static/css/main.e6c7dfe1.css.map",
-    "main.69673882.js.map": "/battle-tiles/static/js/main.69673882.js.map"
+    "main.4a05c899.css.map": "/battle-tiles/static/css/main.4a05c899.css.map",
+    "main.cba88fa3.js.map": "/battle-tiles/static/js/main.cba88fa3.js.map"
   },
   "entrypoints": [
-    "static/css/main.e6c7dfe1.css",
-    "static/js/main.69673882.js"
+    "static/css/main.4a05c899.css",
+    "static/js/main.cba88fa3.js"
   ]
 }
