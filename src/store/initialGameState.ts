@@ -1,10 +1,10 @@
 import { GameState } from '../models/GameState';
-import { createTauArmy } from './tau';
-import { createOrkArmy } from './ork';
 import { Faction } from '../models/Faction';
 import { BOARD_SIZE } from '../constants';
 import { WallDirection } from './types';
 import { Cell } from '../models/Cell';
+import { createTauArmy } from './tau/create-army';
+import { createOrkArmy } from './ork/create-army';
 
 const tauArmy = createTauArmy(1);
 const orkArmy = createOrkArmy(2);
@@ -20,10 +20,10 @@ function generateAllPossibleWalls() {
   for (let x = 0; x < BOARD_SIZE; x++) {
     for (let y = 0; y < BOARD_SIZE; y++) {
       if (x !== 0) {
-        walls.push({ x, y, direction: WallDirection.HORIZONTAL } as Wall);
+        walls.push({ x, y, direction: WallDirection.VERTICAL } as Wall);
       }
       if (y !== 0) {
-        walls.push({ x, y, direction: WallDirection.VERTICAL } as Wall);
+        walls.push({ x, y, direction: WallDirection.HORIZONTAL } as Wall);
       }
     }
   }

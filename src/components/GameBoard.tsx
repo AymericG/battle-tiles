@@ -2,7 +2,6 @@ import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../store/store';
 import { addDamage, moveTile, resolveBattle } from '../store/gameSlice';
-import { GameObject } from "../models/GameObject";
 import { BoardCell } from "./BoardCell";
 import './GameBoard.css';
 
@@ -21,7 +20,7 @@ export function GameBoard() {
         if (draggedItem.type === 'damage') {
             dispatch(addDamage({ row, col }));
         } else {
-            dispatch(moveTile({ tile: draggedItem as GameObject, row, col }));
+            dispatch(moveTile({ tile: draggedItem as any, row, col }));
         }
     };
 

@@ -3,11 +3,12 @@ import { GameState } from "../models/GameState";
 import { Player } from "../models/Player";
 import { LEADER_UNIT, TILES_TO_DRAW } from "../constants";
 import { battle, discardAsPlayer, drawTileAsPlayer, playTileAsPlayer } from "./game-state-utils";
-import { GameObject } from "../models/GameObject";
+import { GameObjectInstance } from "../models/GameObject";
 import { EdgeAttack, Unit } from "../models/Unit";
-import { Module } from "../models/Module";
 import { Cell } from "../models/Cell";
-import { ActionType, AttackDirection, PossibleAction } from "./types";
+import { ActionType, PossibleAction } from "./types";
+import { allGameObjects } from "./all-game-objects";
+import { RotatableInstance } from "../models/Rotatable";
 
 // function randomItem(items: any[]) {
 //     return items[Math.floor(Math.random() * items.length)];
@@ -44,16 +45,18 @@ export function playAs(player: Player | undefined, state: Draft<GameState>) {
     const tilesToPlay = [...player.hand];
     // Sort tiles by type, unit first, then module, then action
     tilesToPlay.sort((a, b) => {
-        if (a.type === 'unit' && b.type !== 'unit') {
+        const aTemplate = allGameObjects[a.objectId];
+        const bTemplate = allGameObjects[b.objectId];
+        if (aTemplate.type === 'unit' && bTemplate.type !== 'unit') {
             return -1;
         }
-        if (a.type !== 'unit' && b.type === 'unit') {
+        if (aTemplate.type !== 'unit' && bTemplate.type === 'unit') {
             return 1;
         }
-        if (a.type === 'module' && b.type === 'action') {
+        if (aTemplate.type === 'module' && bTemplate.type === 'action') {
             return -1;
         }
-        if (a.type === 'action' && b.type === 'module') {
+        if (aTemplate.type === 'action' && bTemplate.type === 'module') {
             return 1;
         }
         return 0;
@@ -69,7 +72,8 @@ export function playAs(player: Player | undefined, state: Draft<GameState>) {
         // Sort actions by score
         possibleActions.sort((a, b) => b.score - a.score);
         // Play the best action
-        console.log(`Player ${player.id} plays ${possibleActions[0].tile.name} with score ${possibleActions[0].score}.`, possibleActions[0]);
+        const template = allGameObjects[possibleActions[0].tile.objectId];
+        console.log(`Player ${player.id} plays ${template.name} with score ${possibleActions[0].score}.`, possibleActions[0]);
         executeAction(possibleActions[0], state);
     }
 
@@ -84,7 +88,7 @@ function executeAction(action: PossibleAction, state: Draft<GameState>) {
             if ('rotation' in action.tile) { 
                 action.tile.rotation = action.rotation || action.tile.rotation;
             }
-            playTileAsPlayer(action.tile, action.y || 0, action.x || 0, state);
+            playTileAsPlayer(action.tile as RotatableInstance, action.y || 0, action.x || 0, state);
             break;
         case ActionType.DISCARD:
             discardAsPlayer(state.players.find(x => x.id === action.tile.playerId), action.tile, state);
@@ -92,8 +96,9 @@ function executeAction(action: PossibleAction, state: Draft<GameState>) {
     }
 }
 
-function generateAllPossibleActions(tile: GameObject, emptyCells: Cell[]): PossibleAction[] {
-    if (tile.type === 'action') {
+function generateAllPossibleActions(tile: GameObjectInstance, emptyCells: Cell[]): PossibleAction[] {
+    const template = allGameObjects[tile.objectId];
+    if (template.type === 'action') {
         return [{
             type: ActionType.DISCARD,
             tile,
@@ -148,7 +153,8 @@ function evaluateState(state: GameState, player: Player) {
             if (!cell || !cell.tiles) { continue; }
             for (const tile of cell.tiles) {
                 const tileScore = evaluateTile(tile, player, state);
-                console.log(`Tile ${tile.name} has a score of ${tileScore}`);
+                const template = allGameObjects[tile.objectId];
+                console.log(`Tile ${template.name} has a score of ${tileScore}`);
                 if (player.id === tile.playerId) {
                     score += tileScore;
                 } else {
@@ -161,11 +167,15 @@ function evaluateState(state: GameState, player: Player) {
     return score;
 }
 
-function evaluateTile(tile: GameObject, player: Player, state: GameState) {
-    if (tile.type === 'unit') {
-        const modifier = tile.name === LEADER_UNIT ? 2 : 1;
-        return (tile as Unit).health * modifier;
+function evaluateTile(tile: RotatableInstance, player: Player, state: GameState) {
+    const template = allGameObjects[tile.objectId];
+    if (template.type === 'unit') {
+        const modifier = template.name === LEADER_UNIT ? 2 : 1;
+        return template.health * modifier;
     };
+    if (template.type === 'module') {
+        return template.health;
+    }
     return 1;
     
     // if (tile.type === 'unit') {
@@ -178,14 +188,14 @@ function evaluateTile(tile: GameObject, player: Player, state: GameState) {
 }
 
 function evaluateAttack(targetCell: Cell, player: Player, initiative: number, attack: EdgeAttack) {
-    const enemies = targetCell.tiles.filter(tile => tile.type === 'unit' && tile.playerId !== player.id).map(tile => tile as Unit);
+    const enemies = targetCell.tiles.filter(tile => allGameObjects[tile.objectId].type === 'unit' && tile.playerId !== player.id);
     if (!enemies.length) {
         return 0;
     }
-    if (enemies.some(x => x.health <= attack.value && x.initiative < initiative)) {
+    if (enemies.some(x => x.health <= attack.value && (allGameObjects[x.objectId] as Unit).initiative < initiative)) {
         return attack.value * 3;
     }
-    if (enemies.some(x => x.name === LEADER_UNIT)) {
+    if (enemies.some(x => allGameObjects[x.objectId].name === LEADER_UNIT)) {
         return attack.value * 2;
     }
     return attack.value;
@@ -193,83 +203,83 @@ function evaluateAttack(targetCell: Cell, player: Player, initiative: number, at
 
 
 // TODO: This ignores the fact that this unit could be killed before it can act
-function evaluateUnit(unit: Unit, player: Player, state: GameState) {
-    const board = state.board;
-    const tilePosition = findTilePosition(unit, state);
-    if (!tilePosition) {
-        return 0;
-    }
-    let damage = 0;
-    unit.attacks.forEach((attack, edge) => {
-        const direction = (edge + unit.rotation as number) % 4;
-        const { row, col } = tilePosition;
-        // TODO: this is ignoring range attacks
-        // TODO: this is ignoring partial damage
-        switch (direction) {
-            case AttackDirection.UP:
-                if (row > 0 && board[row - 1][col].tiles) {
-                    damage = evaluateAttack(board[row - 1][col], player, unit.initiative, attack);
-                }
-                break;
-            case AttackDirection.RIGHT:
-                if (col < board[row].length - 1 && board[row][col + 1].tiles) {
-                    damage = evaluateAttack(board[row][col + 1], player, unit.initiative, attack);
-                }
-                break;
-            case AttackDirection.DOWN:
-                if (row < board.length - 1 && board[row + 1][col].tiles) {
-                    damage = evaluateAttack(board[row + 1][col], player, unit.initiative, attack);
-                }
-                break;
-            case AttackDirection.LEFT:
-                if (col > 0 && board[row][col - 1].tiles) {
-                    damage = evaluateAttack(board[row][col - 1], player, unit.initiative, attack);
-                }
-                break;
-        } 
-    });
-    return damage;
-}
+// function evaluateUnit(unit: Unit, player: Player, state: GameState) {
+//     const board = state.board;
+//     const tilePosition = findTilePosition(unit, state);
+//     if (!tilePosition) {
+//         return 0;
+//     }
+//     let damage = 0;
+//     unit.attacks.forEach((attack, edge) => {
+//         const direction = (edge + unit.rotation as number) % 4;
+//         const { row, col } = tilePosition;
+//         // TODO: this is ignoring range attacks
+//         // TODO: this is ignoring partial damage
+//         switch (direction) {
+//             case AttackDirection.UP:
+//                 if (row > 0 && board[row - 1][col].tiles) {
+//                     damage = evaluateAttack(board[row - 1][col], player, unit.initiative, attack);
+//                 }
+//                 break;
+//             case AttackDirection.RIGHT:
+//                 if (col < board[row].length - 1 && board[row][col + 1].tiles) {
+//                     damage = evaluateAttack(board[row][col + 1], player, unit.initiative, attack);
+//                 }
+//                 break;
+//             case AttackDirection.DOWN:
+//                 if (row < board.length - 1 && board[row + 1][col].tiles) {
+//                     damage = evaluateAttack(board[row + 1][col], player, unit.initiative, attack);
+//                 }
+//                 break;
+//             case AttackDirection.LEFT:
+//                 if (col > 0 && board[row][col - 1].tiles) {
+//                     damage = evaluateAttack(board[row][col - 1], player, unit.initiative, attack);
+//                 }
+//                 break;
+//         } 
+//     });
+//     return damage;
+// }
 
-function findTilePosition(tile: GameObject, state: GameState) {
-    for (let row = 0; row < state.board.length; row++) {
-        for (let col = 0; col < state.board[row].length; col++) {
-            const cell = state.board[row][col];
-            if (!cell || !cell.tiles) { continue; }
-            const originalTile = cell.tiles.find((t: GameObject) => t.id === tile.id);
-            if (originalTile) {
-                return { row, col };
-            }
-        }
-    }
-    return null;
-}
+// function findTilePosition(tile: GameObject, state: GameState) {
+//     for (let row = 0; row < state.board.length; row++) {
+//         for (let col = 0; col < state.board[row].length; col++) {
+//             const cell = state.board[row][col];
+//             if (!cell || !cell.tiles) { continue; }
+//             const originalTile = cell.tiles.find((t: GameObject) => t.id === tile.id);
+//             if (originalTile) {
+//                 return { row, col };
+//             }
+//         }
+//     }
+//     return null;
+// }
 
-function evaluateModule(module: Module, player: Player, state: GameState) {
-    // Count the number of units adjacent to this module
-    let adjacentUnits = 0;
-    const board = state.board;
-    const tilePosition = findTilePosition(module, state);
-    if (!tilePosition) {
-        return 0;
-    }
-    // TODO: This is ignoring the rotation and connections of the module
-    const { row, col } = tilePosition;
-    if (row > 0 && board[row - 1][col].tiles) {
-        adjacentUnits += board[row - 1][col].tiles.filter(tile => tile.type === 'unit' && tile.playerId === player.id).length;
-    }
-    if (row < board.length - 1 && board[row + 1][col].tiles) {
-        adjacentUnits += board[row + 1][col].tiles.filter(tile => tile.type === 'unit' && tile.playerId === player.id).length;
-    }
-    if (col > 0 && board[row][col - 1].tiles) {
-        adjacentUnits += board[row][col - 1].tiles.filter(tile => tile.type === 'unit' && tile.playerId === player.id).length;
-    }
-    if (col < board[row].length - 1 && board[row][col + 1].tiles) {
-        adjacentUnits += board[row][col + 1].tiles.filter(tile => tile.type === 'unit' && tile.playerId === player.id).length;
-    }
+// function evaluateModule(module: Module, player: Player, state: GameState) {
+//     // Count the number of units adjacent to this module
+//     let adjacentUnits = 0;
+//     const board = state.board;
+//     const tilePosition = findTilePosition(module, state);
+//     if (!tilePosition) {
+//         return 0;
+//     }
+//     // TODO: This is ignoring the rotation and connections of the module
+//     const { row, col } = tilePosition;
+//     if (row > 0 && board[row - 1][col].tiles) {
+//         adjacentUnits += board[row - 1][col].tiles.filter(tile => tile.type === 'unit' && tile.playerId === player.id).length;
+//     }
+//     if (row < board.length - 1 && board[row + 1][col].tiles) {
+//         adjacentUnits += board[row + 1][col].tiles.filter(tile => tile.type === 'unit' && tile.playerId === player.id).length;
+//     }
+//     if (col > 0 && board[row][col - 1].tiles) {
+//         adjacentUnits += board[row][col - 1].tiles.filter(tile => tile.type === 'unit' && tile.playerId === player.id).length;
+//     }
+//     if (col < board[row].length - 1 && board[row][col + 1].tiles) {
+//         adjacentUnits += board[row][col + 1].tiles.filter(tile => tile.type === 'unit' && tile.playerId === player.id).length;
+//     }
 
-    return adjacentUnits;
-}
+//     return adjacentUnits;
+// }
 
 // function playTileRandomlyAsPlayer(tile: GameObject, player: Player, state: Draft<GameState>) {
 //     // Find all available spots on the board

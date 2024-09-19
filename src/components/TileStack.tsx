@@ -1,11 +1,11 @@
 import React from 'react';
-import { GameObject } from '../models/GameObject';
+import { GameObjectInstance } from '../models/GameObject';
 import { Tile } from './Tile';
 import './TileStack.css';
 import { EmptyZone } from './EmptyZone';
 
 interface TileStackProps {
-  tiles: GameObject[];
+  tiles: GameObjectInstance[];
   onClick?: () => void;
   showCover?: boolean;
   onDrop?: (e: React.DragEvent<HTMLDivElement>) => void;

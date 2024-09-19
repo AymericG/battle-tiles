@@ -12,6 +12,7 @@
 - [x] Deploy
 - [x] Make touch friendly
 
+- [ ] Normalize state
 - [ ] Tweak Ork army
 - [ ] Tweak Tau army
 - [ ] Allow AI to play module and action tiles

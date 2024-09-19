@@ -1,6 +1,6 @@
 import React from 'react';
 import { Tile } from './Tile';
-import { GameObject } from '../models/GameObject';
+import { GameObject, GameObjectInstance } from '../models/GameObject';
 import './PlayerBoard.css';
 import { useDispatch } from 'react-redux';
 import { TileStack } from './TileStack';
@@ -14,7 +14,7 @@ interface PlayerComponentProps {
   player: Player;
 }
 
-const TileSpread = ({ name, tiles, onDrop }: { name: string; tiles: GameObject[]; onDrop: (e: React.DragEvent<HTMLDivElement>) => void }) => {
+const TileSpread = ({ name, tiles, onDrop }: { name: string; tiles: GameObjectInstance[]; onDrop: (e: React.DragEvent<HTMLDivElement>) => void }) => {
     return <div className="pile" onDrop={onDrop} onDragOver={(e: React.DragEvent<HTMLDivElement>) => {
       e.preventDefault();
     }}>
@@ -34,21 +34,21 @@ export const PlayerBoard: React.FC<PlayerComponentProps> = ({ player }) => {
   const handleDropOnHand = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     const data = e.dataTransfer.getData('text/plain');
-    const tile: GameObject = JSON.parse(data);
+    const tile: GameObjectInstance = JSON.parse(data);
     dispatch(moveToHand({ playerId: player.id, tile }));
   };
 
   const handleDropOnDiscard = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     const data = e.dataTransfer.getData('text/plain');
-    const tile: GameObject = JSON.parse(data);
+    const tile: GameObjectInstance = JSON.parse(data);
     dispatch(moveToDiscard({ playerId: player.id, tile }));
   };
 
   const handleDropOnDraw = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     const data = e.dataTransfer.getData('text/plain');
-    const tile: GameObject = JSON.parse(data);
+    const tile: GameObjectInstance = JSON.parse(data);
     dispatch(moveToDraw({ playerId: player.id, tile }));
   };
 

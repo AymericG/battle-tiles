@@ -1,14 +1,34 @@
 import { Action } from "../models/Action";
 import { Faction } from "../models/Faction";
 import { Module } from "../models/Module";
+import { Rotatable } from "../models/Rotatable";
 import { AttackType, Unit } from "../models/Unit";
 import { uuidv4 } from "../utils/uuid";
+import { allGameObjects } from "./all-game-objects";
+import { GameObjectId } from "./types";
+
+export function instanciateGameObject(objectId: GameObjectId, playerId: number) {
+    return { id: uuidv4(), playerId, objectId };
+}
+
+export function instanciateGameObjects(objectId: GameObjectId, playerId: number, count: number) {
+    return Array.from({ length: count }, () => instanciateGameObject(objectId, playerId));
+}
+
+export function instanciateRotatableObject(objectId: GameObjectId, playerId: number) {
+    const template = allGameObjects[objectId] as Rotatable;
+    return { id: uuidv4(), playerId, objectId, rotation: 0, health: template.health };
+}
+
+export function instanciateRotatableObjects(objectId: GameObjectId, playerId: number, count: number) {
+    return Array.from({ length: count }, () => instanciateRotatableObject(objectId, playerId));
+}
 
 export function shuffle(array: any[]) {
     let currentIndex = array.length;
   
     // While there remain elements to shuffle...
-    while (currentIndex != 0) {
+    while (currentIndex !== 0) {
   
       // Pick a remaining element...
       let randomIndex = Math.floor(Math.random() * currentIndex);
@@ -21,43 +41,36 @@ export function shuffle(array: any[]) {
     return array;
 } 
 
-export function createUnit(name: string, playerId: number, faction: Faction, attacks: { value: number, type: AttackType }[], health: number, initiative: number, keywords?: string[]): Unit {
+export function createUnit(id: GameObjectId, name: string, faction: Faction, attacks: { value: number, type: AttackType }[], health: number, initiative: number, keywords?: string[]): Unit {
     return {
         name,
-        id: uuidv4(),
-        playerId,
+        id,
         type: 'unit',
         faction,
         attacks,
-        maxHealth: health,
         health,
         initiative,
-        rotation: 0,
         keywords: keywords || []
     };
 }
 
-export function createModule(name: string, playerId: number, faction: Faction, effect: string): Module {
+export function createModule(id: GameObjectId, name: string, faction: Faction, effect: string): Module {
     return {
-        id: uuidv4(),
+        id,
         name,
-        playerId,
         type: 'module',
         faction,
         effect,
-        rotation: 0,
         health: 1,
-        maxHealth: 1,
         connected: [true, true, true, true],
         keywords: []
     };
 }
 
-export function createAction(name: string, playerId: number, faction: Faction, actionType: 'move' | 'attack' | 'special', description: string): Action {
+export function createAction(id: GameObjectId, name: string, faction: Faction, actionType: 'move' | 'attack' | 'special', description: string): Action {
     return {
-        id: uuidv4(),
+        id,
         name,
-        playerId,
         faction,
         type: 'action',
         actionType,

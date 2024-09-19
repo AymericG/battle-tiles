@@ -1,4 +1,8 @@
-import { GameObject } from "../models/GameObject"
+import { GameObject, GameObjectInstance } from "../models/GameObject"
+import { Ork } from "./ork/game-object-ids";
+import { Tau } from "./tau/game-object-ids";
+
+export type GameObjectId = Tau | Ork;
 
 export enum ActionType {
     PLAY = 'play',
@@ -14,7 +18,7 @@ export enum AttackDirection {
 
 export type PossibleAction = {
     type: ActionType,
-    tile: GameObject,
+    tile: GameObjectInstance,
     x?: number,
     y?: number,
     rotation?: number,

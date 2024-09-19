@@ -1,15 +1,15 @@
 import { Draft } from "@reduxjs/toolkit";
 import { GameState } from "../models/GameState";
 import { Player } from "../models/Player";
-import { GameObject } from "../models/GameObject";
+import { GameObjectInstance } from "../models/GameObject";
 import { EdgeAttack, Unit } from "../models/Unit";
 import { AttackDirection } from "./types";
 import { getFactionName } from "../utils/factions";
-import { Module } from "../models/Module";
-import { Rotatable } from "../models/Rotatable";
+import { Rotatable, RotatableInstance } from "../models/Rotatable";
+import { allGameObjects } from "./all-game-objects";
 
-export function playTileAsPlayer(tile: GameObject, row: number, col: number, state: Draft<GameState>) {
-    console.log(`Player ${tile.playerId} plays ${tile.name} (${'rotation' in tile && tile.rotation}) on ${col}, ${row}.`);
+export function playTileAsPlayer(tile: RotatableInstance, row: number, col: number, state: Draft<GameState>) {
+    console.log(`Player ${tile.playerId} plays ${allGameObjects[tile.objectId].name} (${'rotation' in tile && tile.rotation}) on ${col}, ${row}.`);
     removeTileFromOriginContainer(state, tile);
     const targetCell = state.board[row][col];
     if (targetCell && targetCell.tiles) {
@@ -19,26 +19,26 @@ export function playTileAsPlayer(tile: GameObject, row: number, col: number, sta
     }
 }
 
-export function removeTileFromOriginContainer(state: Draft<GameState>, tile: GameObject) {
+export function removeTileFromOriginContainer(state: Draft<GameState>, tile: GameObjectInstance) {
     const currentPlayer = state.players.find(x => x.id === tile.playerId);
     if (!currentPlayer) {
       console.error(`Player ${tile.playerId} not found`);
       return;
     }
     // Remove the tile from the current player's hand
-    let tileIndex = currentPlayer.hand.findIndex((t: GameObject) => t.id === tile.id);
+    let tileIndex = currentPlayer.hand.findIndex(t => t.id === tile.id);
     if (tileIndex !== -1) {
       currentPlayer.hand.splice(tileIndex, 1);
       return;
     }
   
-    tileIndex = currentPlayer.discardPile.findIndex((t: GameObject) => t.id === tile.id);
+    tileIndex = currentPlayer.discardPile.findIndex(t => t.id === tile.id);
     if (tileIndex !== -1) {
       currentPlayer.discardPile.splice(tileIndex, 1);
       return;
     }
   
-    tileIndex = currentPlayer.drawPile.findIndex((t: GameObject) => t.id === tile.id);
+    tileIndex = currentPlayer.drawPile.findIndex(t => t.id === tile.id);
     if (tileIndex !== -1) {
       currentPlayer.drawPile.splice(tileIndex, 1);
       return;
@@ -49,7 +49,7 @@ export function removeTileFromOriginContainer(state: Draft<GameState>, tile: Gam
         for (let col = 0; col < state.board[row].length; col++) {
         const cell = state.board[row][col];
         if (!cell || !cell.tiles) { continue; }
-        const originalTile = cell.tiles.find((t: GameObject) => t.id === tile.id);
+        const originalTile = cell.tiles.find(t => t.id === tile.id);
         if (originalTile) {
             cell.tiles.splice(cell.tiles.indexOf(originalTile), 1);
             return;
@@ -62,9 +62,9 @@ export function getPlayer(playerId: number, state: Draft<GameState>) {
     return state.players.find(x => x.id === playerId);
 }
 
-export function discardAsPlayer(player: Player | undefined, tile: GameObject, state: Draft<GameState>) {
+export function discardAsPlayer(player: Player | undefined, tile: GameObjectInstance, state: Draft<GameState>) {
     if (!player) { return; }
-    console.log(`Player ${player.id} discards ${tile.name}.`);
+    console.log(`Player ${player.id} discards ${allGameObjects[tile.objectId].name}.`);
     removeTileFromOriginContainer(state, tile);
     tile.playerId = player.id;
     if ('health' in tile && 'maxHealth' in tile) {
@@ -88,12 +88,12 @@ export function drawTileAsPlayer(player: Player | undefined, state: Draft<GameSt
     }
 }
 
-function findTilePosition(tile: GameObject, state: Draft<GameState>) {
+function findTilePosition(tile: GameObjectInstance, state: Draft<GameState>) {
     for (let row = 0; row < state.board.length; row++) {
       for (let col = 0; col < state.board[row].length; col++) {
         const cell = state.board[row][col];
         if (!cell || !cell.tiles) { continue; }
-        const originalTile = cell.tiles.find((t: GameObject) => t.id === tile.id);
+        const originalTile = cell.tiles.find(t => t.id === tile.id);
         if (originalTile) {
           return { row, col };
         }
@@ -102,7 +102,7 @@ function findTilePosition(tile: GameObject, state: Draft<GameState>) {
     return null;
 }
 
-function findValidTarget(unit: Unit, edge: number, attack: EdgeAttack, state: Draft<GameState>) {
+function findValidTarget(unit: RotatableInstance, edge: number, attack: EdgeAttack, state: Draft<GameState>) {
     const attackOrigin = findTilePosition(unit, state);
     if (!attackOrigin) {
       return null;
@@ -120,7 +120,7 @@ function findValidTarget(unit: Unit, edge: number, attack: EdgeAttack, state: Dr
           }
           const target = state.board[row][attackOrigin.col];
           if (target.tiles) {
-            const enemyTile = target.tiles.find(tile => (tile as Unit).playerId !== unit.playerId);
+            const enemyTile = target.tiles.find(tile => tile.playerId !== unit.playerId);
             if (enemyTile) { 
               enemyTiles.push(enemyTile); 
             }
@@ -139,7 +139,7 @@ function findValidTarget(unit: Unit, edge: number, attack: EdgeAttack, state: Dr
             break;
           }
           if (target.tiles) {
-            const enemyTile = target.tiles.find(tile => (tile as Unit).playerId !== unit.playerId);
+            const enemyTile = target.tiles.find(tile => tile.playerId !== unit.playerId);
             if (enemyTile) { 
               enemyTiles.push(enemyTile); 
             }
@@ -158,7 +158,7 @@ function findValidTarget(unit: Unit, edge: number, attack: EdgeAttack, state: Dr
             break;
           }
           if (target.tiles) {
-            const enemyTile = target.tiles.find(tile => (tile as Unit).playerId !== unit.playerId);
+            const enemyTile = target.tiles.find(tile => tile.playerId !== unit.playerId);
             if (enemyTile) { 
               enemyTiles.push(enemyTile); 
             }
@@ -177,7 +177,7 @@ function findValidTarget(unit: Unit, edge: number, attack: EdgeAttack, state: Dr
             break;
           }
           if (target.tiles) {
-            const enemyTile = target.tiles.find(tile => (tile as Unit).playerId !== unit.playerId);
+            const enemyTile = target.tiles.find(tile => tile.playerId !== unit.playerId);
             if (enemyTile) { 
               enemyTiles.push(enemyTile); 
             }
@@ -194,8 +194,9 @@ function findValidTarget(unit: Unit, edge: number, attack: EdgeAttack, state: Dr
     return enemyTiles[0];
 }
 
-function findValidAttackActions(unit: Unit, state: Draft<GameState>) {
-    const attackActions = unit.attacks.map((attack, edge) => {
+function findValidAttackActions(unit: RotatableInstance, state: Draft<GameState>) {
+    const unitTemplate = allGameObjects[unit.objectId] as Unit;
+    const attackActions = unitTemplate.attacks.map((attack, edge) => {
       const target = findValidTarget(unit, edge, attack, state);
       if (target) {
         return { unit, target, attack };
@@ -205,15 +206,17 @@ function findValidAttackActions(unit: Unit, state: Draft<GameState>) {
     return attackActions;
 }
 
-export function attack(attackAction: { unit: Unit, target: GameObject, attack: EdgeAttack }, state: Draft<GameState>) {
-    const targetUnit = attackAction.target as Rotatable;
+export function attack(attackAction: { unit: RotatableInstance, target: RotatableInstance, attack: EdgeAttack }, state: Draft<GameState>) {
+    const targetUnit = attackAction.target;
     targetUnit.health -= attackAction.attack.value;
+    const unitTemplate = allGameObjects[attackAction.unit.objectId] as Rotatable;
+    const targetUnitTemplate = allGameObjects[targetUnit.objectId] as Rotatable;
     if (targetUnit.health <= 0) {
       const targetEnemyPlayer = state.players.find(player => player.id === targetUnit.playerId);
-      console.log(`${getFactionName(attackAction.unit.faction)} ${attackAction.unit.name} kills ${getFactionName(targetUnit.faction)} ${targetUnit.name}.`);
+      console.log(`${getFactionName(unitTemplate.faction)} ${unitTemplate.name} kills ${getFactionName(targetUnitTemplate.faction)} ${targetUnitTemplate.name}.`);
       discardAsPlayer(targetEnemyPlayer, targetUnit, state);
     } else {
-      console.log(`${getFactionName(attackAction.unit.faction)} ${attackAction.unit.name} deals ${attackAction.attack.value} damage to ${getFactionName(attackAction.target.faction)} ${attackAction.target.name}.`);
+      console.log(`${getFactionName(unitTemplate.faction)} ${unitTemplate.name} deals ${attackAction.attack.value} damage to ${getFactionName(targetUnitTemplate.faction)} ${targetUnitTemplate.name}.`);
     }
 }
 
@@ -224,8 +227,9 @@ export function battle(state: Draft<GameState>) {
       const units = state.board.flat().map(cell => cell.tiles).flat().filter(tile => 'initiative' in tile && tile.initiative === initiative);
       const allAttackActions = [];
       for (const unit of units) {
-        if (unit.type !== 'unit') { continue; }
-        const attackActions = findValidAttackActions(unit as Unit, state);
+        const rotatable = allGameObjects[unit.objectId] as Rotatable;
+        if (rotatable.type !== 'unit') { continue; }
+        const attackActions = findValidAttackActions(unit, state);
         allAttackActions.push(...attackActions);
       }
 
