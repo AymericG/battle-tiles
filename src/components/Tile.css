@@ -1,93 +1,97 @@
-
 .tile {
-    width: 80px;
-    height: 80px;
-    border: 2px solid #000;
-    box-sizing: border-box;
-    border-radius: .25rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: stretch;
-    text-align: center;
-    user-select: none;
-  }
+  width: 80px;
+  height: 80px;
+  border: 2px solid #000;
+  box-sizing: border-box;
+  border-radius: .25rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: stretch;
+  text-align: center;
+  user-select: none;
+}
 
-  .tile[draggable] {
-    cursor: move;
-    cursor: grab;
-  }
-  
-  .unit-tile {
-    background-color: #ffe0e0;
-  }
-  
-  .module-tile {
-    background-color: #e0fff2;
-  }
-  
-  .action-tile {
-    background-color: #e2ebff;
-  }
-  
-  .module-content, .action-content {
-    font-size: 0.9em;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-  }
+.tile[draggable] {
+  cursor: move;
+  cursor: grab;
+}
 
-  .edge-attack {
-    color: #fff;
-  }
+.unit-tile {
+  background-color: #ffe0e0;
+}
 
-  .edge-attack-type, .unit-attribute-symbol {
-    color: rgba(0, 0, 0, .4);
-  }
+.module-tile {
+  background-color: #e0fff2;
+}
 
-  .tile-label {
-    color: rgba(0, 0, 0, 0.4);
-    font-size: 0.8em;
-  }
+.action-tile {
+  background-color: #e2ebff;
+}
 
-  .tile-top {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-  }
+.module-content,
+.action-content {
+  font-size: 0.9em;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
 
-  .tile-top-left, .tile-top-right {
-    padding: 3px;
-  }
+.edge-attack {
+  color: #fff;
+}
 
-  .tile-top-center {
-    flex: 1;
-  }
+.edge-attack-type,
+.unit-attribute-symbol {
+  color: rgba(0, 0, 0, .4);
+}
 
-  .tile-top-center, .tile-bottom {
-    height: 20px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    font-size: 0.8em;
-  }
+.tile-label {
+  color: rgba(0, 0, 0, 0.4);
+  font-size: 0.8em;
+}
 
-  .tile-left, .tile-right {
-    width: 10px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    font-size: 0.8em;
-  }
+.tile-top {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
 
-  .tile-middle {
-    flex: 1;
+.tile-top-left,
+.tile-top-right {
+  padding: 3px;
+}
 
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
+.tile-top-center {
+  flex: 1;
+}
+
+.tile-top-center,
+.tile-bottom {
+  height: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  font-size: 0.8em;
+}
+
+.tile-left,
+.tile-right {
+  width: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  font-size: 0.8em;
+}
+
+.tile-middle {
+  flex: 1;
+
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
 }
 
 .tile-center {
@@ -113,7 +117,7 @@
 }
 
 .triangle {
-  width: 0; 
+  width: 0;
   height: 0;
   position: absolute;
   z-index: -1;
@@ -129,18 +133,18 @@
 }
 
 .triangle-up {
-  width: 0; 
+  width: 0;
   height: 0;
   bottom: 0;
   left: 50%;
   transform: translateX(-50%);
   border-left: var(--small-size) solid transparent;
-  border-right: var(--small-size) solid transparent; 
+  border-right: var(--small-size) solid transparent;
   border-bottom: var(--big-size) solid var(--color);
 }
 
 .triangle-down {
-  width: 0; 
+  width: 0;
   height: 0;
   top: 0;
   left: 50%;
@@ -151,18 +155,18 @@
 }
 
 .triangle-left {
-  width: 0; 
+  width: 0;
   height: 0;
   right: 0;
   top: 50%;
   transform: translateY(-50%);
   border-top: var(--small-size) solid transparent;
-  border-bottom: var(--small-size) solid transparent; 
-  border-right: var(--big-size) solid var(--color); 
+  border-bottom: var(--small-size) solid transparent;
+  border-right: var(--big-size) solid var(--color);
 }
 
 .triangle-right {
-  width: 0; 
+  width: 0;
   height: 0;
   left: 0;
   top: 50%;
@@ -237,7 +241,7 @@
   border-color: #000 transparent transparent transparent;
 }
 
-.with-tooltip { 
+.with-tooltip {
   position: relative;
 }
 

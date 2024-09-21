@@ -63,7 +63,7 @@ export function playAs(player: Player | undefined, state: Draft<GameState>) {
         }
         return 0;
     });
-    
+
     while (player.hand.length > 1) {
         // Generate all possible moves
         const emptyCells = findAllEmptyCells(state);
@@ -79,7 +79,7 @@ export function playAs(player: Player | undefined, state: Draft<GameState>) {
         setLoggingContext('EXEC');
         log(`Player ${player.id} plays ${template.name} with score ${possibleActions[0].score}.`, possibleActions[0]);
         executeAction(possibleActions[0], state);
-        
+
     }
 
     // Discard the last tile
@@ -93,9 +93,9 @@ function executeAction(action: PossibleAction, state: Draft<GameState>) {
         case ActionType.PLAY:
             if (allGameObjects[action.tile.objectId].type === 'action') {
 
-                if ((allGameObjects[action.tile.objectId] as Action).actionType === 'move') {
+                if ((allGameObjects[action.tile.objectId] as Action).actionType === 'move' || (allGameObjects[action.tile.objectId] as Action).actionType === 'push') {
                     if (!action.params) {
-                        throw new Error('Move action must have params');
+                        throw new Error('Action must have params');
                     }
                     // We simply discard the tile
                     // since the next step is to actually move a unit
@@ -113,9 +113,9 @@ function executeAction(action: PossibleAction, state: Draft<GameState>) {
                     battle(state);
                     // Indicate that we want to skip battle during evaluation
                     return true;
-                }   
+                }
             }
-            if ('rotation' in action.tile) { 
+            if ('rotation' in action.tile) {
                 action.tile.rotation = action.rotation || action.tile.rotation;
             }
             playTileAsPlayer(action.tile as RotatableInstance, action.y || 0, action.x || 0, state);
@@ -127,72 +127,7 @@ function executeAction(action: PossibleAction, state: Draft<GameState>) {
     return false;
 }
 
-function generateAllPossibleActions(tile: GameObjectInstance, emptyCells: Cell[], state: GameState): PossibleAction[] {
-    const template = allGameObjects[tile.objectId];
-    if (template.type === 'action') {
-        if (template.actionType === 'attack') {
-            return [{
-                type: ActionType.PLAY,
-                tile,
-                score: 0
-            }]
-        }
-        if (template.actionType === 'move') {
-            // For each friendly unit on the board
-            // Find all adjacent empty cells
-            // Generate a Play action for each rotation
-            const allFriendlyCells = state.board.flat().filter(cell => cell.tiles && cell.tiles.some(t => t.playerId === tile.playerId));
-            const possibleActions = [];
-            for (const cell of allFriendlyCells) {
-                const tileToMove = cell.tiles.find(t => t.playerId === tile.playerId);
-                if (!tileToMove) { continue; }
-                const position = findTilePosition(tileToMove, state);
-                if (!position) { continue; }
-                const { x, y } = position;
-                for (let direction = 0; direction < 4; direction++) {
-                    const newX = x + (direction === AttackDirection.RIGHT ? 1 : direction === AttackDirection.LEFT ? -1 : 0);
-                    const newY = y + (direction === AttackDirection.DOWN ? 1 : direction === AttackDirection.UP ? -1 : 0);
-                    if (newX < 0 || newY < 0 || newX >= BOARD_SIZE || newY >= BOARD_SIZE) {
-                        continue;
-                    }
-
-                    const targetCell = state.board[newY][newX];
-
-                    // target cell must be empty
-                    if (targetCell.tiles && targetCell.tiles.length) {
-                        continue;
-                    }
-                    
-                    // Check for walls
-                    if (direction === AttackDirection.UP && state.board[y][x].walls.includes('horizontal')) { continue; }
-                    if (direction === AttackDirection.RIGHT && targetCell.walls.includes('vertical')) { continue; }
-                    if (direction === AttackDirection.DOWN && targetCell.walls.includes('horizontal')) { continue; }
-                    if (direction === AttackDirection.LEFT && state.board[y][x].walls.includes('vertical')) { continue; }
-                    
-                    // Generate for each rotation
-                    for (let rotation = 0; rotation < 4; rotation++) {
-                        possibleActions.push({
-                            type: ActionType.PLAY,
-                            tile,
-                            params: {
-                                tile: tileToMove,
-                                x: newX,
-                                y: newY,
-                                rotation,
-                            },
-                            score: 0
-                        });
-                    }
-                }
-            }
-            return possibleActions;
-        }
-        return [{
-            type: ActionType.DISCARD,
-            tile,
-            score: 0
-        }]
-    }
+function generateAllUnitPlays(tile: GameObjectInstance, emptyCells: Cell[]) {
     // Find all available spots on the board
     const possibleActions = [];
     for (const emptyCell of emptyCells) {
@@ -214,6 +149,171 @@ function generateAllPossibleActions(tile: GameObjectInstance, emptyCells: Cell[]
             score: 0
         });
     }
+
+    return possibleActions;
+}
+
+function findAllFriendlyTiles(state: GameState, playerId: number) {
+    return state.board.flat().map(cell => cell.tiles && cell.tiles.find(t => t.playerId === playerId)).filter(x => x);
+}
+
+function generateAllMoves(tile: GameObjectInstance, state: GameState) {
+    // For each friendly unit on the board
+    // Find all adjacent empty cells
+    // Generate a Play action for each rotation
+    const allFriendlyTiles = findAllFriendlyTiles(state, tile.playerId);
+    const possibleActions = [];
+    for (const tileToMove of allFriendlyTiles) {
+        if (!tileToMove) { continue; }
+        const position = findTilePosition(tileToMove, state);
+        if (!position) { continue; }
+        const { x, y } = position;
+        for (let direction = 0; direction < 4; direction++) {
+            const newX = x + (direction === AttackDirection.RIGHT ? 1 : direction === AttackDirection.LEFT ? -1 : 0);
+            const newY = y + (direction === AttackDirection.DOWN ? 1 : direction === AttackDirection.UP ? -1 : 0);
+            if (newX < 0 || newY < 0 || newX >= BOARD_SIZE || newY >= BOARD_SIZE) {
+                continue;
+            }
+
+            const targetCell = state.board[newY][newX];
+
+            // target cell must be empty
+            if (targetCell.tiles && targetCell.tiles.length) {
+                continue;
+            }
+
+            // Check for walls
+            if (direction === AttackDirection.UP && state.board[y][x].walls.includes('horizontal')) { continue; }
+            if (direction === AttackDirection.RIGHT && targetCell.walls.includes('vertical')) { continue; }
+            if (direction === AttackDirection.DOWN && targetCell.walls.includes('horizontal')) { continue; }
+            if (direction === AttackDirection.LEFT && state.board[y][x].walls.includes('vertical')) { continue; }
+
+            // Generate for each rotation
+            for (let rotation = 0; rotation < 4; rotation++) {
+                possibleActions.push({
+                    type: ActionType.PLAY,
+                    tile,
+                    params: {
+                        tile: tileToMove,
+                        x: newX,
+                        y: newY,
+                        rotation,
+                    },
+                    score: 0
+                });
+            }
+        }
+    }
+    if (possibleActions.length === 0) {
+        possibleActions.push({
+            type: ActionType.DISCARD,
+            tile,
+            score: 0
+        });
+    }
+    return possibleActions;
+}
+
+function generateAllPushes(pushTile: GameObjectInstance, state: GameState) {
+    const possibleActions: PossibleAction[] = findAllFriendlyTiles(state, pushTile.playerId)
+        .flatMap(friendlyTile => {
+            const position = findTilePosition(friendlyTile, state);
+            if (!position) { return null; }
+
+            // Find all adjacent enemy units
+            const { x, y } = position;
+            const possibleTargets = [];
+            if (y > 0 && state.board[y - 1][x].tiles) {
+                const enemyTiles = state.board[y - 1][x].tiles.filter(t => t.playerId !== pushTile.playerId);
+                possibleTargets.push({ direction: AttackDirection.UP, enemyTiles });
+            }
+            if (x < BOARD_SIZE - 1 && state.board[y][x + 1].tiles) {
+                const enemyTiles = state.board[y][x + 1].tiles.filter(t => t.playerId !== pushTile.playerId);
+                possibleTargets.push({ direction: AttackDirection.RIGHT, enemyTiles });
+            }
+            if (y < BOARD_SIZE - 1 && state.board[y + 1][x].tiles) {
+                const enemyTiles = state.board[y + 1][x].tiles.filter(t => t.playerId !== pushTile.playerId);
+                possibleTargets.push({ direction: AttackDirection.DOWN, enemyTiles });
+            }
+            if (x > 0 && state.board[y][x - 1].tiles) {
+                const enemyTiles = state.board[y][x - 1].tiles.filter(t => t.playerId !== pushTile.playerId);
+                possibleTargets.push({ direction: AttackDirection.LEFT, enemyTiles });
+            }
+            return possibleTargets;
+        }).filter(x => x)
+        .flatMap(possiblePush => {
+            if (!possiblePush) { return null; }
+            // Find all empty cells in the direction of the push
+            const { direction, enemyTiles } = possiblePush;
+            const possiblePushActions = [];
+            for (const enemyTile of enemyTiles) {
+                const position = findTilePosition(enemyTile, state);
+                if (!position) { continue; }
+                const { x, y } = position;
+                const newX = x + (direction === AttackDirection.RIGHT ? 1 : direction === AttackDirection.LEFT ? -1 : 0);
+                const newY = y + (direction === AttackDirection.DOWN ? 1 : direction === AttackDirection.UP ? -1 : 0);
+                if (newX < 0 || newY < 0 || newX >= BOARD_SIZE || newY >= BOARD_SIZE) {
+                    continue;
+                }
+                const targetCell = state.board[newY][newX];
+                if (targetCell.tiles && targetCell.tiles.length) {
+                    continue;
+                }
+
+                // Check for walls
+                if (direction === AttackDirection.UP && state.board[y][x].walls.includes('horizontal')) { continue; }
+                if (direction === AttackDirection.RIGHT && targetCell.walls.includes('vertical')) { continue; }
+                if (direction === AttackDirection.DOWN && targetCell.walls.includes('horizontal')) { continue; }
+                if (direction === AttackDirection.LEFT && state.board[y][x].walls.includes('vertical')) { continue; }
+
+                possiblePushActions.push({
+                    type: ActionType.PLAY,
+                    tile: pushTile,
+                    params: {
+                        tile: enemyTile,
+                        x: newX,
+                        y: newY,
+                        rotation: enemyTile.rotation,
+                    },
+                    score: 0
+                });
+            }
+            return possiblePushActions;
+        }).filter(x => !!x).map(x => x as PossibleAction);
+
+    if (possibleActions.length === 0) {
+        possibleActions.push({
+            type: ActionType.DISCARD,
+            tile: pushTile,
+            score: 0
+        });
+    }
+    return possibleActions;
+}
+
+function generateAllPossibleActions(tile: GameObjectInstance, emptyCells: Cell[], state: GameState): PossibleAction[] {
+    const template = allGameObjects[tile.objectId];
+    if (template.type === 'action') {
+        if (template.actionType === 'attack') {
+            return [{
+                type: ActionType.PLAY,
+                tile,
+                score: 0
+            }]
+        }
+        if (template.actionType === 'move') {
+            return generateAllMoves(tile, state);
+        }
+        if (template.actionType === 'push') {
+            return generateAllPushes(tile, state);
+        }
+        return [{
+            type: ActionType.DISCARD,
+            tile,
+            score: 0
+        }]
+    }
+    const possibleActions = generateAllUnitPlays(tile, emptyCells);
     return possibleActions;
 }
 
@@ -281,7 +381,7 @@ export function addInfluenceHeuristic(tile: RotatableInstance, state: GameState)
     const position = findTilePosition(tile, state);
     if (!position) { return score; }
     const { x, y } = position;
-    
+
     if (template.type === 'module') {
         const board = state.board;
         const moduleTemplate = template as Module;
@@ -311,9 +411,10 @@ export function addInfluenceHeuristic(tile: RotatableInstance, state: GameState)
         }
         return score;
     }
-    
+
     const unit = tile;
     const unitTemplate = template as Unit;
+    console.log('Before crash', unitTemplate);
     for (let i = 0; i < 4; i++) {
         const attack = unitTemplate.attacks[i];
         if (!attack || attack.value === 0) { continue; }
@@ -369,7 +470,7 @@ function evaluateTile(tile: RotatableInstance, player: Player, state: GameState)
     score += addHealthHeuristic(tile) * 3;
     score += addInfluenceHeuristic(tile, state);
     return score;
-    
+
     // if (tile.type === 'unit') {
     //     return evaluateUnit(tile as Unit, player, state);
     // }
