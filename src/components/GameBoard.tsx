@@ -29,7 +29,9 @@ export function GameBoard() {
     };
 
     return (
-        <div className="game-board-container">
+        <div className="game-board-container" style={{
+            '--board-size': gameState.board.length
+        } as any}>
             <h2 className="board-title">Battle Tiles: <span className='dim'>Grimdark</span></h2>
             <div className="perspective">
                 <div className="grid">

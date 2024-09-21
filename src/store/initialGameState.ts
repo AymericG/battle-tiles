@@ -32,7 +32,7 @@ function generateAllPossibleWalls() {
 
 const allPossibleWalls = generateAllPossibleWalls();
 // Pick three random walls
-const randomWalls = allPossibleWalls.sort(() => Math.random() - 0.5).slice(0, 3);
+const randomWalls = allPossibleWalls.sort(() => Math.random() - 0.5).slice(0, BOARD_SIZE - 1);
 
 function generateWallArray(x: number, y: number, possibleWalls: Wall[]) {
   const walls = [];
@@ -58,7 +58,7 @@ function generateEmptyBoardCells() {
 
 const board = generateEmptyBoardCells();
 board[0][0].tiles = [tauArmy.base];
-board[3][3].tiles = [orkArmy.base];
+board[BOARD_SIZE - 1][BOARD_SIZE - 1].tiles = [orkArmy.base];
 
 // Initialize game state
 export const initialGameState: GameState = {

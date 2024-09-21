@@ -1,14 +1,15 @@
 import { Draft } from "@reduxjs/toolkit";
 import { GameState } from "../models/GameState";
 import { Player } from "../models/Player";
-import { LEADER_UNIT, TILES_TO_DRAW } from "../constants";
-import { battle, discardAsPlayer, drawTileAsPlayer, playTileAsPlayer } from "./game-state-utils";
+import { BOARD_SIZE, LEADER_UNIT, TILES_TO_DRAW } from "../constants";
+import { battle, discardAsPlayer, drawTileAsPlayer, findTilePosition, playTileAsPlayer } from "./game-state-utils";
 import { GameObjectInstance } from "../models/GameObject";
-import { EdgeAttack, Unit } from "../models/Unit";
 import { Cell } from "../models/Cell";
-import { ActionType, PossibleAction } from "./types";
+import { ActionType, AttackDirection, PossibleAction } from "./types";
 import { allGameObjects } from "./all-game-objects";
 import { RotatableInstance } from "../models/Rotatable";
+import { Unit } from "../models/Unit";
+import { Module } from "../models/Module";
 
 // function randomItem(items: any[]) {
 //     return items[Math.floor(Math.random() * items.length)];
@@ -16,13 +17,12 @@ import { RotatableInstance } from "../models/Rotatable";
 
 function findAllEmptyCells(state: Draft<GameState>) {
     const emptyCells = [];
-    console.log('Finding empty cells', JSON.parse(JSON.stringify(state.board)));
+    console.log('Finding empty cells...');
     for (let row = 0; row < state.board.length; row++) {
         for (let col = 0; col < state.board[row].length; col++) {
             const cell = state.board[row][col];
             if (!cell || !cell.tiles) { continue; }
             if (!cell.tiles.length) {
-                console.log(`Empty cell at ${col}, ${row}`);
                 emptyCells.push(cell);
                 continue;
             }
@@ -85,6 +85,7 @@ export function playAs(player: Player | undefined, state: Draft<GameState>) {
 function executeAction(action: PossibleAction, state: Draft<GameState>) {
     switch (action.type) {
         case ActionType.PLAY:
+            
             if ('rotation' in action.tile) { 
                 action.tile.rotation = action.rotation || action.tile.rotation;
             }
@@ -137,12 +138,13 @@ function evaluateAllActions(actions: any[], player: Player, state: Draft<GameSta
 
 function evaluateAction(action: any, player: Player, state: Draft<GameState>) {
     // Copy state
-    const newState = JSON.parse(JSON.stringify(state));
+    const cloneState = JSON.parse(JSON.stringify(state));
+    const cloneAction = JSON.parse(JSON.stringify(action));
     // Execute action
-    executeAction(action, newState);
-    battle(newState);
+    executeAction(cloneAction, cloneState);
+    battle(cloneState);
     // Evaluate state
-    action.score = evaluateState(newState, player);
+    action.score = evaluateState(cloneState, player);
 }
 
 function evaluateState(state: GameState, player: Player) {
@@ -154,7 +156,7 @@ function evaluateState(state: GameState, player: Player) {
             for (const tile of cell.tiles) {
                 const tileScore = evaluateTile(tile, player, state);
                 const template = allGameObjects[tile.objectId];
-                console.log(`Tile ${template.name} has a score of ${tileScore}`);
+                console.log(`${template.name} has a score of ${tileScore}`);
                 if (player.id === tile.playerId) {
                     score += tileScore;
                 } else {
@@ -167,16 +169,117 @@ function evaluateState(state: GameState, player: Player) {
     return score;
 }
 
+function addHealthHeuristic(tile: RotatableInstance) {
+    const template = allGameObjects[tile.objectId];
+    let score = 0;
+    switch (template.type) {
+        case 'unit':
+            const modifier = template.name === LEADER_UNIT ? 2 : 1;
+            score += tile.health * modifier;
+            break;
+        case 'module':
+            score += tile.health;
+            break;
+        default:
+            score++;
+    }
+    return score;
+}
+
+export function addInfluenceHeuristic(tile: RotatableInstance, state: GameState) {
+    let score = 0;
+    const template = allGameObjects[tile.objectId];
+    const position = findTilePosition(tile, state);
+    if (!position) { return score; }
+    const { row, col } = position;
+    
+    if (template.type === 'module') {
+        const board = state.board;
+        const moduleTemplate = template as Module;
+        for (let i = 0; i < 4; i++) {
+            if (!moduleTemplate.connected[i]) {
+                continue;
+            }
+            const direction = (i + tile.rotation as number) % 4;
+            switch (direction) {
+                case AttackDirection.UP:
+                    if (row === 0 || state.board[row][col].walls.includes('horizontal')) { continue; }
+                    score += board[row - 1][col].tiles.some(t => t.playerId === tile.playerId) ? 2 : 1;
+                    break;
+                case AttackDirection.RIGHT:
+                    if (col >= board[row].length - 1 || state.board[row][col + 1].walls.includes('vertical')) { continue; }
+                    score += board[row][col + 1].tiles.some(t => t.playerId === tile.playerId) ? 2 : 1;
+                    break;
+                case AttackDirection.DOWN:
+                    if (row >= board.length - 1 || state.board[row + 1][col].walls.includes('horizontal')) { continue; }
+                    score += board[row + 1][col].tiles.some(t => t.playerId === tile.playerId) ? 2 : 1;
+                    break;
+                case AttackDirection.LEFT:
+                    if (col === 0 || state.board[row][col - 1].walls.includes('vertical')) { continue; }
+                    score += board[row][col - 1].tiles.some(t => t.playerId === tile.playerId) ? 2 : 1;
+                    break;
+            }
+        }
+        return score;
+    }
+    
+    const unit = tile;
+    const unitTemplate = template as Unit;
+    for (let i = 0; i < 4; i++) {
+        const attack = unitTemplate.attacks[i];
+        if (!attack || attack.value === 0) { continue; }
+        const direction = (i + unit.rotation as number) % 4;
+        let range = attack.type === 'melee' ? 1 : BOARD_SIZE;
+        console.log(`Checking influence for attack ${i} in direction ${direction}`);
+        switch (direction) {
+            case AttackDirection.UP:
+                for (let j = 1; j <= range; j++) {
+                    if (row - j < 0) { break; }
+                    if (state.board[row - j + 1][col].walls.includes('horizontal')) { break; }
+                    const cellScore = state.board[row - j][col].tiles.some(t => t.playerId !== tile.playerId) ? 2 : 1;
+                    score += cellScore;
+                    console.log(`Added ${cellScore} for cell ${col}, ${row - j}`);
+                }
+                break;
+            case AttackDirection.RIGHT:
+                for (let j = 1; j <= range; j++) {
+                    if (col + j >= state.board[row].length) { break; }
+                    if (state.board[row][col + j].walls.includes('vertical')) { break; }
+                    const cellScore = state.board[row][col + j].tiles.some(t => t.playerId !== tile.playerId) ? 2 : 1;
+                    score += cellScore;
+                    console.log(`Added ${cellScore} for cell ${col + j}, ${row}`);
+                }
+                break;
+            case AttackDirection.DOWN:
+                for (let j = 1; j <= range; j++) {
+                    if (row + j >= state.board.length) { break; }
+                    if (state.board[row + j][col].walls.includes('horizontal')) { break; }
+                    const cellScore = state.board[row + j][col].tiles.some(t => t.playerId !== tile.playerId) ? 2 : 1;
+                    score += cellScore;
+                    console.log(`Added ${cellScore} for cell ${col}, ${row + j}`);
+                }
+                break;
+            case AttackDirection.LEFT:
+                for (let j = 1; j <= range; j++) {
+                    if (col - j < 0) { break; }
+                    if (state.board[row][col - j + 1].walls.includes('vertical')) { break; }
+                    const cellScore = state.board[row][col - j].tiles.some(t => t.playerId !== tile.playerId) ? 2 : 1;
+                    score += cellScore;
+                    console.log(`Added ${cellScore} for cell ${col - j}, ${row}`);
+                }
+                break;
+        }
+    }
+    console.log(`Influence ${score} for ${template.name}`);
+    return score;
+}
+
 function evaluateTile(tile: RotatableInstance, player: Player, state: GameState) {
     const template = allGameObjects[tile.objectId];
-    if (template.type === 'unit') {
-        const modifier = template.name === LEADER_UNIT ? 2 : 1;
-        return template.health * modifier;
-    };
-    if (template.type === 'module') {
-        return template.health;
-    }
-    return 1;
+    let score = 0;
+    score += addHealthHeuristic(tile) * 3;
+    score += addInfluenceHeuristic(tile, state);
+    return score;
     
     // if (tile.type === 'unit') {
     //     return evaluateUnit(tile as Unit, player, state);
@@ -187,19 +290,19 @@ function evaluateTile(tile: RotatableInstance, player: Player, state: GameState)
     // return 0;
 }
 
-function evaluateAttack(targetCell: Cell, player: Player, initiative: number, attack: EdgeAttack) {
-    const enemies = targetCell.tiles.filter(tile => allGameObjects[tile.objectId].type === 'unit' && tile.playerId !== player.id);
-    if (!enemies.length) {
-        return 0;
-    }
-    if (enemies.some(x => x.health <= attack.value && (allGameObjects[x.objectId] as Unit).initiative < initiative)) {
-        return attack.value * 3;
-    }
-    if (enemies.some(x => allGameObjects[x.objectId].name === LEADER_UNIT)) {
-        return attack.value * 2;
-    }
-    return attack.value;
-}
+// function evaluateAttack(targetCell: Cell, player: Player, initiative: number, attack: EdgeAttack) {
+//     const enemies = targetCell.tiles.filter(tile => allGameObjects[tile.objectId].type === 'unit' && tile.playerId !== player.id);
+//     if (!enemies.length) {
+//         return 0;
+//     }
+//     if (enemies.some(x => x.health <= attack.value && (allGameObjects[x.objectId] as Unit).initiative < initiative)) {
+//         return attack.value * 3;
+//     }
+//     if (enemies.some(x => allGameObjects[x.objectId].name === LEADER_UNIT)) {
+//         return attack.value * 2;
+//     }
+//     return attack.value;
+// }
 
 
 // TODO: This ignores the fact that this unit could be killed before it can act

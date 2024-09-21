@@ -11,11 +11,14 @@
 - [x] Allow to play against AI
 - [x] Deploy
 - [x] Make touch friendly
+- [x] Normalize state
+- [x] Fix AI after refactoring
+- [x] Add walls on the map
+- [x] AI should take walls in account
 
-- [ ] Normalize state
+- [ ] Allow AI to play modules
+- [ ] Allow AI to play Battle tiles
+- [ ] Allow AI to play Move tiles
 - [ ] Tweak Ork army
 - [ ] Tweak Tau army
-- [ ] Allow AI to play module and action tiles
 - [ ] Allow AI to play against AI
-- [ ] Add walls on the map
-- [ ] AI should take walls in account

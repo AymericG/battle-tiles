@@ -67,8 +67,10 @@ export function discardAsPlayer(player: Player | undefined, tile: GameObjectInst
     console.log(`Player ${player.id} discards ${allGameObjects[tile.objectId].name}.`);
     removeTileFromOriginContainer(state, tile);
     tile.playerId = player.id;
-    if ('health' in tile && 'maxHealth' in tile) {
-      tile.health = tile.maxHealth;
+    const tileTemplate = allGameObjects[tile.objectId];
+    if (tileTemplate.type === 'unit' || tileTemplate.type === 'module') {
+      (tile as RotatableInstance).health = tileTemplate.health;
+      (tile as RotatableInstance).rotation = 0;
     }
     player.discardPile.push(tile);
 }
@@ -88,7 +90,7 @@ export function drawTileAsPlayer(player: Player | undefined, state: Draft<GameSt
     }
 }
 
-function findTilePosition(tile: GameObjectInstance, state: Draft<GameState>) {
+export function findTilePosition(tile: GameObjectInstance, state: Draft<GameState>) {
     for (let row = 0; row < state.board.length; row++) {
       for (let col = 0; col < state.board[row].length; col++) {
         const cell = state.board[row][col];
@@ -208,6 +210,7 @@ function findValidAttackActions(unit: RotatableInstance, state: Draft<GameState>
 
 export function attack(attackAction: { unit: RotatableInstance, target: RotatableInstance, attack: EdgeAttack }, state: Draft<GameState>) {
     const targetUnit = attackAction.target;
+    console.log(`Attacking ${targetUnit.id} (health: ${targetUnit.health}) with ${attackAction.attack.value} damage.`);
     targetUnit.health -= attackAction.attack.value;
     const unitTemplate = allGameObjects[attackAction.unit.objectId] as Rotatable;
     const targetUnitTemplate = allGameObjects[targetUnit.objectId] as Rotatable;
@@ -221,18 +224,23 @@ export function attack(attackAction: { unit: RotatableInstance, target: Rotatabl
 }
 
 export function battle(state: Draft<GameState>) {
+    console.log('-- [Battle phase] --');
     const possibleInitiatives = Array.from(Array(5).keys()).reverse();
     for (const initiative of possibleInitiatives) {
       // Find all units with the current initiative
-      const units = state.board.flat().map(cell => cell.tiles).flat().filter(tile => 'initiative' in tile && tile.initiative === initiative);
+      const units = state.board.flat().map(cell => cell.tiles).flat().filter(tile => {
+        const template = allGameObjects[tile.objectId] as Rotatable;
+        return 'initiative' in template && template.initiative === initiative;
+      });
       const allAttackActions = [];
+      
       for (const unit of units) {
         const rotatable = allGameObjects[unit.objectId] as Rotatable;
         if (rotatable.type !== 'unit') { continue; }
         const attackActions = findValidAttackActions(unit, state);
         allAttackActions.push(...attackActions);
       }
-
+      console.log(`Initiative ${initiative}: ${units.length} units, valid attack actions: `, allAttackActions);
       for (const attackAction of allAttackActions) {
         if (!attackAction) { continue; }
         attack(attackAction, state);

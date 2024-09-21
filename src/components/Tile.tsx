@@ -72,7 +72,10 @@ const UnitTile: React.FC<{ tile: RotatableInstance } & DraggableTileProps> = ({ 
   >
     {showCover && <TileCover faction={template.faction} />}
     {!showCover && <>
-      <div className="tooltip">{template.name}</div>
+      <div className="tooltip">
+        {template.name}
+        {!!template.keywords.length && <div>[{template.keywords.join(',')}]</div>}
+      </div>
       <div className='tile-top'>
         <div className='tile-top-left'>
           <span className='unit-attribute-symbol'>ϟ</span>{template.initiative}
