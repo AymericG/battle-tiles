@@ -41,5 +41,6 @@ export const gameObjects = {
         { value: 0, type: 'range' },
     ], 2, RANGE_SPEED),
     [Tau.Battle]: createAction(Tau.Battle, 'Battle', Faction.Tau, 'attack', 'Triggers a battle'),
+    [Tau.Push]: createAction(Tau.Push, 'Push', Faction.Tau, 'push', 'Pushes an enemy unit one space away'),
     [Tau.Move]: createAction(Tau.Move, 'Move', Faction.Tau, 'move', 'Moves a friendly unit to an adjacent space'),
 };

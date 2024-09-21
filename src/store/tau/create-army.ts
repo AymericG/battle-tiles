@@ -12,6 +12,7 @@ export const createTauArmy = (playerId: number) => ({
         ...instanciateRotatableObjects(Tau.KrootCarnivore, playerId, 4),
         ...instanciateGameObjects(Tau.Battle, playerId, 4),
         ...instanciateGameObjects(Tau.Move, playerId, 4),
+        ...instanciateGameObjects(Tau.Push, playerId, 2),
         
         // createAction('Kauyon Trap', playerId, Faction.Tau, 'special', 'Move one enemy unit to any unoccupied adjacent tile.'),
         // createAction('Mont’ka Strike', playerId, Faction.Tau, 'special', 'All units in one chosen row or column gain +1 attack for this turn.'),

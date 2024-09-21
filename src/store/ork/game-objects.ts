@@ -42,5 +42,6 @@ export const gameObjects = {
     ], 2, 3),
     [Ork.MadDokSurgery]: createModule(Ork.MadDokSurgery, 'Mad Dok\'s Surgery', Faction.Orks, 'When an adjacent friendly unit is destroyed, place it back in your hand instead of discarding it.'),
     [Ork.Battle]: createAction(Ork.Battle, 'Battle', Faction.Orks, 'attack', 'Triggers a battle'),
+    [Ork.Push]: createAction(Ork.Push, 'Push', Faction.Orks, 'push', 'Pushes an enemy unit one space away'),
     [Ork.Move]: createAction(Ork.Move, 'Move', Faction.Orks, 'move', 'Moves a friendly unit to an adjacent space'),
 };

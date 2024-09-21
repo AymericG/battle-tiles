@@ -9,4 +9,5 @@ export const enum Ork {
     Battle = '[Ork] Battle',
     Move = '[Ork] Move',
     MadDokSurgery = '[Ork] Mad Dok\'s Surgery',
+    Push = '[Ork] Push',
 };

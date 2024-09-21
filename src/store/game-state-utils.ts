@@ -7,9 +7,10 @@ import { AttackDirection } from "./types";
 import { getFactionName } from "../utils/factions";
 import { Rotatable, RotatableInstance } from "../models/Rotatable";
 import { allGameObjects } from "./all-game-objects";
+import { log } from "../utils/log";
 
 export function playTileAsPlayer(tile: RotatableInstance, row: number, col: number, state: Draft<GameState>) {
-    console.log(`Player ${tile.playerId} plays ${allGameObjects[tile.objectId].name} (${'rotation' in tile && tile.rotation}) on ${col}, ${row}.`);
+    log(`Player ${tile.playerId} plays ${allGameObjects[tile.objectId].name} (${'rotation' in tile && tile.rotation}) on ${col}, ${row}.`);
     removeTileFromOriginContainer(state, tile);
     const targetCell = state.board[row][col];
     if (targetCell && targetCell.tiles) {
@@ -64,7 +65,7 @@ export function getPlayer(playerId: number, state: Draft<GameState>) {
 
 export function discardAsPlayer(player: Player | undefined, tile: GameObjectInstance, state: Draft<GameState>) {
     if (!player) { return; }
-    console.log(`Player ${player.id} discards ${allGameObjects[tile.objectId].name}.`);
+    log(`Player ${player.id} discards ${allGameObjects[tile.objectId].name}.`);
     removeTileFromOriginContainer(state, tile);
     tile.playerId = player.id;
     const tileTemplate = allGameObjects[tile.objectId];
@@ -80,7 +81,7 @@ export function drawTileAsPlayer(player: Player | undefined, state: Draft<GameSt
       return; 
     }
     if (player.drawPile.length === 0) {
-      console.log(`Player ${player.id} shuffles his/her discard pile to draw.`);
+      log(`Player ${player.id} shuffles his/her discard pile to draw.`);
       player.drawPile = player.discardPile;
       player.discardPile = [];
     }
@@ -90,14 +91,15 @@ export function drawTileAsPlayer(player: Player | undefined, state: Draft<GameSt
     }
 }
 
-export function findTilePosition(tile: GameObjectInstance, state: Draft<GameState>) {
+export function findTilePosition(tile: GameObjectInstance | undefined, state: Draft<GameState>) {
+    if (!tile) { return null; }
     for (let row = 0; row < state.board.length; row++) {
       for (let col = 0; col < state.board[row].length; col++) {
         const cell = state.board[row][col];
         if (!cell || !cell.tiles) { continue; }
         const originalTile = cell.tiles.find(t => t.id === tile.id);
         if (originalTile) {
-          return { row, col };
+          return { y: row, x: col };
         }
       }
     }
@@ -113,14 +115,14 @@ function findValidTarget(unit: RotatableInstance, edge: number, attack: EdgeAtta
     const enemyTiles = [];
     switch (attackDirection) {
       case AttackDirection.UP:
-        if (attackOrigin.row === 0) { return null; }
+        if (attackOrigin.y === 0) { return null; }
         // Get all cells in the column above the unit until we reach the edge of the board
-        for (let row = attackOrigin.row - 1; row >= 0; row--) {
+        for (let row = attackOrigin.y - 1; row >= 0; row--) {
           // if previous cell has a horizontal wall, break
-          if (state.board[row + 1][attackOrigin.col].walls.includes('horizontal')) {
+          if (state.board[row + 1][attackOrigin.x].walls.includes('horizontal')) {
             break;
           }
-          const target = state.board[row][attackOrigin.col];
+          const target = state.board[row][attackOrigin.x];
           if (target.tiles) {
             const enemyTile = target.tiles.find(tile => tile.playerId !== unit.playerId);
             if (enemyTile) { 
@@ -133,10 +135,10 @@ function findValidTarget(unit: RotatableInstance, edge: number, attack: EdgeAtta
         }
         break;
       case AttackDirection.RIGHT:
-        if (attackOrigin.col === state.board[0].length - 1) { return null; }
+        if (attackOrigin.x === state.board[0].length - 1) { return null; }
         // Get all cells in the row to the right of the unit until we reach the edge of the board
-        for (let col = attackOrigin.col + 1; col < state.board[0].length; col++) {
-          const target = state.board[attackOrigin.row][col];
+        for (let col = attackOrigin.x + 1; col < state.board[0].length; col++) {
+          const target = state.board[attackOrigin.y][col];
           if (target.walls.includes('vertical')) {
             break;
           }
@@ -152,11 +154,11 @@ function findValidTarget(unit: RotatableInstance, edge: number, attack: EdgeAtta
         }
         break;
       case AttackDirection.DOWN:
-        if (attackOrigin.row === state.board.length - 1) { return null; }
+        if (attackOrigin.y === state.board.length - 1) { return null; }
         // Get all cells in the column below the unit until we reach the edge of the board
-        for (let row = attackOrigin.row + 1; row < state.board.length; row++) {
-          const target = state.board[row][attackOrigin.col];
-          if (state.board[row][attackOrigin.col].walls.includes('horizontal')) {
+        for (let row = attackOrigin.y + 1; row < state.board.length; row++) {
+          const target = state.board[row][attackOrigin.x];
+          if (state.board[row][attackOrigin.x].walls.includes('horizontal')) {
             break;
           }
           if (target.tiles) {
@@ -171,11 +173,11 @@ function findValidTarget(unit: RotatableInstance, edge: number, attack: EdgeAtta
         }
         break;
       case AttackDirection.LEFT:
-        if (attackOrigin.col === 0) { return null; }
+        if (attackOrigin.x === 0) { return null; }
         // Get all cells in the row to the left of the unit until we reach the edge of the board
-        for (let col = attackOrigin.col - 1; col >= 0; col--) {
-          const target = state.board[attackOrigin.row][col];
-          if (state.board[attackOrigin.row][col + 1].walls.includes('vertical')) {
+        for (let col = attackOrigin.x - 1; col >= 0; col--) {
+          const target = state.board[attackOrigin.y][col];
+          if (state.board[attackOrigin.y][col + 1].walls.includes('vertical')) {
             break;
           }
           if (target.tiles) {
@@ -210,21 +212,21 @@ function findValidAttackActions(unit: RotatableInstance, state: Draft<GameState>
 
 export function attack(attackAction: { unit: RotatableInstance, target: RotatableInstance, attack: EdgeAttack }, state: Draft<GameState>) {
     const targetUnit = attackAction.target;
-    console.log(`Attacking ${targetUnit.id} (health: ${targetUnit.health}) with ${attackAction.attack.value} damage.`);
+    log(`Attacking ${targetUnit.id} (health: ${targetUnit.health}) with ${attackAction.attack.value} damage.`);
     targetUnit.health -= attackAction.attack.value;
     const unitTemplate = allGameObjects[attackAction.unit.objectId] as Rotatable;
     const targetUnitTemplate = allGameObjects[targetUnit.objectId] as Rotatable;
     if (targetUnit.health <= 0) {
       const targetEnemyPlayer = state.players.find(player => player.id === targetUnit.playerId);
-      console.log(`${getFactionName(unitTemplate.faction)} ${unitTemplate.name} kills ${getFactionName(targetUnitTemplate.faction)} ${targetUnitTemplate.name}.`);
+      log(`${getFactionName(unitTemplate.faction)} ${unitTemplate.name} kills ${getFactionName(targetUnitTemplate.faction)} ${targetUnitTemplate.name}.`);
       discardAsPlayer(targetEnemyPlayer, targetUnit, state);
     } else {
-      console.log(`${getFactionName(unitTemplate.faction)} ${unitTemplate.name} deals ${attackAction.attack.value} damage to ${getFactionName(targetUnitTemplate.faction)} ${targetUnitTemplate.name}.`);
+      log(`${getFactionName(unitTemplate.faction)} ${unitTemplate.name} deals ${attackAction.attack.value} damage to ${getFactionName(targetUnitTemplate.faction)} ${targetUnitTemplate.name}.`);
     }
 }
 
 export function battle(state: Draft<GameState>) {
-    console.log('-- [Battle phase] --');
+    log('-- [Battle phase] --');
     const possibleInitiatives = Array.from(Array(5).keys()).reverse();
     for (const initiative of possibleInitiatives) {
       // Find all units with the current initiative
@@ -240,7 +242,7 @@ export function battle(state: Draft<GameState>) {
         const attackActions = findValidAttackActions(unit, state);
         allAttackActions.push(...attackActions);
       }
-      console.log(`Initiative ${initiative}: ${units.length} units, valid attack actions: `, allAttackActions);
+      log(`Initiative ${initiative}: ${units.length} units, valid attack actions: `, allAttackActions);
       for (const attackAction of allAttackActions) {
         if (!attackAction) { continue; }
         attack(attackAction, state);

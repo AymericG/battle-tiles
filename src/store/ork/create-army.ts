@@ -12,6 +12,8 @@ export const createOrkArmy = (playerId: number) => ({
         ...instanciateGameObjects(Ork.Battle, playerId, 5),
         ...instanciateGameObjects(Ork.Move, playerId, 5),
         ...instanciateRotatableObjects(Ork.MadDokSurgery, playerId, 1),
+        ...instanciateGameObjects(Ork.Push, playerId, 2),
+        
         // ,
         // ,
         // createAction('Battle', playerId, Faction.Orks, 'attack', 'Battle'),

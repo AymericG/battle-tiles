@@ -67,7 +67,7 @@ export function createModule(id: GameObjectId, name: string, faction: Faction, e
     };
 }
 
-export function createAction(id: GameObjectId, name: string, faction: Faction, actionType: 'move' | 'attack' | 'special', description: string): Action {
+export function createAction(id: GameObjectId, name: string, faction: Faction, actionType: 'move' | 'attack' | 'special' | 'push', description: string): Action {
     return {
         id,
         name,

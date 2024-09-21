@@ -2,6 +2,6 @@ import { GameObject } from './GameObject';
 
 export interface Action extends GameObject {
   type: 'action';
-  actionType: 'move' | 'attack' | 'special';
+  actionType: 'move' | 'attack' | 'special' | 'push';
   description: string;
 }

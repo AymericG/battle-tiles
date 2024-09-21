@@ -8,4 +8,5 @@ export const enum Tau {
     KrootCarnivore = '[Tau] Kroot Carnivore',
     Battle = '[Tau] Battle',
     Move = '[Tau] Move',
+    Push = '[Tau] Push',
 };
