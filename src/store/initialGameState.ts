@@ -4,10 +4,11 @@ import { BOARD_SIZE } from '../constants';
 import { WallDirection } from './types';
 import { Cell } from '../models/Cell';
 import { createTauArmy } from './tau/create-army';
-import { createOrkArmy } from './ork/create-army';
+// import { createOrkArmy } from './ork/create-army';
+import { createSpaceWolvesArmy } from './spacewolves/create-army-spacewolves';
 
 const tauArmy = createTauArmy(1);
-const orkArmy = createOrkArmy(2);
+const orkArmy = createSpaceWolvesArmy(2);
 
 export interface Wall {
   x: number;

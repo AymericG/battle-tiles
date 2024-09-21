@@ -15,10 +15,11 @@
 - [x] Fix AI after refactoring
 - [x] Add walls on the map
 - [x] AI should take walls in account
+- [x] Allow AI to play Battle tiles
+- [x] Allow AI to play Move tiles
+- [x] Allow AI to play Push tiles
 
 - [ ] Allow AI to play modules
-- [ ] Allow AI to play Battle tiles
-- [ ] Allow AI to play Move tiles
 - [ ] Tweak Ork army
 - [ ] Tweak Tau army
 - [ ] Allow AI to play against AI

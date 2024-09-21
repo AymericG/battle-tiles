@@ -1,9 +1,10 @@
 import { GameObjectInstance } from "../models/GameObject"
 import { RotatableInstance } from "../models/Rotatable";
 import { Ork } from "./ork/game-object-ids";
+import { SpaceWolves } from "./spacewolves/game-object-ids";
 import { Tau } from "./tau/game-object-ids";
 
-export type GameObjectId = Tau | Ork;
+export type GameObjectId = Tau | Ork | SpaceWolves;
 
 export enum ActionType {
     PLAY = 'play',
