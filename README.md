@@ -20,6 +20,7 @@
 - [x] Allow AI to play Push tiles
 
 - [ ] Allow AI to play modules
+- [ ] Allow AI to use keywords
 - [ ] Tweak Ork army
 - [ ] Tweak Tau army
 - [ ] Allow AI to play against AI

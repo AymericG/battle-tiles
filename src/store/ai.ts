@@ -8,30 +8,11 @@ import { Cell } from "../models/Cell";
 import { ActionType, AttackDirection, PossibleAction } from "./types";
 import { allGameObjects } from "./all-game-objects";
 import { RotatableInstance } from "../models/Rotatable";
-import { Unit } from "../models/Unit";
+import { AttackType, Unit } from "../models/Unit";
 import { Module } from "../models/Module";
 import { Action } from "../models/Action";
 import { log, setLoggingContext } from "../utils/log";
-
-// function randomItem(items: any[]) {
-//     return items[Math.floor(Math.random() * items.length)];
-// }
-
-function findAllEmptyCells(state: Draft<GameState>) {
-    const emptyCells = [];
-    log('Finding empty cells...');
-    for (let row = 0; row < state.board.length; row++) {
-        for (let col = 0; col < state.board[row].length; col++) {
-            const cell = state.board[row][col];
-            if (!cell || !cell.tiles) { continue; }
-            if (!cell.tiles.length) {
-                emptyCells.push(cell);
-                continue;
-            }
-        }
-    }
-    return emptyCells;
-}
+import { findAllEmptyCells, findAllFriendlyTiles, findAllTiles, findCellsInDirection, findEnemiesInDirection } from "./board-manipulation";
 
 export function playAs(player: Player | undefined, state: Draft<GameState>) {
     if (!player) { return; }
@@ -127,34 +108,53 @@ function executeAction(action: PossibleAction, state: Draft<GameState>) {
     return false;
 }
 
-function generateAllUnitPlays(tile: GameObjectInstance, emptyCells: Cell[]) {
-    // Find all available spots on the board
-    const possibleActions = [];
-    for (const emptyCell of emptyCells) {
-        for (let rotation = 0; rotation < 4; rotation++) {
-            possibleActions.push({
-                type: ActionType.PLAY,
-                tile,
-                x: emptyCell.x,
-                y: emptyCell.y,
-                rotation,
-                score: 0
-            });
-        }
-    }
-    if (possibleActions.length === 0) {
-        possibleActions.push({
+function generateAllRotatablePlays(tile: GameObjectInstance, emptyCells: Cell[]) {
+    const possibleUnitPlacements: PossibleAction[] = emptyCells.flatMap(emptyCell => {
+        return Array.from({ length: 4 }, (_, rotation) => ({
+            type: ActionType.PLAY,
+            tile,
+            x: emptyCell.x,
+            y: emptyCell.y,
+            rotation,
+            score: 0
+        }));
+    });
+
+    if (possibleUnitPlacements.length === 0) {
+        return [{
             type: ActionType.DISCARD,
             tile,
             score: 0
-        });
+        }];
     }
 
-    return possibleActions;
+    return possibleUnitPlacements;
 }
 
-function findAllFriendlyTiles(state: GameState, playerId: number) {
-    return state.board.flat().map(cell => cell.tiles && cell.tiles.find(t => t.playerId === playerId)).filter(x => x);
+function adjacentPosition(x: number, y: number, direction: AttackDirection) {
+    return {
+        x: x + (direction === AttackDirection.RIGHT ? 1 : direction === AttackDirection.LEFT ? -1 : 0),
+        y: y + (direction === AttackDirection.DOWN ? 1 : direction === AttackDirection.UP ? -1 : 0)
+    };
+}
+
+function isOutOfBounds(x: number, y: number) {
+    return x < 0 || y < 0 || x >= BOARD_SIZE || y >= BOARD_SIZE;
+}
+
+function isEmptyCell(x: number, y: number, state: GameState) {
+    return !state.board[y][x].tiles.length;
+}
+
+function isBlockedByWall(direction: AttackDirection, x: number, y: number, state: GameState) {
+    const { x: targetX, y: targetY } = adjacentPosition(x, y, direction);
+
+    // Check for walls
+    if (direction === AttackDirection.UP && state.board[y][x].walls.includes('horizontal')) { return true; }
+    if (direction === AttackDirection.RIGHT && state.board[targetY][targetX].walls.includes('vertical')) { return true; }
+    if (direction === AttackDirection.DOWN && state.board[targetY][targetX].walls.includes('horizontal')) { return true; }
+    if (direction === AttackDirection.LEFT && state.board[y][x].walls.includes('vertical')) { return true; }
+    return false;
 }
 
 function generateAllMoves(tile: GameObjectInstance, state: GameState) {
@@ -169,24 +169,12 @@ function generateAllMoves(tile: GameObjectInstance, state: GameState) {
         if (!position) { continue; }
         const { x, y } = position;
         for (let direction = 0; direction < 4; direction++) {
-            const newX = x + (direction === AttackDirection.RIGHT ? 1 : direction === AttackDirection.LEFT ? -1 : 0);
-            const newY = y + (direction === AttackDirection.DOWN ? 1 : direction === AttackDirection.UP ? -1 : 0);
-            if (newX < 0 || newY < 0 || newX >= BOARD_SIZE || newY >= BOARD_SIZE) {
+
+            const { x: targetX, y: targetY } = adjacentPosition(x, y, direction);
+
+            if (isOutOfBounds(targetX, targetY) || !isEmptyCell(targetX, targetY, state) || isBlockedByWall(direction, x, y, state)) {
                 continue;
             }
-
-            const targetCell = state.board[newY][newX];
-
-            // target cell must be empty
-            if (targetCell.tiles && targetCell.tiles.length) {
-                continue;
-            }
-
-            // Check for walls
-            if (direction === AttackDirection.UP && state.board[y][x].walls.includes('horizontal')) { continue; }
-            if (direction === AttackDirection.RIGHT && targetCell.walls.includes('vertical')) { continue; }
-            if (direction === AttackDirection.DOWN && targetCell.walls.includes('horizontal')) { continue; }
-            if (direction === AttackDirection.LEFT && state.board[y][x].walls.includes('vertical')) { continue; }
 
             // Generate for each rotation
             for (let rotation = 0; rotation < 4; rotation++) {
@@ -195,8 +183,8 @@ function generateAllMoves(tile: GameObjectInstance, state: GameState) {
                     tile,
                     params: {
                         tile: tileToMove,
-                        x: newX,
-                        y: newY,
+                        x: targetX,
+                        y: targetY,
                         rotation,
                     },
                     score: 0
@@ -222,24 +210,13 @@ function generateAllPushes(pushTile: GameObjectInstance, state: GameState) {
 
             // Find all adjacent enemy units
             const { x, y } = position;
-            const possibleTargets = [];
-            if (y > 0 && state.board[y - 1][x].tiles) {
-                const enemyTiles = state.board[y - 1][x].tiles.filter(t => t.playerId !== pushTile.playerId);
-                possibleTargets.push({ direction: AttackDirection.UP, enemyTiles });
-            }
-            if (x < BOARD_SIZE - 1 && state.board[y][x + 1].tiles) {
-                const enemyTiles = state.board[y][x + 1].tiles.filter(t => t.playerId !== pushTile.playerId);
-                possibleTargets.push({ direction: AttackDirection.RIGHT, enemyTiles });
-            }
-            if (y < BOARD_SIZE - 1 && state.board[y + 1][x].tiles) {
-                const enemyTiles = state.board[y + 1][x].tiles.filter(t => t.playerId !== pushTile.playerId);
-                possibleTargets.push({ direction: AttackDirection.DOWN, enemyTiles });
-            }
-            if (x > 0 && state.board[y][x - 1].tiles) {
-                const enemyTiles = state.board[y][x - 1].tiles.filter(t => t.playerId !== pushTile.playerId);
-                possibleTargets.push({ direction: AttackDirection.LEFT, enemyTiles });
-            }
-            return possibleTargets;
+            return [
+                { direction: AttackDirection.UP, enemyTiles: findEnemiesInDirection(x, y, AttackDirection.UP, 1, pushTile.playerId, state) },
+                { direction: AttackDirection.RIGHT, enemyTiles: findEnemiesInDirection(x, y, AttackDirection.RIGHT, 1, pushTile.playerId, state) },
+                { direction: AttackDirection.DOWN, enemyTiles: findEnemiesInDirection(x, y, AttackDirection.DOWN, 1, pushTile.playerId, state) },
+                { direction: AttackDirection.LEFT, enemyTiles: findEnemiesInDirection(x, y, AttackDirection.LEFT, 1, pushTile.playerId, state) },
+            ];
+            
         }).filter(x => x)
         .flatMap(possiblePush => {
             if (!possiblePush) { return null; }
@@ -250,29 +227,19 @@ function generateAllPushes(pushTile: GameObjectInstance, state: GameState) {
                 const position = findTilePosition(enemyTile, state);
                 if (!position) { continue; }
                 const { x, y } = position;
-                const newX = x + (direction === AttackDirection.RIGHT ? 1 : direction === AttackDirection.LEFT ? -1 : 0);
-                const newY = y + (direction === AttackDirection.DOWN ? 1 : direction === AttackDirection.UP ? -1 : 0);
-                if (newX < 0 || newY < 0 || newX >= BOARD_SIZE || newY >= BOARD_SIZE) {
-                    continue;
-                }
-                const targetCell = state.board[newY][newX];
-                if (targetCell.tiles && targetCell.tiles.length) {
-                    continue;
-                }
+                const { x: targetX, y: targetY } = adjacentPosition(x, y, direction);
 
-                // Check for walls
-                if (direction === AttackDirection.UP && state.board[y][x].walls.includes('horizontal')) { continue; }
-                if (direction === AttackDirection.RIGHT && targetCell.walls.includes('vertical')) { continue; }
-                if (direction === AttackDirection.DOWN && targetCell.walls.includes('horizontal')) { continue; }
-                if (direction === AttackDirection.LEFT && state.board[y][x].walls.includes('vertical')) { continue; }
+                if (isOutOfBounds(targetX, targetY) || !isEmptyCell(targetX, targetY, state) || isBlockedByWall(direction, x, y, state)) {
+                    continue;
+                }
 
                 possiblePushActions.push({
                     type: ActionType.PLAY,
                     tile: pushTile,
                     params: {
                         tile: enemyTile,
-                        x: newX,
-                        y: newY,
+                        x: targetX,
+                        y: targetY,
                         rotation: enemyTile.rotation,
                     },
                     score: 0
@@ -307,14 +274,15 @@ function generateAllPossibleActions(tile: GameObjectInstance, emptyCells: Cell[]
         if (template.actionType === 'push') {
             return generateAllPushes(tile, state);
         }
+
+        // TODO: Implement all actions
         return [{
             type: ActionType.DISCARD,
             tile,
             score: 0
         }]
     }
-    const possibleActions = generateAllUnitPlays(tile, emptyCells);
-    return possibleActions;
+    return generateAllRotatablePlays(tile, emptyCells);
 }
 
 function evaluateAllActions(actions: PossibleAction[], player: Player, state: Draft<GameState>) {
@@ -337,25 +305,14 @@ function evaluateAction(action: PossibleAction, player: Player, state: Draft<Gam
 }
 
 function evaluateState(state: GameState, player: Player) {
-    let score = 0;
-    for (let row = 0; row < state.board.length; row++) {
-        for (let col = 0; col < state.board[row].length; col++) {
-            const cell = state.board[row][col];
-            if (!cell || !cell.tiles) { continue; }
-            for (const tile of cell.tiles) {
-                const tileScore = evaluateTile(tile, player, state);
-                const template = allGameObjects[tile.objectId];
-                log(`${template.name} has a score of ${tileScore}`);
-                if (player.id === tile.playerId) {
-                    score += tileScore;
-                } else {
-                    score -= tileScore;
-                }
-            }
-        }
-    }
-    log(`Score: ${score}`);
-    return score;
+    return findAllTiles(state)
+        .map(tile => {
+            const tileScore = evaluateTile(tile, state);
+            const template = allGameObjects[tile.objectId];
+            log(`${template.name} has a score of ${tileScore}`);
+            return player.id === tile.playerId ? tileScore : -tileScore;
+        })
+        .reduce((totalScore, tileScore) => totalScore + tileScore, 0);
 }
 
 function addHealthHeuristic(tile: RotatableInstance) {
@@ -375,6 +332,7 @@ function addHealthHeuristic(tile: RotatableInstance) {
     return score;
 }
 
+
 export function addInfluenceHeuristic(tile: RotatableInstance, state: GameState) {
     let score = 0;
     const template = allGameObjects[tile.objectId];
@@ -389,214 +347,44 @@ export function addInfluenceHeuristic(tile: RotatableInstance, state: GameState)
             if (!moduleTemplate.connected[i]) {
                 continue;
             }
+
             const direction = (i + tile.rotation as number) % 4;
-            switch (direction) {
-                case AttackDirection.UP:
-                    if (y === 0 || state.board[y][x].walls.includes('horizontal')) { continue; }
-                    score += board[y - 1][x].tiles.some(t => t.playerId === tile.playerId) ? 2 : 1;
-                    break;
-                case AttackDirection.RIGHT:
-                    if (x >= board[y].length - 1 || state.board[y][x + 1].walls.includes('vertical')) { continue; }
-                    score += board[y][x + 1].tiles.some(t => t.playerId === tile.playerId) ? 2 : 1;
-                    break;
-                case AttackDirection.DOWN:
-                    if (y >= board.length - 1 || state.board[y + 1][x].walls.includes('horizontal')) { continue; }
-                    score += board[y + 1][x].tiles.some(t => t.playerId === tile.playerId) ? 2 : 1;
-                    break;
-                case AttackDirection.LEFT:
-                    if (x === 0 || state.board[y][x - 1].walls.includes('vertical')) { continue; }
-                    score += board[y][x - 1].tiles.some(t => t.playerId === tile.playerId) ? 2 : 1;
-                    break;
+            const { x: targetX, y: targetY } = adjacentPosition(x, y, direction);
+
+            if (isOutOfBounds(targetX, targetY)) {
+                continue;
             }
+
+            if (isBlockedByWall(direction, x, y, state)) {
+                continue;
+            }
+
+            score += board[targetY][targetX].tiles.some(t => t.playerId === tile.playerId) ? 2 : 1;
         }
         return score;
     }
 
     const unit = tile;
     const unitTemplate = template as Unit;
-    console.log('Before crash', unitTemplate);
     for (let i = 0; i < 4; i++) {
         const attack = unitTemplate.attacks[i];
         if (!attack || attack.value === 0) { continue; }
         const direction = (i + unit.rotation as number) % 4;
-        let range = attack.type === 'melee' ? 1 : BOARD_SIZE;
+        let range = attack.type === AttackType.Melee ? 1 : BOARD_SIZE;
         // log(`Checking influence for attack ${i} in direction ${direction}`);
-        switch (direction) {
-            case AttackDirection.UP:
-                for (let j = 1; j <= range; j++) {
-                    if (y - j < 0) { break; }
-                    if (state.board[y - j + 1][x].walls.includes('horizontal')) { break; }
-                    const cellScore = state.board[y - j][x].tiles.some(t => t.playerId !== tile.playerId) ? 2 : 1;
-                    score += cellScore;
-                    // log(`Added ${cellScore} for cell ${col}, ${row - j}`);
-                }
-                break;
-            case AttackDirection.RIGHT:
-                for (let j = 1; j <= range; j++) {
-                    if (x + j >= state.board[y].length) { break; }
-                    if (state.board[y][x + j].walls.includes('vertical')) { break; }
-                    const cellScore = state.board[y][x + j].tiles.some(t => t.playerId !== tile.playerId) ? 2 : 1;
-                    score += cellScore;
-                    // log(`Added ${cellScore} for cell ${col + j}, ${row}`);
-                }
-                break;
-            case AttackDirection.DOWN:
-                for (let j = 1; j <= range; j++) {
-                    if (y + j >= state.board.length) { break; }
-                    if (state.board[y + j][x].walls.includes('horizontal')) { break; }
-                    const cellScore = state.board[y + j][x].tiles.some(t => t.playerId !== tile.playerId) ? 2 : 1;
-                    score += cellScore;
-                    // log(`Added ${cellScore} for cell ${col}, ${row + j}`);
-                }
-                break;
-            case AttackDirection.LEFT:
-                for (let j = 1; j <= range; j++) {
-                    if (x - j < 0) { break; }
-                    if (state.board[y][x - j + 1].walls.includes('vertical')) { break; }
-                    const cellScore = state.board[y][x - j].tiles.some(t => t.playerId !== tile.playerId) ? 2 : 1;
-                    score += cellScore;
-                    // log(`Added ${cellScore} for cell ${col - j}, ${row}`);
-                }
-                break;
+        const cells = findCellsInDirection(x, y, direction, range, state);
+        for (const cell of cells) {
+            const cellScore = cell.tiles.some(t => t.playerId !== tile.playerId) ? 2 : 1;
+            score += cellScore;
         }
     }
     log(`Influence ${score} for ${template.name}`);
     return score;
 }
 
-function evaluateTile(tile: RotatableInstance, player: Player, state: GameState) {
-    const template = allGameObjects[tile.objectId];
+function evaluateTile(tile: RotatableInstance, state: GameState) {
     let score = 0;
     score += addHealthHeuristic(tile) * 3;
     score += addInfluenceHeuristic(tile, state);
     return score;
-
-    // if (tile.type === 'unit') {
-    //     return evaluateUnit(tile as Unit, player, state);
-    // }
-    // if (tile.type === 'module') {
-    //     return evaluateModule(tile as Module, player, state);
-    // }
-    // return 0;
 }
-
-// function evaluateAttack(targetCell: Cell, player: Player, initiative: number, attack: EdgeAttack) {
-//     const enemies = targetCell.tiles.filter(tile => allGameObjects[tile.objectId].type === 'unit' && tile.playerId !== player.id);
-//     if (!enemies.length) {
-//         return 0;
-//     }
-//     if (enemies.some(x => x.health <= attack.value && (allGameObjects[x.objectId] as Unit).initiative < initiative)) {
-//         return attack.value * 3;
-//     }
-//     if (enemies.some(x => allGameObjects[x.objectId].name === LEADER_UNIT)) {
-//         return attack.value * 2;
-//     }
-//     return attack.value;
-// }
-
-
-// TODO: This ignores the fact that this unit could be killed before it can act
-// function evaluateUnit(unit: Unit, player: Player, state: GameState) {
-//     const board = state.board;
-//     const tilePosition = findTilePosition(unit, state);
-//     if (!tilePosition) {
-//         return 0;
-//     }
-//     let damage = 0;
-//     unit.attacks.forEach((attack, edge) => {
-//         const direction = (edge + unit.rotation as number) % 4;
-//         const { row, col } = tilePosition;
-//         // TODO: this is ignoring range attacks
-//         // TODO: this is ignoring partial damage
-//         switch (direction) {
-//             case AttackDirection.UP:
-//                 if (row > 0 && board[row - 1][col].tiles) {
-//                     damage = evaluateAttack(board[row - 1][col], player, unit.initiative, attack);
-//                 }
-//                 break;
-//             case AttackDirection.RIGHT:
-//                 if (col < board[row].length - 1 && board[row][col + 1].tiles) {
-//                     damage = evaluateAttack(board[row][col + 1], player, unit.initiative, attack);
-//                 }
-//                 break;
-//             case AttackDirection.DOWN:
-//                 if (row < board.length - 1 && board[row + 1][col].tiles) {
-//                     damage = evaluateAttack(board[row + 1][col], player, unit.initiative, attack);
-//                 }
-//                 break;
-//             case AttackDirection.LEFT:
-//                 if (col > 0 && board[row][col - 1].tiles) {
-//                     damage = evaluateAttack(board[row][col - 1], player, unit.initiative, attack);
-//                 }
-//                 break;
-//         } 
-//     });
-//     return damage;
-// }
-
-// function findTilePosition(tile: GameObject, state: GameState) {
-//     for (let row = 0; row < state.board.length; row++) {
-//         for (let col = 0; col < state.board[row].length; col++) {
-//             const cell = state.board[row][col];
-//             if (!cell || !cell.tiles) { continue; }
-//             const originalTile = cell.tiles.find((t: GameObject) => t.id === tile.id);
-//             if (originalTile) {
-//                 return { row, col };
-//             }
-//         }
-//     }
-//     return null;
-// }
-
-// function evaluateModule(module: Module, player: Player, state: GameState) {
-//     // Count the number of units adjacent to this module
-//     let adjacentUnits = 0;
-//     const board = state.board;
-//     const tilePosition = findTilePosition(module, state);
-//     if (!tilePosition) {
-//         return 0;
-//     }
-//     // TODO: This is ignoring the rotation and connections of the module
-//     const { row, col } = tilePosition;
-//     if (row > 0 && board[row - 1][col].tiles) {
-//         adjacentUnits += board[row - 1][col].tiles.filter(tile => tile.type === 'unit' && tile.playerId === player.id).length;
-//     }
-//     if (row < board.length - 1 && board[row + 1][col].tiles) {
-//         adjacentUnits += board[row + 1][col].tiles.filter(tile => tile.type === 'unit' && tile.playerId === player.id).length;
-//     }
-//     if (col > 0 && board[row][col - 1].tiles) {
-//         adjacentUnits += board[row][col - 1].tiles.filter(tile => tile.type === 'unit' && tile.playerId === player.id).length;
-//     }
-//     if (col < board[row].length - 1 && board[row][col + 1].tiles) {
-//         adjacentUnits += board[row][col + 1].tiles.filter(tile => tile.type === 'unit' && tile.playerId === player.id).length;
-//     }
-
-//     return adjacentUnits;
-// }
-
-// function playTileRandomlyAsPlayer(tile: GameObject, player: Player, state: Draft<GameState>) {
-//     // Find all available spots on the board
-//     const emptyCells = findAllEmptyCells(state);
-//     // Pick one randomly
-//     const emptyCell = randomItem(emptyCells);
-//     playTileAsPlayer(tile, emptyCell.y, emptyCell.x, state);
-// }
-
-// function playAllTilesRandomlyAsPlayer(player: Player, state: Draft<GameState>) {
-//     const randomTile = randomItem(player.hand);
-//     discardAsPlayer(player, randomTile, state);
-
-//     const tilesToPlay = [...player.hand];
-//     for (const tile of tilesToPlay) {
-//         if (tile.type === 'action') {
-//             discardAsPlayer(player, tile, state);
-//             continue;
-//         }
-
-//         // Find all available spots on the board
-//         const emptyCells = findAllEmptyCells(state);
-//         // Pick one randomly
-//         const emptyCell = randomItem(emptyCells);
-//         playTileAsPlayer(tile, emptyCell.y, emptyCell.x, state);
-//     }
-// }

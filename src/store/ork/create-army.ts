@@ -1,7 +1,9 @@
+import { Faction } from "../../models/Faction";
 import { instanciateGameObjects, instanciateRotatableObject, instanciateRotatableObjects, shuffle } from "../army-utils";
 import { Ork } from "./game-object-ids";
 
 export const createOrkArmy = (playerId: number) => ({
+    faction: Faction.Orks,
     base: instanciateRotatableObject(Ork.Leader, playerId),
     deck: shuffle([
         ...instanciateRotatableObjects(Ork.Boy, playerId, 4),
@@ -13,19 +15,6 @@ export const createOrkArmy = (playerId: number) => ({
         ...instanciateGameObjects(Ork.Move, playerId, 5),
         ...instanciateRotatableObjects(Ork.MadDokSurgery, playerId, 1),
         ...instanciateGameObjects(Ork.Push, playerId, 2),
-        
-        // ,
-        // ,
-        // createAction('Battle', playerId, Faction.Orks, 'attack', 'Battle'),
-        // createAction('Battle', playerId, Faction.Orks, 'attack', 'Battle'),
-        // createAction('Battle', playerId, Faction.Orks, 'attack', 'Battle'),
-        // createAction('Battle', playerId, Faction.Orks, 'attack', 'Battle'),
-        // createAction('Battle', playerId, Faction.Orks, 'attack', 'Battle'),
-        // createAction('Move', playerId, Faction.Orks, 'move', 'Move'),
-        // createAction('Move', playerId, Faction.Orks, 'move', 'Move'),
-        // createAction('Move', playerId, Faction.Orks, 'move', 'Move'),
-        // createAction('Move', playerId, Faction.Orks, 'move', 'Move'),
-        // createAction('Move', playerId, Faction.Orks, 'move', 'Move'),
         // createAction('WAAAGH!', playerId, Faction.Orks, 'special', 'All your units gain +1 melee attack for this turn.'),
         // createAction('Mob Rule', playerId, Faction.Orks, 'special', 'Select one unit. It can attack twice this turn if it is adjacent to at least two other friendly units.'),
         // createModule('Charge!', playerId, Faction.Orks, 'Move up to three of your units to adjacent empty tiles and immediately trigger a battle.'),

@@ -8,7 +8,7 @@ import clsx from 'clsx';
 import { getFactionColor, getFactionName } from '../utils/factions';
 import { RotatableInstance } from '../models/Rotatable';
 import { allGameObjects } from '../store/all-game-objects';
-import { Unit } from '../models/Unit';
+import { AttackType, Unit } from '../models/Unit';
 
 interface TileComponentProps {
   tile: GameObjectInstance;
@@ -51,7 +51,7 @@ const DraggableTile = ({ tile, className, children, ...rest }: { tile: GameObjec
 
 const EdgeAttackComponent = ({ attack, direction }: { attack: { value: number, type: string }, direction: string }) => {
   return (<>
-    {attack.value > 0 && <div className={clsx('triangle', { 'triangle-narrow': attack.type === 'range' }, `triangle-${direction}`)}></div>}
+    {attack.value > 0 && <div className={clsx('triangle', { 'triangle-narrow': attack.type === AttackType.Range }, `triangle-${direction}`)}></div>}
     <div className={`edge-attack`}>
       {attack.value > 1 && <>{attack.value}</>}
     </div>

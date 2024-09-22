@@ -41,13 +41,28 @@ export function shuffle(array: any[]) {
     return array;
 } 
 
-export function createUnit(id: GameObjectId, name: string, faction: Faction, attacks: { value: number, type: AttackType }[], health: number, initiative: number, keywords?: string[]): Unit {
+function parseAttacks(attacks: string) {
+    // Turn 1r 1r 1r 1m into [{ value: 1, type: 'range' }, { value: 1, type: 'range' }, { value: 1, type: 'range' }, { value: 1, type: 'melee' }]
+    return attacks.split(' ').map((attack, index) => {
+        // use regex to split the number and the type
+        const match = attack.match(/(\d+)([rm])/);
+        if (!match) {
+            throw new Error(`Invalid attack: ${attack}`);
+        }
+        const value = parseInt(match[1]);
+        const type = match[2] === 'r' ? AttackType.Range : AttackType.Melee;
+        return { value, type };
+    });
+}
+
+
+export function createUnit(id: GameObjectId, name: string, faction: Faction, attacks: string, health: number, initiative: number, keywords?: string[]): Unit {
     return {
         name,
         id,
         type: 'unit',
         faction,
-        attacks,
+        attacks: parseAttacks(attacks),
         health,
         initiative,
         keywords: keywords || []

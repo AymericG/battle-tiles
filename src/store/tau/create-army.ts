@@ -1,8 +1,10 @@
+import { Faction } from "../../models/Faction";
 import { instanciateGameObjects, instanciateRotatableObject, instanciateRotatableObjects, shuffle } from "../army-utils";
 import { Tau } from "./game-object-ids";
 
 
 export const createTauArmy = (playerId: number) => ({
+    faction: Faction.Tau,
     base: instanciateRotatableObject(Tau.Leader, playerId),
     deck: shuffle([
         ...instanciateRotatableObjects(Tau.FireWarrior, playerId, 4),

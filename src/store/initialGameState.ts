@@ -1,14 +1,14 @@
 import { GameState } from '../models/GameState';
-import { Faction } from '../models/Faction';
 import { BOARD_SIZE } from '../constants';
 import { WallDirection } from './types';
 import { Cell } from '../models/Cell';
 import { createTauArmy } from './tau/create-army';
-// import { createOrkArmy } from './ork/create-army';
-import { createSpaceWolvesArmy } from './spacewolves/create-army-spacewolves';
+import { createOrkArmy } from './ork/create-army';
+import { createSpaceWolvesArmy } from './spacewolves/create-army';
 
 const tauArmy = createTauArmy(1);
 const orkArmy = createSpaceWolvesArmy(2);
+// const spaceWolvesArmy = createSpaceWolvesArmy(2);
 
 export interface Wall {
   x: number;
@@ -68,7 +68,7 @@ export const initialGameState: GameState = {
     {
       id: 1,
       name: 'Tau player',
-      faction: Faction.Tau,
+      faction: tauArmy.faction,
       hand: [],
       drawPile: tauArmy.deck,
       discardPile: []
@@ -76,7 +76,7 @@ export const initialGameState: GameState = {
     {
       id: 2,
       name: 'Ork player',
-      faction: Faction.Orks,
+      faction: orkArmy.faction,
       hand: [],
       drawPile: orkArmy.deck,
       discardPile: []

@@ -2,12 +2,13 @@ import { Draft } from "@reduxjs/toolkit";
 import { GameState } from "../models/GameState";
 import { Player } from "../models/Player";
 import { GameObjectInstance } from "../models/GameObject";
-import { EdgeAttack, Unit } from "../models/Unit";
-import { AttackDirection } from "./types";
+import { AttackType, EdgeAttack, Unit } from "../models/Unit";
 import { getFactionName } from "../utils/factions";
 import { Rotatable, RotatableInstance } from "../models/Rotatable";
 import { allGameObjects } from "./all-game-objects";
 import { log } from "../utils/log";
+import { BOARD_SIZE } from "../constants";
+import { findCellsInDirection } from "./board-manipulation";
 
 export function playTileAsPlayer(tile: RotatableInstance, row: number, col: number, state: Draft<GameState>) {
     log(`Player ${tile.playerId} plays ${allGameObjects[tile.objectId].name} (${'rotation' in tile && tile.rotation}) on ${col}, ${row}.`);
@@ -20,28 +21,28 @@ export function playTileAsPlayer(tile: RotatableInstance, row: number, col: numb
     }
 }
 
+function removeFromContainer(container: GameObjectInstance[], tile: GameObjectInstance) {
+    const tileIndex = container.findIndex(t => t.id === tile.id);
+    if (tileIndex !== -1) {
+      container.splice(tileIndex, 1);
+      return true;
+    }
+    return false;
+}
+
 export function removeTileFromOriginContainer(state: Draft<GameState>, tile: GameObjectInstance) {
     const currentPlayer = state.players.find(x => x.id === tile.playerId);
     if (!currentPlayer) {
-      console.error(`Player ${tile.playerId} not found`);
       return;
     }
-    // Remove the tile from the current player's hand
-    let tileIndex = currentPlayer.hand.findIndex(t => t.id === tile.id);
-    if (tileIndex !== -1) {
-      currentPlayer.hand.splice(tileIndex, 1);
+    
+    if (removeFromContainer(currentPlayer.hand, tile)) {
       return;
     }
-  
-    tileIndex = currentPlayer.discardPile.findIndex(t => t.id === tile.id);
-    if (tileIndex !== -1) {
-      currentPlayer.discardPile.splice(tileIndex, 1);
+    if (removeFromContainer(currentPlayer.discardPile, tile)) {
       return;
     }
-  
-    tileIndex = currentPlayer.drawPile.findIndex(t => t.id === tile.id);
-    if (tileIndex !== -1) {
-      currentPlayer.drawPile.splice(tileIndex, 1);
+    if (removeFromContainer(currentPlayer.drawPile, tile)) {
       return;
     }
   
@@ -49,10 +50,7 @@ export function removeTileFromOriginContainer(state: Draft<GameState>, tile: Gam
     for (let row = 0; row < state.board.length; row++) {
         for (let col = 0; col < state.board[row].length; col++) {
         const cell = state.board[row][col];
-        if (!cell || !cell.tiles) { continue; }
-        const originalTile = cell.tiles.find(t => t.id === tile.id);
-        if (originalTile) {
-            cell.tiles.splice(cell.tiles.indexOf(originalTile), 1);
+        if (removeFromContainer(cell.tiles, tile)) {
             return;
         }
       }
@@ -106,102 +104,30 @@ export function findTilePosition(tile: GameObjectInstance | undefined, state: Dr
     return null;
 }
 
-function findValidTarget(unit: RotatableInstance, edge: number, attack: EdgeAttack, state: Draft<GameState>) {
+function findValidAttackTarget(unit: RotatableInstance, edge: number, attack: EdgeAttack, state: Draft<GameState>) {
     const attackOrigin = findTilePosition(unit, state);
     if (!attackOrigin) {
       return null;
     }
     const attackDirection = (edge + unit.rotation as number) % 4;
-    const enemyTiles = [];
-    switch (attackDirection) {
-      case AttackDirection.UP:
-        if (attackOrigin.y === 0) { return null; }
-        // Get all cells in the column above the unit until we reach the edge of the board
-        for (let row = attackOrigin.y - 1; row >= 0; row--) {
-          // if previous cell has a horizontal wall, break
-          if (state.board[row + 1][attackOrigin.x].walls.includes('horizontal')) {
-            break;
-          }
-          const target = state.board[row][attackOrigin.x];
-          if (target.tiles) {
-            const enemyTile = target.tiles.find(tile => tile.playerId !== unit.playerId);
-            if (enemyTile) { 
-              enemyTiles.push(enemyTile); 
-            }
-          }
-          if (attack.type === 'melee') {
-            break;
-          }
-        }
-        break;
-      case AttackDirection.RIGHT:
-        if (attackOrigin.x === state.board[0].length - 1) { return null; }
-        // Get all cells in the row to the right of the unit until we reach the edge of the board
-        for (let col = attackOrigin.x + 1; col < state.board[0].length; col++) {
-          const target = state.board[attackOrigin.y][col];
-          if (target.walls.includes('vertical')) {
-            break;
-          }
-          if (target.tiles) {
-            const enemyTile = target.tiles.find(tile => tile.playerId !== unit.playerId);
-            if (enemyTile) { 
-              enemyTiles.push(enemyTile); 
-            }
-          }
-          if (attack.type === 'melee') {
-            break;
-          }
-        }
-        break;
-      case AttackDirection.DOWN:
-        if (attackOrigin.y === state.board.length - 1) { return null; }
-        // Get all cells in the column below the unit until we reach the edge of the board
-        for (let row = attackOrigin.y + 1; row < state.board.length; row++) {
-          const target = state.board[row][attackOrigin.x];
-          if (state.board[row][attackOrigin.x].walls.includes('horizontal')) {
-            break;
-          }
-          if (target.tiles) {
-            const enemyTile = target.tiles.find(tile => tile.playerId !== unit.playerId);
-            if (enemyTile) { 
-              enemyTiles.push(enemyTile); 
-            }
-          }
-          if (attack.type === 'melee') {
-            break;
-          }
-        }
-        break;
-      case AttackDirection.LEFT:
-        if (attackOrigin.x === 0) { return null; }
-        // Get all cells in the row to the left of the unit until we reach the edge of the board
-        for (let col = attackOrigin.x - 1; col >= 0; col--) {
-          const target = state.board[attackOrigin.y][col];
-          if (state.board[attackOrigin.y][col + 1].walls.includes('vertical')) {
-            break;
-          }
-          if (target.tiles) {
-            const enemyTile = target.tiles.find(tile => tile.playerId !== unit.playerId);
-            if (enemyTile) { 
-              enemyTiles.push(enemyTile); 
-            }
-          }
-          if (attack.type === 'melee') {
-            break;
-          }
-        }
-        break;
-    }
+    
+    const enemyTiles = findCellsInDirection(attackOrigin.x, attackOrigin.y, attackDirection, attack.type === AttackType.Melee ? 1 : BOARD_SIZE, state)
+      .map(cell => cell.tiles.filter(t => t.playerId !== unit.playerId))
+      .flat();
+    
     if (enemyTiles.length === 0) {
       return null;
     }
+    // If two range units are shooting the same column
+    // They would both hit the same target
+    // TODO: Instead of hitting the same target twice, they should hit two different targets
     return enemyTiles[0];
 }
 
 function findValidAttackActions(unit: RotatableInstance, state: Draft<GameState>) {
     const unitTemplate = allGameObjects[unit.objectId] as Unit;
     const attackActions = unitTemplate.attacks.map((attack, edge) => {
-      const target = findValidTarget(unit, edge, attack, state);
+      const target = findValidAttackTarget(unit, edge, attack, state);
       if (target) {
         return { unit, target, attack };
       }
