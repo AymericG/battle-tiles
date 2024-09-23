@@ -5,7 +5,7 @@ import { Rotatable } from "../models/Rotatable";
 import { AttackType, Unit } from "../models/Unit";
 import { uuidv4 } from "../utils/uuid";
 import { allGameObjects } from "./all-game-objects";
-import { GameObjectId } from "./types";
+import { Ability, GameObjectId } from "./types";
 
 export function instanciateGameObject(objectId: GameObjectId, playerId: number) {
     return { id: uuidv4(), playerId, objectId };
@@ -69,13 +69,20 @@ export function createUnit(id: GameObjectId, name: string, faction: Faction, att
     };
 }
 
-export function createModule(id: GameObjectId, name: string, faction: Faction, effect: string): Module {
+
+
+export function createModule({
+    id,
+    name,
+    faction,
+    abilities
+} : { id: GameObjectId; name: string; faction: Faction; abilities: Ability[] }): Module {
     return {
         id,
         name,
         type: 'module',
         faction,
-        effect,
+        abilities,
         health: 1,
         connected: [true, true, true, true],
         keywords: []

@@ -114,7 +114,7 @@ const ModuleTile: React.FC<{ tile: RotatableInstance } & DraggableTileProps> = (
   >
     {showCover && <TileCover faction={template.faction} />}
     {!showCover && <div className="module-content with-tooltip">
-      <div className="tooltip">{template.effect}</div>
+      <div className="tooltip">{template.abilities.map(x => x.description).join(', ')}</div>
       {template.connected[0] && <div className="rectangle rectangle-top"></div>}
       {template.connected[1] && <div className="rectangle rectangle-right"></div>}
       {template.connected[2] && <div className="rectangle rectangle-bottom"></div>}

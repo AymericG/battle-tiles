@@ -3,7 +3,7 @@ import { initialGameState } from './initialGameState';
 import { GameObjectInstance } from '../models/GameObject';
 import { RotatableInstance } from '../models/Rotatable';
 import { playAs } from './ai';
-import { battle, discardAsPlayer, drawTileAsPlayer, getPlayer, playTileAsPlayer, removeTileFromOriginContainer } from './game-state-utils';
+import { battle, discardAsPlayer, drawTileAsPlayer, getPlayer, moveTileToHand, playTileAsPlayer, removeTileFromOriginContainer } from './game-state-utils';
 
 interface BoardPayload {
   row: number;
@@ -25,16 +25,8 @@ const gameSlice = createSlice({
       playAs(player, state);
     },
     moveToHand: (state, action: PayloadAction<{ playerId: number; tile: GameObjectInstance }>) => {
-      const { playerId, tile } = action.payload;
-
-      removeTileFromOriginContainer(state, tile);
-      const player = state.players.find(x => x.id === playerId);
-      if (!player) {
-        console.error(`Player ${playerId} not found`);
-        return;
-      }
-      tile.playerId = playerId;
-      player.hand.push(tile);
+      const { tile, playerId } = action.payload;
+      moveTileToHand(tile, playerId, state);
     },
 
     moveToDraw: (state, action: PayloadAction<{ playerId: number; tile: GameObjectInstance }>) => {

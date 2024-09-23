@@ -1,14 +1,30 @@
+import { Draft } from "@reduxjs/toolkit";
 import { GameObjectInstance } from "../models/GameObject"
 import { RotatableInstance } from "../models/Rotatable";
 import { Ork } from "./ork/game-object-ids";
 import { SpaceWolves } from "./spacewolves/game-object-ids";
 import { Tau } from "./tau/game-object-ids";
+import { GameState } from "../models/GameState";
 
 export type GameObjectId = Tau | Ork | SpaceWolves;
 
 export enum ActionType {
     PLAY = 'play',
     DISCARD = 'discard'
+}
+
+export enum GameEvent {
+    DESTROYED = 'destroyed',
+    START_OF_TURN = 'start-of-turn',
+    END_OF_TURN = 'end-of-turn',
+    START_OF_ROUND = 'start-of-round',
+    END_OF_ROUND = 'end-of-round'
+}
+
+export type Ability = {
+    event: GameEvent;
+    description: string;
+    execute: (self: RotatableInstance, destroyed: RotatableInstance, state: Draft<GameState>, effects: (() => void)[]) => any;
 }
 
 export enum AttackDirection {

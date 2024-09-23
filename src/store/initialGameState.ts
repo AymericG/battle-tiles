@@ -7,7 +7,7 @@ import { createOrkArmy } from './ork/create-army';
 import { createSpaceWolvesArmy } from './spacewolves/create-army';
 
 const tauArmy = createTauArmy(1);
-const orkArmy = createSpaceWolvesArmy(2);
+const orkArmy = createOrkArmy(2);
 // const spaceWolvesArmy = createSpaceWolvesArmy(2);
 
 export interface Wall {

@@ -19,6 +19,7 @@
 - [x] Allow AI to play Move tiles
 - [x] Allow AI to play Push tiles
 
+- [ ] FIX: Walls should not close off a leader from the rest of the map
 - [ ] Allow AI to play modules
 - [ ] Allow AI to use keywords
 - [ ] Tweak Ork army

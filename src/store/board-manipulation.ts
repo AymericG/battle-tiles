@@ -1,5 +1,6 @@
 import { Cell } from "../models/Cell";
 import { GameState } from "../models/GameState";
+import { IPosition } from "../models/IPosition";
 import { log } from "../utils/log";
 import { AttackDirection } from "./types";
 
@@ -63,4 +64,9 @@ export function findCellsInDirection(x: number, y: number, direction: AttackDire
             break;
     }
     return cells;
+}
+
+export function isAdjacent(position: IPosition, otherPosition: IPosition) {
+    // Check if two positions are orthogonally adjacent
+    return Math.abs(position.x - otherPosition.x) + Math.abs(position.y - otherPosition.y) === 1;
 }

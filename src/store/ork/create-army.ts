@@ -13,7 +13,7 @@ export const createOrkArmy = (playerId: number) => ({
         ...instanciateRotatableObjects(Ork.Warbike, playerId, 2),
         ...instanciateGameObjects(Ork.Battle, playerId, 5),
         ...instanciateGameObjects(Ork.Move, playerId, 5),
-        ...instanciateRotatableObjects(Ork.MadDokSurgery, playerId, 1),
+        ...instanciateRotatableObjects(Ork.MadDokSurgery, playerId, 10),
         ...instanciateGameObjects(Ork.Push, playerId, 2),
         // createAction('WAAAGH!', playerId, Faction.Orks, 'special', 'All your units gain +1 melee attack for this turn.'),
         // createAction('Mob Rule', playerId, Faction.Orks, 'special', 'Select one unit. It can attack twice this turn if it is adjacent to at least two other friendly units.'),

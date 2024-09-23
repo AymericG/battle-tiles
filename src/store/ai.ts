@@ -305,7 +305,7 @@ function evaluateAction(action: PossibleAction, player: Player, state: Draft<Gam
 }
 
 function evaluateState(state: GameState, player: Player) {
-    return findAllTiles(state)
+    let score = findAllTiles(state)
         .map(tile => {
             const tileScore = evaluateTile(tile, state);
             const template = allGameObjects[tile.objectId];
@@ -313,6 +313,12 @@ function evaluateState(state: GameState, player: Player) {
             return player.id === tile.playerId ? tileScore : -tileScore;
         })
         .reduce((totalScore, tileScore) => totalScore + tileScore, 0);
+    score += addHandHeuristic(player.hand);
+    return score;
+}
+
+function addHandHeuristic(hand: GameObjectInstance[]) {
+    return hand.length;
 }
 
 function addHealthHeuristic(tile: RotatableInstance) {
