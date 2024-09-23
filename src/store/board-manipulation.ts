@@ -21,7 +21,9 @@ export function findAllTiles(state: GameState) {
     return state.board.flat().map(cell => cell.tiles).flat();
 }
 
-export function findEnemiesInDirection(x: number, y: number, direction: AttackDirection, range: number, playerId: number, state: GameState) {
+export function findEnemiesInDirection({
+    x, y, direction, range, playerId, state
+}: { x: number; y: number; direction: AttackDirection; range: number; playerId: number; state: GameState }) {
     // using findCellsInDirection to find the cells
     const cells = findCellsInDirection(x, y, direction, range, state);
     // then filtering the tiles to only return the enemy tiles

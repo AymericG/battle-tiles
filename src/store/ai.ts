@@ -211,10 +211,10 @@ function generateAllPushes(pushTile: GameObjectInstance, state: GameState) {
             // Find all adjacent enemy units
             const { x, y } = position;
             return [
-                { direction: AttackDirection.UP, enemyTiles: findEnemiesInDirection(x, y, AttackDirection.UP, 1, pushTile.playerId, state) },
-                { direction: AttackDirection.RIGHT, enemyTiles: findEnemiesInDirection(x, y, AttackDirection.RIGHT, 1, pushTile.playerId, state) },
-                { direction: AttackDirection.DOWN, enemyTiles: findEnemiesInDirection(x, y, AttackDirection.DOWN, 1, pushTile.playerId, state) },
-                { direction: AttackDirection.LEFT, enemyTiles: findEnemiesInDirection(x, y, AttackDirection.LEFT, 1, pushTile.playerId, state) },
+                { direction: AttackDirection.UP, enemyTiles: findEnemiesInDirection({ x, y, direction: AttackDirection.UP, range: 1, playerId: pushTile.playerId, state }) },
+                { direction: AttackDirection.RIGHT, enemyTiles: findEnemiesInDirection({ x, y, direction: AttackDirection.RIGHT, range: 1, playerId: pushTile.playerId, state }) },
+                { direction: AttackDirection.DOWN, enemyTiles: findEnemiesInDirection({ x, y, direction: AttackDirection.DOWN, range: 1, playerId: pushTile.playerId, state }) },
+                { direction: AttackDirection.LEFT, enemyTiles: findEnemiesInDirection({ x, y, direction: AttackDirection.LEFT, range: 1, playerId: pushTile.playerId, state }) },
             ];
             
         }).filter(x => x)

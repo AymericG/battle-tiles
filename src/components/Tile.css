@@ -102,6 +102,12 @@
   align-items: center;
 }
 
+.tile-keyword {
+  font-size: 0.7em;
+  color: rgba(0, 0, 0, 0.4);
+  transform: rotate(-45deg);
+}
+
 .tile-cover {
   height: 100%;
   display: flex;

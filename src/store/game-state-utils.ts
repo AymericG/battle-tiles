@@ -8,7 +8,7 @@ import { Rotatable, RotatableInstance } from "../models/Rotatable";
 import { allGameObjects } from "./all-game-objects";
 import { log } from "../utils/log";
 import { BOARD_SIZE } from "../constants";
-import { findCellsInDirection } from "./board-manipulation";
+import { findEnemiesInDirection } from "./board-manipulation";
 
 export function playTileAsPlayer(tile: RotatableInstance, row: number, col: number, state: Draft<GameState>) {
     log(`Player ${tile.playerId} plays ${allGameObjects[tile.objectId].name} (${'rotation' in tile && tile.rotation}) on ${col}, ${row}.`);
@@ -111,9 +111,14 @@ function findValidAttackTarget(unit: RotatableInstance, edge: number, attack: Ed
     }
     const attackDirection = (edge + unit.rotation as number) % 4;
     
-    const enemyTiles = findCellsInDirection(attackOrigin.x, attackOrigin.y, attackDirection, attack.type === AttackType.Melee ? 1 : BOARD_SIZE, state)
-      .map(cell => cell.tiles.filter(t => t.playerId !== unit.playerId))
-      .flat();
+    const enemyTiles = findEnemiesInDirection({
+      x: attackOrigin.x, 
+      y: attackOrigin.y, 
+      direction: attackDirection, 
+      range: attack.type === AttackType.Melee ? 1 : BOARD_SIZE, 
+      playerId: unit.playerId, 
+      state
+    });
     
     if (enemyTiles.length === 0) {
       return null;

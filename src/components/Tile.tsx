@@ -91,7 +91,9 @@ const UnitTile: React.FC<{ tile: RotatableInstance } & DraggableTileProps> = ({ 
         <div className='tile-left'>
           <EdgeAttackComponent attack={template.attacks[3]} direction='right' />
         </div>
-        <div className='tile-center' />
+        <div className='tile-center'>
+          {!!template.keywords.length && <div className='tile-keyword'>{template.keywords.join(',')}</div>}
+        </div>
         <div className='tile-right'>
           <EdgeAttackComponent attack={template.attacks[1]} direction='left' />
 
