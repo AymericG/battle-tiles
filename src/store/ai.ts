@@ -64,7 +64,7 @@ export function playAs(player: Player | undefined, state: Draft<GameState>) {
     }
 
     // Discard the last tile
-    discardAsPlayer(player, player.hand[0], state);
+    discardAsPlayer(player.id, player.hand[0], state);
     setLoggingContext('');
 }
 
@@ -81,7 +81,7 @@ function executeAction(action: PossibleAction, state: Draft<GameState>) {
                     // We simply discard the tile
                     // since the next step is to actually move a unit
                     log(`Player ${action.tile.playerId} plays action ${allGameObjects[action.tile.objectId].name}`);
-                    discardAsPlayer(state.players.find(x => x.id === action.tile.playerId), action.tile, state);
+                    discardAsPlayer(action.tile.playerId, action.tile, state);
                     action.params.tile.rotation = action.params.rotation;
                     playTileAsPlayer(action.params.tile as RotatableInstance, action.params.y || 0, action.params.x || 0, state);
                     return false;
@@ -90,7 +90,7 @@ function executeAction(action: PossibleAction, state: Draft<GameState>) {
                     // We simply discard the tile
                     // since the next step is to actually run a battle
                     log(`Player ${action.tile.playerId} plays action ${allGameObjects[action.tile.objectId].name}`);
-                    discardAsPlayer(state.players.find(x => x.id === action.tile.playerId), action.tile, state);
+                    discardAsPlayer(action.tile.playerId, action.tile, state);
                     battle(state);
                     // Indicate that we want to skip battle during evaluation
                     return true;
@@ -102,7 +102,7 @@ function executeAction(action: PossibleAction, state: Draft<GameState>) {
             playTileAsPlayer(action.tile as RotatableInstance, action.y || 0, action.x || 0, state);
             break;
         case ActionType.DISCARD:
-            discardAsPlayer(state.players.find(x => x.id === action.tile.playerId), action.tile, state);
+            discardAsPlayer(action.tile.playerId, action.tile, state);
             break;
     }
     return false;

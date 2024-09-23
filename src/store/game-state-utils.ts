@@ -64,17 +64,17 @@ export function getPlayer(playerId: number, state: Draft<GameState>) {
   return state.players.find(x => x.id === playerId);
 }
 
-export function discardAsPlayer(player: Player | undefined, tile: GameObjectInstance, state: Draft<GameState>) {
-  if (!player) { return; }
-  log(`Player ${player.id} discards ${allGameObjects[tile.objectId].name}.`);
+export function discardAsPlayer(playerId: number, tile: GameObjectInstance, state: Draft<GameState>) {
+  log(`Player ${playerId} discards ${allGameObjects[tile.objectId].name}.`);
   removeTileFromOriginContainer(state, tile);
-  tile.playerId = player.id;
+  tile.playerId = playerId;
   const tileTemplate = allGameObjects[tile.objectId];
   if (tileTemplate.type === 'unit' || tileTemplate.type === 'module') {
     (tile as RotatableInstance).health = tileTemplate.health;
     (tile as RotatableInstance).rotation = 0;
   }
-  player.discardPile.push(tile);
+  const player = getPlayer(playerId, state);
+  player?.discardPile.push(tile);
 }
 
 export function drawTileAsPlayer(player: Player | undefined, state: Draft<GameState>) {
@@ -161,10 +161,44 @@ export function moveTileToHand(tile: GameObjectInstance, playerId: number, state
   player.hand.push(tile);
 }
 
+function handleEvent({
+  gameEvent,
+  defaultEffect, 
+  targetUnit,
+  state
+} : { gameEvent: GameEvent; defaultEffect: () => void; targetUnit: RotatableInstance; state: Draft<GameState>}) {
+  const triggeredAbilities = state.board.flat()
+    .flatMap(cell => cell.tiles)
+    .flatMap(tile => {
+      const template = allGameObjects[tile.objectId] as Rotatable;
+      if (template.type !== 'module') { return null; }
+      const module = template as Module;
+      return module.abilities.filter((ability: Ability) => ability.event === gameEvent).map(ability => ({
+        ability,
+        tile
+      }));
+    }).filter(x => x !== null);
+  const effects = [defaultEffect];
+  for (const triggeredAbility of triggeredAbilities) {
+    if (!triggeredAbility) { continue; }
+    triggeredAbility.ability.execute(triggeredAbility.tile, targetUnit, state, effects);
+  }
+  // Execute all effects
+  effects.forEach(effect => effect());  
+}
+
 export function attack(attackAction: { unit: RotatableInstance, target: RotatableInstance, attack: EdgeAttack }, state: Draft<GameState>) {
   const targetUnit = attackAction.target;
   log(`Attacking ${targetUnit.id} (health: ${targetUnit.health}) with ${attackAction.attack.value} damage.`);
-  targetUnit.health -= attackAction.attack.value;
+  handleEvent({ 
+    gameEvent: GameEvent.DAMAGED, 
+    targetUnit,
+    state,
+    defaultEffect: () => { 
+      log(`${targetUnit.id} takes ${attackAction.attack.value} damage.`);
+      targetUnit.health -= attackAction.attack.value; 
+    }});
+  
   const unitTemplate = allGameObjects[attackAction.unit.objectId] as Rotatable;
   const targetUnitTemplate = allGameObjects[targetUnit.objectId] as Rotatable;
   if (targetUnit.health > 0) {
@@ -172,32 +206,14 @@ export function attack(attackAction: { unit: RotatableInstance, target: Rotatabl
     return;
   }
 
-  const effects = [
-    () => {
-      const targetEnemyPlayer = state.players.find(player => player.id === targetUnit.playerId);
-      log(`${getFactionName(unitTemplate.faction)} ${unitTemplate.name} kills ${getFactionName(targetUnitTemplate.faction)} ${targetUnitTemplate.name}.`);
-      discardAsPlayer(targetEnemyPlayer, targetUnit, state);
-    }
-  ]
-
-  // Find all modules that trigger on destroyed
-  const triggeredAbilities = state.board.flat()
-    .flatMap(cell => cell.tiles)
-    .flatMap(tile => {
-      const template = allGameObjects[tile.objectId] as Rotatable;
-      if (template.type !== 'module') { return null; }
-      const module = template as Module;
-      return module.abilities.filter((ability: Ability) => ability.event === GameEvent.DESTROYED).map(ability => ({
-        ability,
-        tile
-      }));
-    }).filter(x => x !== null);
-  for (const triggeredAbility of triggeredAbilities) {
-    if (!triggeredAbility) { continue; }
-    triggeredAbility.ability.execute(triggeredAbility.tile, targetUnit, state, effects);
-  }
-  // Execute all effects
-  effects.forEach(effect => effect());
+  handleEvent({ 
+    gameEvent: GameEvent.DESTROYED, 
+    targetUnit,
+    state,
+    defaultEffect: () => {
+    log(`${getFactionName(unitTemplate.faction)} ${unitTemplate.name} kills ${getFactionName(targetUnitTemplate.faction)} ${targetUnitTemplate.name}.`);
+    discardAsPlayer(targetUnit.playerId, targetUnit, state);
+  }});
 }
 
 export function battle(state: Draft<GameState>) {

@@ -15,10 +15,7 @@ export enum ActionType {
 
 export enum GameEvent {
     DESTROYED = 'destroyed',
-    START_OF_TURN = 'start-of-turn',
-    END_OF_TURN = 'end-of-turn',
-    START_OF_ROUND = 'start-of-round',
-    END_OF_ROUND = 'end-of-round'
+    DAMAGED = 'damaged',
 }
 
 export type Ability = {

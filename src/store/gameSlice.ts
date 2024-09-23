@@ -43,8 +43,7 @@ const gameSlice = createSlice({
     },
     moveToDiscard: (state, action: PayloadAction<{ playerId: number; tile: GameObjectInstance }>) => {
       const { playerId, tile } = action.payload;
-      const player = getPlayer(playerId, state);
-      discardAsPlayer(player, tile, state);
+      discardAsPlayer(playerId, tile, state);
     },
     drawTile: (state, action: PayloadAction<{ playerId: number }>) => {
         const { playerId } = action.payload;

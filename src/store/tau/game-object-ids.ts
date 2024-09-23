@@ -9,4 +9,5 @@ export const enum Tau {
     Battle = '[Tau] Battle',
     Move = '[Tau] Move',
     Push = '[Tau] Push',
+    ShieldDrone = '[Tau] Shield Drone'
 };
