@@ -20,9 +20,13 @@
 - [x] Allow AI to play Push tiles
 
 - [ ] Implement paralyze attack
+- [ ] Trigger end game
+- [ ] Automatically trigger Battle when board is full
+- [ ] Store stats in local storage
+- [ ] Allow to select a faction at the start
 - [ ] FIX: Walls should not close off a leader from the rest of the map
 - [x] Allow AI to play modules
 - [ ] Allow AI to use keywords
 - [ ] Tweak Ork army
 - [ ] Tweak Tau army
-- [ ] Allow AI to play against AI
+- [x] Allow AI to play against AI

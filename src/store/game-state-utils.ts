@@ -7,7 +7,7 @@ import { getFactionName } from "../utils/factions";
 import { Rotatable, RotatableInstance } from "../models/Rotatable";
 import { allGameObjects } from "./all-game-objects";
 import { log } from "../utils/log";
-import { BOARD_SIZE } from "../constants";
+import { BOARD_SIZE, LEADER_UNIT } from "../constants";
 import { findEnemiesInDirection } from "./board-manipulation";
 import { Module } from "../models/Module";
 import { Ability, GameEvent } from "./types";
@@ -74,6 +74,12 @@ export function discardAsPlayer(playerId: number, tile: GameObjectInstance, stat
     (tile as RotatableInstance).rotation = 0;
   }
   const player = getPlayer(playerId, state);
+  if (tileTemplate.type === 'unit' && tileTemplate.name === LEADER_UNIT) {
+    if (player) {
+      log(`Player ${playerId} loses its leader.`);
+      player.lost = true;
+    }
+  }
   player?.discardPile.push(tile);
 }
 

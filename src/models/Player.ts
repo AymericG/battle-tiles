@@ -8,4 +8,5 @@ export interface Player {
   hand: GameObjectInstance[];
   drawPile: GameObjectInstance[];
   discardPile: GameObjectInstance[];
+  lost: boolean;
 }

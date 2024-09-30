@@ -8,7 +8,9 @@ import { createSpaceWolvesArmy } from './spacewolves/create-army';
 
 const tauArmy = createTauArmy(1);
 const orkArmy = createOrkArmy(2);
-// const spaceWolvesArmy = createSpaceWolvesArmy(2);
+const spaceWolvesArmy = createSpaceWolvesArmy(2);
+
+const armies = [tauArmy, spaceWolvesArmy];
 
 export interface Wall {
   x: number;
@@ -58,29 +60,27 @@ function generateEmptyBoardCells() {
 }
 
 const board = generateEmptyBoardCells();
-board[0][0].tiles = [tauArmy.base];
-board[BOARD_SIZE - 1][BOARD_SIZE - 1].tiles = [orkArmy.base];
+board[0][0].tiles = [armies[0].base];
+board[BOARD_SIZE - 1][BOARD_SIZE - 1].tiles = [armies[1].base];
+
 
 // Initialize game state
-export const initialGameState: GameState = {
+function createPlayer(id: number, army: any) {
+  return {
+    id,
+    name: army.faction + ' player',
+    faction: army.faction,
+    hand: [],
+    drawPile: army.deck,
+    discardPile: [],
+    lost: false,
+  };
+}
+
+export const initialState: GameState = {
   board,
   players: [
-    {
-      id: 1,
-      name: 'Tau player',
-      faction: tauArmy.faction,
-      hand: [],
-      drawPile: tauArmy.deck,
-      discardPile: []
-    },
-    {
-      id: 2,
-      name: 'Ork player',
-      faction: orkArmy.faction,
-      hand: [],
-      drawPile: orkArmy.deck,
-      discardPile: []
-    },
-  ],
-  currentPlayerIndex: 0,
+    createPlayer(1, armies[0]),
+    createPlayer(2, armies[1]),
+  ]
 };

@@ -1,5 +1,5 @@
 import { AnyAction, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { initialGameState } from './initialGameState';
+import { initialState } from './initial-state';
 import { GameObjectInstance } from '../models/GameObject';
 import { RotatableInstance } from '../models/Rotatable';
 import { playAs } from './ai';
@@ -17,7 +17,7 @@ interface MoveTilePayload extends BoardPayload {
 
 const gameSlice = createSlice({
   name: 'game',
-  initialState: initialGameState,
+  initialState,
   reducers: {
     aiTurn: (state, action: PayloadAction<{ playerId: number }>) => {
       const { playerId } = action.payload;
@@ -81,9 +81,23 @@ const gameSlice = createSlice({
     },
     resolveBattle: (state, action: AnyAction) => {
       battle(state);
+    },
+    autoPlay: (state, action: AnyAction) => {
+      // Make the AI play for each player
+      // until the game is over
+      let gameOver = false;
+      while (!gameOver) {
+        for (const player of state.players) {
+          playAs(player, state);
+          gameOver = state.players.some(p => p.lost);
+          if (gameOver) {
+            break;
+          }
+        }
+      }
     }
   },
 });
 
-export const { resolveBattle, aiTurn, addDamage, drawTile, moveToDiscard, moveToDraw, moveToHand, moveTile, rotateTile } = gameSlice.actions;
+export const { autoPlay, resolveBattle, aiTurn, addDamage, drawTile, moveToDiscard, moveToDraw, moveToHand, moveTile, rotateTile } = gameSlice.actions;
 export default gameSlice.reducer;

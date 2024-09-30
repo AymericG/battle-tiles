@@ -4,7 +4,7 @@ import { GameObject, GameObjectInstance } from '../models/GameObject';
 import './PlayerBoard.css';
 import { useDispatch } from 'react-redux';
 import { TileStack } from './TileStack';
-import { aiTurn, drawTile, moveToDiscard, moveToDraw, moveToHand } from '../store/gameSlice';
+import { aiTurn, drawTile, moveToDiscard, moveToDraw, moveToHand } from '../store/game-slice';
 import { Player } from '../models/Player';
 import { TILES_TO_DRAW } from '../constants';
 import { EmptyZone } from './EmptyZone';

@@ -1,6 +1,6 @@
 import { addInfluenceHeuristic } from "../store/ai";
 import { instanciateRotatableObject } from "../store/army-utils";
-import { initialGameState } from "../store/initialGameState";
+import { initialGameState } from "../store/initial-state";
 import { Tau } from "../store/tau/game-object-ids";
 
 
