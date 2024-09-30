@@ -19,6 +19,12 @@ export function playTileAsPlayer(tile: RotatableInstance, row: number, col: numb
   const targetCell = state.board[row][col];
   if (targetCell && targetCell.tiles) {
     targetCell.tiles.push(tile);
+
+    // If there are no empty cells anymore, start the battle
+    const emptyCells = state.board.flat().map(cell => cell.tiles.length ? null : cell).filter(x => x);
+    if (emptyCells.length === 0) {
+      battle(state);
+    }
   } else {
     console.error(`Invalid cell at ${col},${row}`);
   }

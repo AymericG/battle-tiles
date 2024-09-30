@@ -21,7 +21,7 @@
 
 - [ ] Implement paralyze attack
 - [x] Trigger end game
-- [ ] Automatically trigger Battle when board is full
+- [x] Automatically trigger Battle when board is full
 - [ ] Store stats in local storage
 - [ ] Allow to select a faction at the start
 - [ ] FIX: Walls should not close off a leader from the rest of the map
