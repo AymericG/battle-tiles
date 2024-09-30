@@ -15,9 +15,9 @@ export const createOrkArmy = (playerId: number) => ({
         ...instanciateGameObjects(Ork.Move, playerId, 5),
         ...instanciateRotatableObjects(Ork.MadDokSurgery, playerId, 10),
         ...instanciateGameObjects(Ork.Push, playerId, 2),
+        ...instanciateGameObjects(Ork.Charge, playerId, 2),
         // createAction('WAAAGH!', playerId, Faction.Orks, 'special', 'All your units gain +1 melee attack for this turn.'),
         // createAction('Mob Rule', playerId, Faction.Orks, 'special', 'Select one unit. It can attack twice this turn if it is adjacent to at least two other friendly units.'),
-        // createModule('Charge!', playerId, Faction.Orks, 'Move up to three of your units to adjacent empty tiles and immediately trigger a battle.'),
         // createModule('Scrap Heap', playerId, Faction.Orks, 'Destroy one of your units to draw two additional tiles this turn.'),
         // createModule('Mekboy Workshop', playerId, Faction.Orks, 'Adjacent friendly units heal 1 health at the end of each turn.'),
     ])

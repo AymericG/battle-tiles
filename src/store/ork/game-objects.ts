@@ -3,7 +3,7 @@ import { Faction } from "../../models/Faction";
 import { LEADER_UNIT, MELEE_SPEED, RANGE_SPEED } from "../../constants";
 import { Ork } from "./game-object-ids";
 import { RotatableInstance } from "../../models/Rotatable";
-import { GameEvent } from "../types";
+import { ActionParameter, ActionTargetType, GameEvent, Relationship } from "../types";
 import { Draft } from "@reduxjs/toolkit";
 import { GameState } from "../../models/GameState";
 import { findTilePosition, moveTileToHand } from "../game-state-utils";
@@ -47,7 +47,34 @@ export const gameObjects = {
             }
         ]
     }),
-    [Ork.Battle]: createAction(Ork.Battle, 'Battle', Faction.Orks, 'attack', 'Triggers a battle'),
-    [Ork.Push]: createAction(Ork.Push, 'Push', Faction.Orks, 'push', 'Pushes an enemy unit one space away'),
-    [Ork.Move]: createAction(Ork.Move, 'Move', Faction.Orks, 'move', 'Moves a friendly unit to an adjacent space'),
+    [Ork.Battle]: createAction({ id: Ork.Battle, name: 'Battle', faction: Faction.Orks, actionType: 'attack', description: 'Triggers a battle'}),
+    [Ork.Push]: createAction({ 
+        id: Ork.Push, 
+        name: 'Push', 
+        faction: Faction.Orks, 
+        actionType: 'push', 
+        actionTarget: new ActionTargetType().withRelationship(Relationship.Enemy), 
+        description: 'Pushes an enemy unit one space away' 
+    }),
+    [Ork.Move]: createAction({ 
+        id: Ork.Move, 
+        name: 'Move', 
+        faction: Faction.Orks, 
+        actionType: 'move', 
+        actionTarget: new ActionTargetType().withRelationship(Relationship.Friendly), 
+        actionParameters: [
+            ActionParameter.AdjacentEmptyCell,
+            ActionParameter.Rotation
+        ],
+        
+        description: 'Moves a friendly unit to an adjacent space' 
+    }),
+    [Ork.Charge]: createAction({ 
+        id: Ork.Charge, 
+        name: 'Charge', 
+        faction: Faction.Orks, 
+        actionTarget: new ActionTargetType().withRelationship(Relationship.Friendly).upTo(3), 
+        actionType: 'special', 
+        description: 'Move a friendly unit to an adjacent space and attack' 
+    }),
 };

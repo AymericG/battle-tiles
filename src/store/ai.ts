@@ -5,14 +5,15 @@ import { BOARD_SIZE, LEADER_UNIT, TILES_TO_DRAW } from "../constants";
 import { battle, discardAsPlayer, drawTileAsPlayer, findTilePosition, playTileAsPlayer } from "./game-state-utils";
 import { GameObjectInstance } from "../models/GameObject";
 import { Cell } from "../models/Cell";
-import { ActionType, AttackDirection, PossibleAction } from "./types";
+import { ActionParameter, ActionParameters, ActionType, AttackDirection, PossibleAction, Relationship } from "./types";
 import { allGameObjects } from "./all-game-objects";
 import { RotatableInstance } from "../models/Rotatable";
 import { AttackType, Unit } from "../models/Unit";
 import { Module } from "../models/Module";
 import { Action } from "../models/Action";
 import { log, setLoggingContext } from "../utils/log";
-import { findAllEmptyCells, findAllFriendlyTiles, findAllTiles, findCellsInDirection, findEnemiesInDirection } from "./board-manipulation";
+import { findAllAdjacentCells, findAllEmptyCells, findAllEnemyTiles, findAllFriendlyTiles, findAllTiles, findCellsInDirection, findEnemiesInDirection } from "./board-manipulation";
+import { IPosition } from "../models/IPosition";
 
 export function playAs(player: Player | undefined, state: Draft<GameState>) {
     if (!player) { return; }
@@ -48,7 +49,10 @@ export function playAs(player: Player | undefined, state: Draft<GameState>) {
     while (player.hand.length > 1) {
         // Generate all possible moves
         const emptyCells = findAllEmptyCells(state);
-        const possibleActions = player.hand.flatMap(tile => generateAllPossibleActions(tile, emptyCells, state));
+        const possibleActions = player.hand.map(tile => generateAllPossibleActions(tile, emptyCells, state)).flat();
+        if (!possibleActions.length) {
+            continue;
+        }
         log('Possible actions:', possibleActions);
         setLoggingContext('EVAL');
         evaluateAllActions(possibleActions, player, state);
@@ -83,7 +87,18 @@ function executeAction(action: PossibleAction, state: Draft<GameState>) {
                     log(`Player ${action.tile.playerId} plays action ${allGameObjects[action.tile.objectId].name}`);
                     discardAsPlayer(action.tile.playerId, action.tile, state);
                     action.params.tile.rotation = action.params.rotation;
-                    playTileAsPlayer(action.params.tile as RotatableInstance, action.params.y || 0, action.params.x || 0, state);
+                    console.log("FAULTY MOVE", action);
+                    if ('x' in action.params.target) {
+                        const cell = action.params.target as Cell;
+                        playTileAsPlayer(action.params.tile as RotatableInstance, cell.y || 0, cell.x || 0, state);
+                    };
+                    if ('rotation' in action.params.target) {
+                        const target = action.params.target as RotatableInstance;
+                        const position = findTilePosition(target, state);
+                        if (!position) { return false; }
+                        const { x, y } = position;
+                        playTileAsPlayer(action.params.tile as RotatableInstance, x, y, state);
+                    }
                     return false;
                 }
                 if ((allGameObjects[action.tile.objectId] as Action).actionType === 'attack') {
@@ -142,9 +157,9 @@ function isOutOfBounds(x: number, y: number) {
     return x < 0 || y < 0 || x >= BOARD_SIZE || y >= BOARD_SIZE;
 }
 
-function isEmptyCell(x: number, y: number, state: GameState) {
-    return !state.board[y][x].tiles.length;
-}
+// function isEmptyCell(x: number, y: number, state: GameState) {
+//     return !state.board[y][x].tiles.length;
+// }
 
 function isBlockedByWall(direction: AttackDirection, x: number, y: number, state: GameState) {
     const { x: targetX, y: targetY } = adjacentPosition(x, y, direction);
@@ -157,132 +172,256 @@ function isBlockedByWall(direction: AttackDirection, x: number, y: number, state
     return false;
 }
 
-function generateAllMoves(tile: GameObjectInstance, state: GameState) {
-    // For each friendly unit on the board
-    // Find all adjacent empty cells
-    // Generate a Play action for each rotation
-    const allFriendlyTiles = findAllFriendlyTiles(state, tile.playerId);
-    const possibleActions = [];
-    for (const tileToMove of allFriendlyTiles) {
-        if (!tileToMove) { continue; }
-        const position = findTilePosition(tileToMove, state);
-        if (!position) { continue; }
-        const { x, y } = position;
-        for (let direction = 0; direction < 4; direction++) {
+// function generateAllMoves(tile: GameObjectInstance, state: GameState) {
+//     // For each friendly unit on the board
+//     // Find all adjacent empty cells
+//     // Generate a Play action for each rotation
+//     const allFriendlyTiles = findAllFriendlyTiles(state, tile.playerId);
+//     const possibleActions = [];
+//     for (const tileToMove of allFriendlyTiles) {
+//         if (!tileToMove) { continue; }
+//         const position = findTilePosition(tileToMove, state);
+//         if (!position) { continue; }
+//         const { x, y } = position;
+//         for (let direction = 0; direction < 4; direction++) {
 
-            const { x: targetX, y: targetY } = adjacentPosition(x, y, direction);
+//             const { x: targetX, y: targetY } = adjacentPosition(x, y, direction);
 
-            if (isOutOfBounds(targetX, targetY) || !isEmptyCell(targetX, targetY, state) || isBlockedByWall(direction, x, y, state)) {
-                continue;
-            }
+//             if (isOutOfBounds(targetX, targetY) || !isEmptyCell(targetX, targetY, state) || isBlockedByWall(direction, x, y, state)) {
+//                 continue;
+//             }
 
-            // Generate for each rotation
-            for (let rotation = 0; rotation < 4; rotation++) {
-                possibleActions.push({
-                    type: ActionType.PLAY,
-                    tile,
-                    params: {
-                        tile: tileToMove,
-                        x: targetX,
-                        y: targetY,
-                        rotation,
-                    },
-                    score: 0
-                });
-            }
+//             // Generate for each rotation
+//             for (let rotation = 0; rotation < 4; rotation++) {
+//                 possibleActions.push({
+//                     type: ActionType.PLAY,
+//                     tile,
+//                     params: {
+//                         tile: tileToMove,
+//                         x: targetX,
+//                         y: targetY,
+//                         rotation,
+//                     },
+//                     score: 0
+//                 });
+//             }
+//         }
+//     }
+//     if (possibleActions.length === 0) {
+//         possibleActions.push({
+//             type: ActionType.DISCARD,
+//             tile,
+//             score: 0
+//         });
+//     }
+//     return possibleActions;
+// }
+
+// function generateAllPushes(pushTile: GameObjectInstance, state: GameState) {
+//     const possibleActions: PossibleAction[] = findAllFriendlyTiles(state, pushTile.playerId)
+//         .flatMap(friendlyTile => {
+//             const position = findTilePosition(friendlyTile, state);
+//             if (!position) { return null; }
+
+//             // Find all adjacent enemy units
+//             const { x, y } = position;
+//             return [
+//                 { direction: AttackDirection.UP, enemyTiles: findEnemiesInDirection({ x, y, direction: AttackDirection.UP, range: 1, playerId: pushTile.playerId, state }) },
+//                 { direction: AttackDirection.RIGHT, enemyTiles: findEnemiesInDirection({ x, y, direction: AttackDirection.RIGHT, range: 1, playerId: pushTile.playerId, state }) },
+//                 { direction: AttackDirection.DOWN, enemyTiles: findEnemiesInDirection({ x, y, direction: AttackDirection.DOWN, range: 1, playerId: pushTile.playerId, state }) },
+//                 { direction: AttackDirection.LEFT, enemyTiles: findEnemiesInDirection({ x, y, direction: AttackDirection.LEFT, range: 1, playerId: pushTile.playerId, state }) },
+//             ];
+            
+//         }).filter(x => x)
+//         .flatMap(possiblePush => {
+//             if (!possiblePush) { return null; }
+//             // Find all empty cells in the direction of the push
+//             const { direction, enemyTiles } = possiblePush;
+//             const possiblePushActions = [];
+//             for (const enemyTile of enemyTiles) {
+//                 const position = findTilePosition(enemyTile, state);
+//                 if (!position) { continue; }
+//                 const { x, y } = position;
+//                 const { x: targetX, y: targetY } = adjacentPosition(x, y, direction);
+
+//                 if (isOutOfBounds(targetX, targetY) || !isEmptyCell(targetX, targetY, state) || isBlockedByWall(direction, x, y, state)) {
+//                     continue;
+//                 }
+
+//                 possiblePushActions.push({
+//                     type: ActionType.PLAY,
+//                     tile: pushTile,
+//                     params: {
+//                         tile: enemyTile,
+//                         x: targetX,
+//                         y: targetY,
+//                         rotation: enemyTile.rotation,
+//                     },
+//                     score: 0
+//                 });
+//             }
+//             return possiblePushActions;
+//         }).filter(x => !!x).map(x => x as PossibleAction);
+
+//     if (possibleActions.length === 0) {
+//         possibleActions.push({
+//             type: ActionType.DISCARD,
+//             tile: pushTile,
+//             score: 0
+//         });
+//     }
+//     return possibleActions;
+// }
+
+function generateAllCombinations(candidates: any[][]) {
+    let result: any[][] = [];
+
+    function helper(tempArray: any[], index: number) {
+        if (index === candidates.length) {
+            result.push([...tempArray]);
+            return;
+        }
+
+        for (let item of candidates[index]) {
+            tempArray.push(item);
+            helper(tempArray, index + 1);
+            tempArray.pop();
         }
     }
-    if (possibleActions.length === 0) {
-        possibleActions.push({
-            type: ActionType.DISCARD,
-            tile,
-            score: 0
-        });
-    }
-    return possibleActions;
+
+    helper([], 0);
+    return result;
 }
 
-function generateAllPushes(pushTile: GameObjectInstance, state: GameState) {
-    const possibleActions: PossibleAction[] = findAllFriendlyTiles(state, pushTile.playerId)
-        .flatMap(friendlyTile => {
-            const position = findTilePosition(friendlyTile, state);
-            if (!position) { return null; }
-
-            // Find all adjacent enemy units
-            const { x, y } = position;
-            return [
-                { direction: AttackDirection.UP, enemyTiles: findEnemiesInDirection({ x, y, direction: AttackDirection.UP, range: 1, playerId: pushTile.playerId, state }) },
-                { direction: AttackDirection.RIGHT, enemyTiles: findEnemiesInDirection({ x, y, direction: AttackDirection.RIGHT, range: 1, playerId: pushTile.playerId, state }) },
-                { direction: AttackDirection.DOWN, enemyTiles: findEnemiesInDirection({ x, y, direction: AttackDirection.DOWN, range: 1, playerId: pushTile.playerId, state }) },
-                { direction: AttackDirection.LEFT, enemyTiles: findEnemiesInDirection({ x, y, direction: AttackDirection.LEFT, range: 1, playerId: pushTile.playerId, state }) },
-            ];
-            
-        }).filter(x => x)
-        .flatMap(possiblePush => {
-            if (!possiblePush) { return null; }
-            // Find all empty cells in the direction of the push
-            const { direction, enemyTiles } = possiblePush;
-            const possiblePushActions = [];
-            for (const enemyTile of enemyTiles) {
-                const position = findTilePosition(enemyTile, state);
-                if (!position) { continue; }
-                const { x, y } = position;
-                const { x: targetX, y: targetY } = adjacentPosition(x, y, direction);
-
-                if (isOutOfBounds(targetX, targetY) || !isEmptyCell(targetX, targetY, state) || isBlockedByWall(direction, x, y, state)) {
-                    continue;
-                }
-
-                possiblePushActions.push({
-                    type: ActionType.PLAY,
-                    tile: pushTile,
-                    params: {
-                        tile: enemyTile,
-                        x: targetX,
-                        y: targetY,
-                        rotation: enemyTile.rotation,
-                    },
-                    score: 0
-                });
-            }
-            return possiblePushActions;
-        }).filter(x => !!x).map(x => x as PossibleAction);
-
-    if (possibleActions.length === 0) {
-        possibleActions.push({
-            type: ActionType.DISCARD,
-            tile: pushTile,
-            score: 0
-        });
+function prepareActionParameters(target: RotatableInstance, actionParameters: ActionParameter[] | undefined, parameters: any[]) {
+    let result: Partial<ActionParameters> = {
+        tile: target,
+    };
+    if (!actionParameters) {
+        return result as ActionParameters;
     }
-    return possibleActions;
+    console.log('[action] Prepare action parameters', parameters);
+    for (let i = 0; i < parameters.length; i++) {
+        switch (actionParameters[i]) {
+            case ActionParameter.AdjacentEmptyCell:
+                result.target = parameters[i];
+                break;
+            case ActionParameter.AdjacentEnemy:
+                result.target = parameters[i];
+                break;
+            case ActionParameter.Rotation:
+                result.rotation = parameters[i];
+                break;
+        }
+    }
+    console.log('[action] Result', result);
+    
+    return result as ActionParameters;
 }
 
 function generateAllPossibleActions(tile: GameObjectInstance, emptyCells: Cell[], state: GameState): PossibleAction[] {
     const template = allGameObjects[tile.objectId];
-    if (template.type === 'action') {
-        if (template.actionType === 'attack') {
-            return [{
-                type: ActionType.PLAY,
-                tile,
-                score: 0
-            }]
-        }
-        if (template.actionType === 'move') {
-            return generateAllMoves(tile, state);
-        }
-        if (template.actionType === 'push') {
-            return generateAllPushes(tile, state);
-        }
-
-        // TODO: Implement all actions
+    if (template.type === 'unit' || template.type === 'module') {
+        return generateAllRotatablePlays(tile, emptyCells);
+    }
+    if (template.type !== 'action') {
         return [{
             type: ActionType.DISCARD,
             tile,
             score: 0
+        }];
+    }
+    var action = template as Action;
+    if (!action.actionTarget) {
+        // At the moment we assume an action without a target is meant to be played globally
+        // like the Battle tile
+        return [{
+            type: ActionType.PLAY,
+            tile,
+            score: 0
         }]
     }
-    return generateAllRotatablePlays(tile, emptyCells);
+
+    // Based on the action target, find all possible targets
+    const allTargets = action.actionTarget.relationship === Relationship.Friendly ? findAllFriendlyTiles(state, tile.playerId) : findAllEnemyTiles(state, tile.playerId);
+    console.log('[action] Go through all targets, keep valid ones', allTargets);
+    const allValidCombinationsPerTarget = allTargets.filter(x => !!x).map(target => {
+        if (!target) {
+            // This should never happen
+            console.log('[action] target null');
+            return { target, parameterCombinations: [] };
+        }
+
+        if (!action.actionParameters) {
+            console.log('[generic] actionParameters null');
+            return { target, parameterCombinations: [] };
+        }
+        
+        const position = findTilePosition(target, state);
+        if (!position) {
+            // This should never happen
+            console.log('[generic] position null');
+            return { target, parameterCombinations: [] };
+        }
+
+        const parameterCandidates = action.actionParameters.map(x => {
+            console.log('[generic] x', x);
+            switch (x) {
+                case ActionParameter.AdjacentEmptyCell:
+                    // Find all adjacent empty cells
+                    return findAllAdjacentCells(position, state).filter((x: Cell) => !x.tiles.length);
+                case ActionParameter.AdjacentEnemy:
+                    // Find all adjacent enemies
+                    return findAllAdjacentCells(position, state).flatMap((x: Cell) => x.tiles.filter(y => y.playerId !== target.playerId));
+                case ActionParameter.Rotation:
+                    // Generate all rotations
+                    return Array.from({ length: 4 }, (_, rotation) => rotation);
+                }
+            return [];
+        });
+
+        // Here we combine one candidate from each parameter
+        const combinations = generateAllCombinations(parameterCandidates);
+
+        // And we filter out the invalid ones
+        const validCombinations = combinations.filter(x => !action.isActionValid || action.isActionValid(target, x, state));
+
+        return { target, parameterCombinations: validCombinations };
+    });
+
+    console.log('[action] Convert list of valid targets into possible actions', allValidCombinationsPerTarget);
+    const possibleActions = allValidCombinationsPerTarget.flatMap(combination => {
+        return combination.parameterCombinations.map(parameters => {
+            return {
+                type: ActionType.PLAY,
+                tile,
+                params: prepareActionParameters(combination.target as RotatableInstance, action.actionParameters, parameters),
+                score: 0
+            }
+        });
+    });
+    if (possibleActions.length === 0) {
+        return [{
+            type: ActionType.DISCARD,
+            tile,
+            score: 0
+        }];
+    }
+    return possibleActions;
+
+    // if (template.actionType === 'move') {
+    //     return generateAllMoves(tile, state);
+    // }
+    // if (template.actionType === 'push') {
+    //     return generateAllPushes(tile, state);
+    // }
+
+    // // TODO: Implement all actions
+    // return [{
+    //     type: ActionType.DISCARD,
+    //     tile,
+    //     score: 0
+    // }];
 }
 
 function evaluateAllActions(actions: PossibleAction[], player: Player, state: Draft<GameState>) {
@@ -394,3 +533,5 @@ function evaluateTile(tile: RotatableInstance, state: GameState) {
     score += addInfluenceHeuristic(tile, state);
     return score;
 }
+
+

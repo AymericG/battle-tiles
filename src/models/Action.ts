@@ -1,8 +1,13 @@
+import { ActionParameter, ActionTargetType } from '../store/types';
 import { GameObject } from './GameObject';
+import { RotatableInstance } from './Rotatable';
 
 export interface Action extends GameObject {
   type: 'action';
   actionType: 'move' | 'attack' | 'special' | 'push';
+  actionTarget?: ActionTargetType;
+  actionParameters?: ActionParameter[];
+  isActionValid?: (self: RotatableInstance, parameters: any[], state: any) => boolean;
   description: string;
 }
 
@@ -22,15 +27,6 @@ export interface Action extends GameObject {
 //   // AbilityTargetTile = self
 //   // AbilityTarget = 1.empty.cell.in.any.direction
   
-// }
-
-// class MadDokSurgeryAbility {
-//   // Trigger = adjacent.single.friendly.destroyed
-//   // Effect = move.to.hand
-// }
-
-// class CompositeAction {
-//   actions: Action[];
 // }
 
 // class WAAAGHAction : CompositeAction {

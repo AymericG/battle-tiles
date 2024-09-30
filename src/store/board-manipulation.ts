@@ -13,9 +13,19 @@ export function findAllEmptyCells(state: GameState) {
     return emptyCells;
 }
 
+export function findAllAdjacentCells(position: IPosition, state: GameState) {
+    return [...findCellsInDirection(position.x, position.y, AttackDirection.UP, 1, state),
+        ...findCellsInDirection(position.x, position.y, AttackDirection.RIGHT, 1, state),
+        ...findCellsInDirection(position.x, position.y, AttackDirection.DOWN, 1, state),
+        ...findCellsInDirection(position.x, position.y, AttackDirection.LEFT, 1, state)];
+}
 
 export function findAllFriendlyTiles(state: GameState, playerId: number) {
     return state.board.flat().map(cell => cell.tiles && cell.tiles.find(t => t.playerId === playerId)).filter(x => x);
+}
+
+export function findAllEnemyTiles(state: GameState, playerId: number) {
+    return state.board.flat().map(cell => cell.tiles && cell.tiles.find(t => t.playerId !== playerId)).filter(x => x);
 }
 
 export function findAllTiles(state: GameState) {

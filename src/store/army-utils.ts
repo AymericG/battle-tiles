@@ -1,11 +1,11 @@
 import { Action } from "../models/Action";
 import { Faction } from "../models/Faction";
 import { Module } from "../models/Module";
-import { Rotatable } from "../models/Rotatable";
+import { Rotatable, RotatableInstance } from "../models/Rotatable";
 import { AttackType, Unit } from "../models/Unit";
 import { uuidv4 } from "../utils/uuid";
 import { allGameObjects } from "./all-game-objects";
-import { Ability, GameObjectId } from "./types";
+import { Ability, ActionParameter, ActionTargetType, GameObjectId } from "./types";
 
 export function instanciateGameObject(objectId: GameObjectId, playerId: number) {
     return { id: uuidv4(), playerId, objectId };
@@ -26,20 +26,20 @@ export function instanciateRotatableObjects(objectId: GameObjectId, playerId: nu
 
 export function shuffle(array: any[]) {
     let currentIndex = array.length;
-  
+
     // While there remain elements to shuffle...
     while (currentIndex !== 0) {
-  
-      // Pick a remaining element...
-      let randomIndex = Math.floor(Math.random() * currentIndex);
-      currentIndex--;
-  
-      // And swap it with the current element.
-      [array[currentIndex], array[randomIndex]] = [
-        array[randomIndex], array[currentIndex]];
+
+        // Pick a remaining element...
+        let randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex--;
+
+        // And swap it with the current element.
+        [array[currentIndex], array[randomIndex]] = [
+            array[randomIndex], array[currentIndex]];
     }
     return array;
-} 
+}
 
 function parseAttacks(attacks: string) {
     // Turn 1r 1r 1r 1m into [{ value: 1, type: 'range' }, { value: 1, type: 'range' }, { value: 1, type: 'range' }, { value: 1, type: 'melee' }]
@@ -76,7 +76,7 @@ export function createModule({
     name,
     faction,
     abilities
-} : { id: GameObjectId; name: string; faction: Faction; abilities: Ability[] }): Module {
+}: { id: GameObjectId; name: string; faction: Faction; abilities: Ability[] }): Module {
     return {
         id,
         name,
@@ -89,13 +89,32 @@ export function createModule({
     };
 }
 
-export function createAction(id: GameObjectId, name: string, faction: Faction, actionType: 'move' | 'attack' | 'special' | 'push', description: string): Action {
+export function createAction({
+    id,
+    name,
+    faction,
+    actionType,
+    actionParameters,
+    actionTarget,
+    isActionValid,
+    description
+}: { id: GameObjectId; 
+    name: string; 
+    faction: Faction; 
+    actionType: 'move' | 'attack' | 'special' | 'push'; 
+    isActionValid?: (self: RotatableInstance, parameters: any[], state: any) => boolean;
+    actionParameters?: ActionParameter[];
+    actionTarget?: ActionTargetType;
+    description: string }): Action {
     return {
         id,
         name,
         faction,
         type: 'action',
         actionType,
+        actionParameters,
+        isActionValid,
+        actionTarget,
         description,
         keywords: []
     };
