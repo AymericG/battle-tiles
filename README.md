@@ -20,7 +20,7 @@
 - [x] Allow AI to play Push tiles
 
 - [ ] Implement paralyze attack
-- [ ] Trigger end game
+- [x] Trigger end game
 - [ ] Automatically trigger Battle when board is full
 - [ ] Store stats in local storage
 - [ ] Allow to select a faction at the start
