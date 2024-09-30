@@ -12,6 +12,7 @@ import { findEnemiesInDirection } from "./board-manipulation";
 import { Module } from "../models/Module";
 import { Ability, GameEvent } from "./types";
 import { IPosition } from "../models/IPosition";
+import { time } from "console";
 
 export function playTileAsPlayer(tile: RotatableInstance, row: number, col: number, state: Draft<GameState>) {
   log(`Player ${tile.playerId} plays ${allGameObjects[tile.objectId].name} (${'rotation' in tile && tile.rotation}) on ${col}, ${row}.`);
@@ -80,11 +81,9 @@ export function discardAsPlayer(playerId: number, tile: GameObjectInstance, stat
     (tile as RotatableInstance).rotation = 0;
   }
   const player = getPlayer(playerId, state);
-  if (tileTemplate.type === 'unit' && tileTemplate.name === LEADER_UNIT) {
-    if (player) {
-      log(`Player ${playerId} loses its leader.`);
-      player.lost = true;
-    }
+  if (player && tileTemplate.type === 'unit' && tileTemplate.name === LEADER_UNIT) {
+    log(`Player ${playerId} loses its leader.`);
+    player.lost = true;
   }
   player?.discardPile.push(tile);
 }
@@ -226,6 +225,7 @@ export function attack(attackAction: { unit: RotatableInstance, target: Rotatabl
     log(`${getFactionName(unitTemplate.faction)} ${unitTemplate.name} kills ${getFactionName(targetUnitTemplate.faction)} ${targetUnitTemplate.name}.`);
     discardAsPlayer(targetUnit.playerId, targetUnit, state);
   }});
+  return state.players.some(p => p.lost);
 }
 
 export function battle(state: Draft<GameState>) {
@@ -248,7 +248,10 @@ export function battle(state: Draft<GameState>) {
     log(`Initiative ${initiative}: ${units.length} units, valid attack actions: `, allAttackActions);
     for (const attackAction of allAttackActions) {
       if (!attackAction) { continue; }
-      attack(attackAction, state);
+      const gameOver = attack(attackAction, state);
+      if (gameOver) {
+        return;
+      }
     }
   }
 }
