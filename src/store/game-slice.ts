@@ -1,5 +1,5 @@
 import { AnyAction, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { initialState } from './initial-state';
+import { createInitialState } from './initial-state';
 import { GameObjectInstance } from '../models/GameObject';
 import { RotatableInstance } from '../models/Rotatable';
 import { playAs } from './ai';
@@ -17,7 +17,7 @@ interface MoveTilePayload extends BoardPayload {
 
 const gameSlice = createSlice({
   name: 'game',
-  initialState,
+  initialState: createInitialState(),
   reducers: {
     aiTurn: (state, action: PayloadAction<{ playerId: number }>) => {
       const { playerId } = action.payload;
@@ -46,17 +46,17 @@ const gameSlice = createSlice({
       discardAsPlayer(playerId, tile, state);
     },
     drawTile: (state, action: PayloadAction<{ playerId: number }>) => {
-        const { playerId } = action.payload;
-        const player = getPlayer(playerId, state);  
-        drawTileAsPlayer(player, state);
-      },
+      const { playerId } = action.payload;
+      const player = getPlayer(playerId, state);
+      drawTileAsPlayer(player, state);
+    },
     moveTile: (state, action: PayloadAction<MoveTilePayload>) => {
       const { tile, row, col } = action.payload;
       playTileAsPlayer(tile as RotatableInstance, row, col, state);
     },
     addDamage: (state, action: PayloadAction<BoardPayload>) => {
       const { row, col } = action.payload;
-      
+
       // Place the tile on the board
       const targetCell = state.board[row][col];
       if (targetCell && targetCell.tiles && targetCell.tiles.length) {
@@ -65,22 +65,28 @@ const gameSlice = createSlice({
     },
     rotateTile: (state, action: PayloadAction<{ tileId: string }>) => {
       const { tileId } = action.payload;
-        for (let row = 0; row < state.board.length; row++) {
-            for (let col = 0; col < state.board[row].length; col++) {
-            const cell = state.board[row][col];
-            if (!cell || !cell.tiles) { continue; }
-            const tile = cell.tiles.find((tile: GameObjectInstance) => tile.id === tileId);
-            if (tile) {
-                const rotatable = tile as RotatableInstance;
-                const newRotation = (rotatable.rotation + 1) % 4;
-                rotatable.rotation = newRotation < 0 ? 3 : newRotation;
-            }
+      for (let row = 0; row < state.board.length; row++) {
+        for (let col = 0; col < state.board[row].length; col++) {
+          const cell = state.board[row][col];
+          if (!cell || !cell.tiles) { continue; }
+          const tile = cell.tiles.find((tile: GameObjectInstance) => tile.id === tileId);
+          if (tile) {
+            const rotatable = tile as RotatableInstance;
+            const newRotation = (rotatable.rotation + 1) % 4;
+            rotatable.rotation = newRotation < 0 ? 3 : newRotation;
+          }
         }
 
       }
     },
     resolveBattle: (state, action: AnyAction) => {
       battle(state);
+    },
+    startAutoPlay: (state, action: AnyAction) => {
+      state.isAutoPlaying = true;
+    },
+    reset: (state, action: AnyAction) => {
+      return createInitialState();
     },
     autoPlay: (state, action: AnyAction) => {
       // Make the AI play for each player
@@ -99,5 +105,5 @@ const gameSlice = createSlice({
   },
 });
 
-export const { autoPlay, resolveBattle, aiTurn, addDamage, drawTile, moveToDiscard, moveToDraw, moveToHand, moveTile, rotateTile } = gameSlice.actions;
+export const { reset, startAutoPlay, autoPlay, resolveBattle, aiTurn, addDamage, drawTile, moveToDiscard, moveToDraw, moveToHand, moveTile, rotateTile } = gameSlice.actions;
 export default gameSlice.reducer;

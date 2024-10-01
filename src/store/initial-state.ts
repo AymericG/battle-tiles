@@ -5,12 +5,13 @@ import { Cell } from '../models/Cell';
 import { createTauArmy } from './tau/create-army';
 import { createOrkArmy } from './ork/create-army';
 import { createSpaceWolvesArmy } from './spacewolves/create-army';
+import { shuffle } from './army-utils';
 
 const tauArmy = createTauArmy(1);
 const orkArmy = createOrkArmy(2);
 const spaceWolvesArmy = createSpaceWolvesArmy(2);
 
-const armies = [tauArmy, spaceWolvesArmy];
+const armies = [tauArmy, orkArmy];
 
 export interface Wall {
   x: number;
@@ -71,16 +72,20 @@ function createPlayer(id: number, army: any) {
     name: army.faction + ' player',
     faction: army.faction,
     hand: [],
-    drawPile: army.deck,
+    drawPile: shuffle([...army.deck]),
     discardPile: [],
     lost: false,
   };
 }
 
-export const initialState: GameState = {
-  board,
-  players: [
-    createPlayer(1, armies[0]),
-    createPlayer(2, armies[1]),
-  ]
-};
+export function createInitialState() {
+  return {
+    isAutoPlaying: false,
+    board,
+    players: [
+      createPlayer(1, armies[0]),
+      createPlayer(2, armies[1]),
+    ]
+  };
+}
+

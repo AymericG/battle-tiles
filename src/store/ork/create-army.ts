@@ -1,11 +1,11 @@
 import { Faction } from "../../models/Faction";
-import { instanciateGameObjects, instanciateRotatableObject, instanciateRotatableObjects, shuffle } from "../army-utils";
+import { instanciateGameObjects, instanciateRotatableObject, instanciateRotatableObjects } from "../army-utils";
 import { Ork } from "./game-object-ids";
 
 export const createOrkArmy = (playerId: number) => ({
     faction: Faction.Orks,
     base: instanciateRotatableObject(Ork.Leader, playerId),
-    deck: shuffle([
+    deck: [
         ...instanciateRotatableObjects(Ork.Boy, playerId, 4),
         ...instanciateRotatableObjects(Ork.Loota, playerId, 4),
         ...instanciateRotatableObjects(Ork.Grot, playerId, 4),
@@ -20,5 +20,5 @@ export const createOrkArmy = (playerId: number) => ({
         // createAction('Mob Rule', playerId, Faction.Orks, 'special', 'Select one unit. It can attack twice this turn if it is adjacent to at least two other friendly units.'),
         // createModule('Scrap Heap', playerId, Faction.Orks, 'Destroy one of your units to draw two additional tiles this turn.'),
         // createModule('Mekboy Workshop', playerId, Faction.Orks, 'Adjacent friendly units heal 1 health at the end of each turn.'),
-    ])
+    ]
 });

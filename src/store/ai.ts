@@ -13,6 +13,7 @@ import { Module } from "../models/Module";
 import { Action } from "../models/Action";
 import { log, setLoggingContext } from "../utils/log";
 import { findAllAdjacentCells, findAllEmptyCells, findAllEnemyTiles, findAllFriendlyTiles, findAllTiles, findCellsInDirection, findEnemiesInDirection } from "./board-manipulation";
+import { recordGame } from "./game-stats";
 
 export function playAs(player: Player | undefined, state: Draft<GameState>) {
     if (!player) { return; }
@@ -66,16 +67,7 @@ export function playAs(player: Player | undefined, state: Draft<GameState>) {
 
         // If game over
         if (state.players.some(x => x.lost)) {
-            
-            // Store the game stats in the local storage (which faction won which faction)
-            const gameHistory = JSON.parse(localStorage.getItem('gameHistory') || '[]');
-            const players = state.players.map(p => ({ faction: p.faction, lost: p.lost }));
-            gameHistory.push({
-            players,
-            timestamp: new Date().getTime()
-            });
-            localStorage.setItem('gameHistory', JSON.stringify(gameHistory));
-
+            recordGame(state);
         }
 
     }

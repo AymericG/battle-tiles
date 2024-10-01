@@ -22,10 +22,11 @@
 - [ ] Implement paralyze attack
 - [x] Trigger end game
 - [x] Automatically trigger Battle when board is full
-- [ ] Store stats in local storage
+- [x] Store stats in local storage
 - [ ] Allow to select a faction at the start
 - [ ] FIX: Walls should not close off a leader from the rest of the map
 - [x] Allow AI to play modules
+- [x] Store game history
 - [ ] Allow AI to use keywords
 - [ ] Tweak Ork army
 - [ ] Tweak Tau army

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../store/store';
-import { addDamage, autoPlay, moveTile, resolveBattle } from '../store/game-slice';
+import { addDamage, moveTile, resolveBattle, startAutoPlay } from '../store/game-slice';
 import { BoardCell } from "./BoardCell";
 import './GameBoard.css';
 
@@ -53,7 +53,7 @@ export function GameBoard() {
                     onDragStart={handleDragStart}
                 >✹</div>
                 <button onClick={() => {
-                    dispatch(autoPlay());
+                    dispatch(startAutoPlay());
                 }}>Auto play</button>
             </footer>
         </div>

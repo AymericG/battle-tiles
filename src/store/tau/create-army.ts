@@ -1,12 +1,12 @@
 import { Faction } from "../../models/Faction";
-import { instanciateGameObjects, instanciateRotatableObject, instanciateRotatableObjects, shuffle } from "../army-utils";
+import { instanciateGameObjects, instanciateRotatableObject, instanciateRotatableObjects } from "../army-utils";
 import { Tau } from "./game-object-ids";
 
 
 export const createTauArmy = (playerId: number) => ({
     faction: Faction.Tau,
     base: instanciateRotatableObject(Tau.Leader, playerId),
-    deck: shuffle([
+    deck: [
         ...instanciateRotatableObjects(Tau.FireWarrior, playerId, 4),
         ...instanciateRotatableObjects(Tau.CrisisBattlesuit, playerId, 1),
         ...instanciateRotatableObjects(Tau.StealthSuit, playerId, 1),
@@ -22,5 +22,5 @@ export const createTauArmy = (playerId: number) => ({
         // createModule('Markerlight', playerId, Faction.Tau, 'Adjacent friendly units gain +1 ranged attack.'),
         // createModule('Markerlight', playerId, Faction.Tau, 'Adjacent friendly units gain +1 ranged attack.'),
         // createModule('Markerlight', playerId, Faction.Tau, 'Adjacent friendly units gain +1 ranged attack.'),
-    ])
+    ]
 });
