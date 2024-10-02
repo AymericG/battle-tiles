@@ -4,5 +4,5 @@ import { Player } from './Player';
 export interface GameState {
   board: Cell[][];
   players: Player[];
-  currentPlayerIndex: number;
+  isAutoPlaying: boolean;
 }

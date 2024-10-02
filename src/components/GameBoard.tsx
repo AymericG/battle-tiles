@@ -1,8 +1,7 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../store/store';
-import { addDamage, moveTile, resolveBattle } from '../store/gameSlice';
-import { GameObject } from "../models/GameObject";
+import { addDamage, moveTile, resolveBattle, startAutoPlay } from '../store/game-slice';
 import { BoardCell } from "./BoardCell";
 import './GameBoard.css';
 
@@ -21,7 +20,7 @@ export function GameBoard() {
         if (draggedItem.type === 'damage') {
             dispatch(addDamage({ row, col }));
         } else {
-            dispatch(moveTile({ tile: draggedItem as GameObject, row, col }));
+            dispatch(moveTile({ tile: draggedItem as any, row, col }));
         }
     };
 
@@ -30,7 +29,9 @@ export function GameBoard() {
     };
 
     return (
-        <div className="game-board-container">
+        <div className="game-board-container" style={{
+            '--board-size': gameState.board.length
+        } as any}>
             <h2 className="board-title">Battle Tiles: <span className='dim'>Grimdark</span></h2>
             <div className="perspective">
                 <div className="grid">
@@ -51,6 +52,9 @@ export function GameBoard() {
                     draggable 
                     onDragStart={handleDragStart}
                 >✹</div>
+                <button onClick={() => {
+                    dispatch(startAutoPlay());
+                }}>Auto play</button>
             </footer>
         </div>
     );

@@ -1,0 +1,109 @@
+import { AnyAction, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createInitialState } from './initial-state';
+import { GameObjectInstance } from '../models/GameObject';
+import { RotatableInstance } from '../models/Rotatable';
+import { playAs } from './ai';
+import { battle, discardAsPlayer, drawTileAsPlayer, getPlayer, moveTileToHand, playTileAsPlayer, removeTileFromOriginContainer } from './game-state-utils';
+
+interface BoardPayload {
+  row: number;
+  col: number;
+}
+
+interface MoveTilePayload extends BoardPayload {
+  tile: GameObjectInstance;
+}
+
+
+const gameSlice = createSlice({
+  name: 'game',
+  initialState: createInitialState(),
+  reducers: {
+    aiTurn: (state, action: PayloadAction<{ playerId: number }>) => {
+      const { playerId } = action.payload;
+      const player = getPlayer(playerId, state);
+      playAs(player, state);
+    },
+    moveToHand: (state, action: PayloadAction<{ playerId: number; tile: GameObjectInstance }>) => {
+      const { tile, playerId } = action.payload;
+      moveTileToHand(tile, playerId, state);
+    },
+
+    moveToDraw: (state, action: PayloadAction<{ playerId: number; tile: GameObjectInstance }>) => {
+      const { playerId, tile } = action.payload;
+
+      removeTileFromOriginContainer(state, tile);
+      const player = state.players.find(x => x.id === playerId);
+      if (!player) {
+        console.error(`Player ${playerId} not found`);
+        return;
+      }
+      tile.playerId = playerId;
+      player.drawPile.push(tile);
+    },
+    moveToDiscard: (state, action: PayloadAction<{ playerId: number; tile: GameObjectInstance }>) => {
+      const { playerId, tile } = action.payload;
+      discardAsPlayer(playerId, tile, state);
+    },
+    drawTile: (state, action: PayloadAction<{ playerId: number }>) => {
+      const { playerId } = action.payload;
+      const player = getPlayer(playerId, state);
+      drawTileAsPlayer(player, state);
+    },
+    moveTile: (state, action: PayloadAction<MoveTilePayload>) => {
+      const { tile, row, col } = action.payload;
+      playTileAsPlayer(tile as RotatableInstance, row, col, state);
+    },
+    addDamage: (state, action: PayloadAction<BoardPayload>) => {
+      const { row, col } = action.payload;
+
+      // Place the tile on the board
+      const targetCell = state.board[row][col];
+      if (targetCell && targetCell.tiles && targetCell.tiles.length) {
+        (targetCell.tiles[targetCell.tiles.length - 1] as RotatableInstance).health--;
+      }
+    },
+    rotateTile: (state, action: PayloadAction<{ tileId: string }>) => {
+      const { tileId } = action.payload;
+      for (let row = 0; row < state.board.length; row++) {
+        for (let col = 0; col < state.board[row].length; col++) {
+          const cell = state.board[row][col];
+          if (!cell || !cell.tiles) { continue; }
+          const tile = cell.tiles.find((tile: GameObjectInstance) => tile.id === tileId);
+          if (tile) {
+            const rotatable = tile as RotatableInstance;
+            const newRotation = (rotatable.rotation + 1) % 4;
+            rotatable.rotation = newRotation < 0 ? 3 : newRotation;
+          }
+        }
+
+      }
+    },
+    resolveBattle: (state, action: AnyAction) => {
+      battle(state);
+    },
+    startAutoPlay: (state, action: AnyAction) => {
+      state.isAutoPlaying = true;
+    },
+    reset: (state, action: AnyAction) => {
+      return createInitialState();
+    },
+    autoPlay: (state, action: AnyAction) => {
+      // Make the AI play for each player
+      // until the game is over
+      let gameOver = false;
+      while (!gameOver) {
+        for (const player of state.players) {
+          playAs(player, state);
+          gameOver = state.players.some(p => p.lost);
+          if (gameOver) {
+            break;
+          }
+        }
+      }
+    }
+  },
+});
+
+export const { reset, startAutoPlay, autoPlay, resolveBattle, aiTurn, addDamage, drawTile, moveToDiscard, moveToDraw, moveToHand, moveTile, rotateTile } = gameSlice.actions;
+export default gameSlice.reducer;

@@ -2,7 +2,7 @@ import React from 'react';
 import { useDispatch } from 'react-redux';
 import { Cell } from '../models/Cell';
 import { TileStack } from './TileStack';
-import { rotateTile } from '../store/gameSlice';
+import { rotateTile } from '../store/game-slice';
 import './BoardCell.css';
 import { WallDirection } from '../store/types';
 

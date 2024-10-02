@@ -1,8 +1,8 @@
-import { GameObject } from './GameObject';
+import { RotatableInstance } from './Rotatable';
 
 export interface Cell {
   x: number;
   y: number;
-  tiles: GameObject[];
+  tiles: RotatableInstance[];
   walls: ('horizontal' | 'vertical')[];
 }

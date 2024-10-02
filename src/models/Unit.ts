@@ -1,7 +1,9 @@
 import { Rotatable } from './Rotatable';
 
-export type AttackType = 'melee' | 'range';
-
+export enum AttackType {
+  Melee = 'melee',
+  Range = 'range',
+}
 export interface EdgeAttack {
   value: number;
   type: AttackType;

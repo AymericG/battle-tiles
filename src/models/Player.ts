@@ -1,11 +1,12 @@
 import { Faction } from './Faction';
-import { GameObject } from './GameObject';
+import { GameObjectInstance } from './GameObject';
 
 export interface Player {
   id: number;
   name: string;
   faction: Faction;
-  hand: GameObject[];
-  drawPile: GameObject[];
-  discardPile: GameObject[];
+  hand: GameObjectInstance[];
+  drawPile: GameObjectInstance[];
+  discardPile: GameObjectInstance[];
+  lost: boolean;
 }

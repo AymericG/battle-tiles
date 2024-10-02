@@ -11,10 +11,23 @@
 - [x] Allow to play against AI
 - [x] Deploy
 - [x] Make touch friendly
+- [x] Normalize state
+- [x] Fix AI after refactoring
+- [x] Add walls on the map
+- [x] AI should take walls in account
+- [x] Allow AI to play Battle tiles
+- [x] Allow AI to play Move tiles
+- [x] Allow AI to play Push tiles
 
+- [ ] Implement paralyze attack
+- [x] Trigger end game
+- [x] Automatically trigger Battle when board is full
+- [x] Store stats in local storage
+- [ ] Allow to select a faction at the start
+- [ ] FIX: Walls should not close off a leader from the rest of the map
+- [x] Allow AI to play modules
+- [x] Store game history
+- [ ] Allow AI to use keywords
 - [ ] Tweak Ork army
 - [ ] Tweak Tau army
-- [ ] Allow AI to play module and action tiles
-- [ ] Allow AI to play against AI
-- [ ] Add walls on the map
-- [ ] AI should take walls in account
+- [x] Allow AI to play against AI
